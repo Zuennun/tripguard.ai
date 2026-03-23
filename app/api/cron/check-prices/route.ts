@@ -55,6 +55,9 @@ export async function GET(req: NextRequest) {
         checkinDate: booking.checkin_date,
         checkoutDate: booking.checkout_date,
         currency: booking.currency,
+        rooms: booking.rooms,
+        adults: booking.adults,
+        bookingComUrl: booking.booking_com_url,
       });
 
       // Only alert if a cheaper price was found

@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { customerConfirmationEmail, founderNotificationEmail } from "@/lib/emails";
+import { discoverHotelUrl } from "@/lib/scrapers/discover";
 
 let resend: Resend;
 function getResend() {
@@ -142,6 +143,20 @@ export async function POST(req: NextRequest) {
     // Whitelist meal plan
     const safeMealPlan = ALLOWED_MEAL_PLANS.includes(mealPlan) ? mealPlan : null;
 
+    // Discovery: Hotel-URL auf Booking.com finden (im Hintergrund, blockiert nicht)
+    let bookingComUrl: string | null = null;
+    if (checkin && checkout) {
+      bookingComUrl = await discoverHotelUrl({
+        hotelName: hotelName.trim(),
+        city: city?.trim() || null,
+        country: country?.trim() || null,
+        checkinDate: checkin,
+        checkoutDate: checkout,
+        rooms: parsedRooms,
+        adults: parsedAdults,
+      }).catch(() => null);
+    }
+
     const { error } = await getSupabase().from("bookings").insert([
       {
         hotel_name: hotelName.trim(),
@@ -158,6 +173,7 @@ export async function POST(req: NextRequest) {
         currency: safeCurrency,
         email: email.toLowerCase().trim(),
         status: "active",
+        booking_com_url: bookingComUrl,
       },
     ]);
 
