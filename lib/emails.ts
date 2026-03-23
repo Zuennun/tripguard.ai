@@ -294,3 +294,83 @@ export function founderNotificationEmail(data: {
     </tr>
   `);
 }
+
+// ─── Price alert email ────────────────────────────────────────────────────────
+
+export function priceAlertEmail(data: {
+  hotelName: string;
+  city?: string | null;
+  country?: string | null;
+  checkin?: string | null;
+  checkout?: string | null;
+  originalPrice: number;
+  newPrice: number;
+  currency: string;
+  source: string;
+  bookingUrl: string;
+}): string {
+  const { hotelName, city, country, checkin, checkout, originalPrice, newPrice, currency, source, bookingUrl } = data;
+  const location = [city, country].filter(Boolean).join(", ");
+  const savings = (originalPrice - newPrice).toFixed(2);
+  const pct = Math.round(((originalPrice - newPrice) / originalPrice) * 100);
+
+  return wrap(`
+    <!-- HERO -->
+    <tr>
+      <td class="card" style="padding:32px 32px 24px;text-align:center">
+        <div style="width:72px;height:72px;background:#ecfdf5;border-radius:50%;
+                    margin:0 auto 20px;line-height:72px;font-size:36px">💰</div>
+        <h1 style="margin:0 0 10px;color:#0f2044;font-size:24px;font-weight:800;
+                   font-family:Arial,sans-serif;line-height:1.2">
+          Cheaper price found!
+        </h1>
+        <p style="margin:0;color:#5a6478;font-size:15px;line-height:1.6;
+                  font-family:Arial,sans-serif">
+          We found a lower price for your booking at<br>
+          <strong style="color:#0f2044">${hotelName}</strong>.
+          You can save <strong style="color:#059669">€${savings}</strong> right now.
+        </p>
+      </td>
+    </tr>
+
+    <!-- PRICE COMPARISON -->
+    <tr>
+      <td class="email-body" style="padding:0 32px 24px">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+               style="background:#f8f9fb;border-radius:10px">
+          <tr><td class="card" style="padding:20px 24px">
+            <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#9ba5b4;
+                      text-transform:uppercase;letter-spacing:1px;
+                      font-family:Arial,sans-serif">Price Comparison</p>
+            <p style="margin:0 0 16px;font-size:18px;font-weight:800;color:#0f2044;
+                      font-family:Arial,sans-serif">${hotelName}</p>
+            ${location ? `<p style="margin:0 0 14px;color:#8892a4;font-size:13px;font-family:Arial,sans-serif">📍 ${location}</p>` : ""}
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+              ${row("Check-in", checkin || "—")}
+              ${row("Check-out", checkout || "—")}
+              ${row("Your price", `<span style="text-decoration:line-through;color:#9ba5b4">${originalPrice} ${currency}</span>`)}
+              ${row("New price on " + source, `<span style="color:#059669;font-size:15px;font-weight:700">${newPrice} ${currency}</span>`)}
+              ${row("You save", `<span style="color:#f97316;font-size:15px;font-weight:700">${savings} ${currency} (${pct}%)</span>`)}
+            </table>
+          </td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <!-- CTA -->
+    <tr>
+      <td class="email-body" style="padding:0 32px 32px;text-align:center">
+        <a href="${bookingUrl}"
+           style="display:inline-block;background:#f97316;color:#ffffff;
+                  text-decoration:none;padding:14px 32px;border-radius:12px;
+                  font-family:Arial,sans-serif;font-size:16px;font-weight:700;
+                  box-shadow:0 4px 16px rgba(249,115,22,0.35)">
+          Book Now at ${newPrice} ${currency} →
+        </a>
+        <p style="margin:16px 0 0;color:#9ba5b4;font-size:12px;font-family:Arial,sans-serif">
+          Cancel your current booking first — make sure it's free cancellation.
+        </p>
+      </td>
+    </tr>
+  `);
+}
