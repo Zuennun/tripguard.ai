@@ -11,10 +11,12 @@ function getResend() {
   return resend;
 }
 
-const supabase = createClient(
-  process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+function getSupabase() {
+  return createClient(
+    process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
 // Proper email regex
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
@@ -132,7 +134,7 @@ export async function POST(req: NextRequest) {
     // Whitelist meal plan
     const safeMealPlan = ALLOWED_MEAL_PLANS.includes(mealPlan) ? mealPlan : null;
 
-    const { error } = await supabase.from("bookings").insert([
+    const { error } = await getSupabase().from("bookings").insert([
       {
         hotel_name: hotelName.trim(),
         city: city?.trim() || null,
