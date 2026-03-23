@@ -30,8 +30,12 @@ export async function GET(req: NextRequest) {
       try { parsed = JSON.parse(text); } catch {}
 
       // Nach hotel/ Links suchen
-      const hotelLinks = [...text.matchAll(/booking\.com\/hotel\/[a-z]{2}\/[^"'&\s]+\.html/g)]
-        .map(m => "https://www." + m[0]).slice(0, 3);
+      const hotelLinks: string[] = [];
+      const regex = /booking\.com\/hotel\/[a-z]{2}\/[^"'&\s]+\.html/g;
+      let m;
+      while ((m = regex.exec(text)) !== null && hotelLinks.length < 3) {
+        hotelLinks.push("https://www." + m[0]);
+      }
 
       results.push({ url, status: res.status, hotelLinks, parsed, raw: text.slice(0, 500) });
     } catch (err: any) {
