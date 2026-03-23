@@ -1,3 +1,5 @@
+import { scrapeBookingCom } from "./scrapers/booking";
+
 export interface PriceResult {
   found: boolean;
   price: number | null;
@@ -9,12 +11,10 @@ export interface PriceResult {
 /**
  * Checks the current price for a hotel booking.
  *
- * TODO: Replace this placeholder with real API calls, e.g.:
- *   - Booking.com API via RapidAPI
- *   - Hotels.com API via RapidAPI
- *   - Expedia API
+ * Toggle scraping:  SCRAPING_ENABLED=true  in Vercel env vars
+ * Toggle API:       SCRAPING_ENABLED=false  → Placeholder (kein Geld ausgeben)
  *
- * The function should return the lowest price found across all platforms.
+ * Später: weitere Scraper / APIs hier eintragen (Hotels.com, Expedia …)
  */
 export async function checkCurrentPrice(params: {
   hotelName: string;
@@ -24,16 +24,40 @@ export async function checkCurrentPrice(params: {
   checkinDate: string;
   checkoutDate: string;
   currency: string;
+  rooms?: number;
+  adults?: number;
 }): Promise<PriceResult> {
-  // ─── PLACEHOLDER ────────────────────────────────────────────────
-  // Real implementation will call Booking.com / Hotels.com APIs here.
-  // For now, return "not found" so no false alerts are sent.
-  // ────────────────────────────────────────────────────────────────
-  return {
-    found: false,
-    price: null,
+  const scrapingEnabled = process.env.SCRAPING_ENABLED === "true";
+
+  if (!scrapingEnabled) {
+    // Scraping aus — kein Alert wird gesendet
+    return { found: false, price: null, currency: params.currency, source: "", bookingUrl: "" };
+  }
+
+  // ─── Booking.com scrapen ──────────────────────────────────────────
+  const bookingResult = await scrapeBookingCom({
+    hotelName: params.hotelName,
+    city: params.city,
+    checkinDate: params.checkinDate,
+    checkoutDate: params.checkoutDate,
+    rooms: params.rooms ?? 1,
+    adults: params.adults ?? 2,
     currency: params.currency,
-    source: "",
-    bookingUrl: "",
-  };
+  });
+
+  if (bookingResult.found && bookingResult.price !== null) {
+    return {
+      found: true,
+      price: bookingResult.price,
+      currency: bookingResult.currency,
+      source: "Booking.com",
+      bookingUrl: bookingResult.bookingUrl,
+    };
+  }
+
+  // ─── Hier weitere Scraper/APIs ergänzen ──────────────────────────
+  // const hotelsResult = await scrapeHotelsCom({ ... });
+  // const expediaResult = await scrapeExpedia({ ... });
+
+  return { found: false, price: null, currency: params.currency, source: "", bookingUrl: "" };
 }
