@@ -56,11 +56,19 @@ export async function OPTIONS() {
   });
 }
 
+function isAllowedOrigin(origin: string): boolean {
+  if (!origin) return true;
+  if (origin.startsWith("http://localhost")) return true;
+  if (origin.endsWith(".vercel.app")) return true;
+  const allowed = process.env.ALLOWED_ORIGIN;
+  if (allowed && origin === allowed) return true;
+  return false;
+}
+
 export async function POST(req: NextRequest) {
   // CORS check
   const origin = req.headers.get("origin") || "";
-  const allowed = process.env.ALLOWED_ORIGIN || "http://localhost:3000";
-  if (origin && origin !== allowed && !origin.startsWith("http://localhost")) {
+  if (!isAllowedOrigin(origin)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
