@@ -3,7 +3,11 @@ import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { customerConfirmationEmail, founderNotificationEmail } from "@/lib/emails";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend: Resend;
+function getResend() {
+  if (!resend) resend = new Resend(process.env.RESEND_API_KEY);
+  return resend;
+}
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -159,7 +163,7 @@ export async function POST(req: NextRequest) {
     };
 
     // User confirmation
-    await resend.emails.send({
+    await getResend().emails.send({
       from,
       to: email.toLowerCase().trim(),
       subject: "✅ We're watching your hotel price — TripGuard",
@@ -167,7 +171,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Notify founder
-    const r2 = await resend.emails.send({
+    const r2 = await getResend().emails.send({
       from,
       to: notifyEmail,
       subject: `🆕 New booking: ${hotelName}`,
