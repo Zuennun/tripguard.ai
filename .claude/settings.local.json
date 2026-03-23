@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\B71828\\\\Downloads\\\\start-tripguard.ps1\")",
+      "Bash(\"C:/Users/B71828/node/node-v22.14.0-win-x64/node.exe\" -e \"console.log\\(require\\(''./node_modules/@supabase/supabase-js/package.json''\\).version\\)\")",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(xargs grep:*)"
+    ]
+  }
+}
