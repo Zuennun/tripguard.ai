@@ -1,8 +1,6 @@
-import * as cheerio from "cheerio";
-
 /**
- * Findet die Booking.com Property-URL via DuckDuckGo-Suche.
- * DuckDuckGo hat eine einfache HTML-Version — kein JS-Problem.
+ * Findet die Booking.com Property-URL über das interne Autocomplete-JSON-Endpoint.
+ * Kein JS-Rendering nötig — gibt direkt strukturierte Daten zurück.
  */
 export async function discoverHotelUrl(params: {
   hotelName: string;
@@ -15,51 +13,55 @@ export async function discoverHotelUrl(params: {
 }): Promise<string | null> {
   const { hotelName, city, country } = params;
 
-  const searchTerm = `site:booking.com ${[hotelName, city, country].filter(Boolean).join(" ")}`;
-  const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchTerm)}`;
+  const query = [hotelName, city, country].filter(Boolean).join(" ");
+
+  const url = `https://accommodations.booking.com/autocomplete.json` +
+    `?query=${encodeURIComponent(query)}&language=en-gb`;
 
   try {
-    const res = await fetch(searchUrl, {
+    const res = await fetch(url, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-GB,en;q=0.5",
+        "Accept": "application/json",
+        "Referer": "https://www.booking.com/",
       },
-      signal: AbortSignal.timeout(12000),
+      signal: AbortSignal.timeout(10000),
     });
 
     if (!res.ok) return null;
-    const html = await res.text();
-    const $ = cheerio.load(html);
+    const data = await res.json();
 
-    // DuckDuckGo HTML-Links durchsuchen
-    let foundUrl: string | null = null;
+    // Erstes Hotel-Ergebnis finden
+    const results: any[] = Array.isArray(data) ? data : (data?.results ?? []);
 
-    $("a[href]").each((_, el) => {
-      if (foundUrl) return;
-      const href = $(el).attr("href") || "";
+    for (const item of results) {
+      // Nur Hotel-Typen (kein Stadtnamen, keine Regionen)
+      const type = item?.type ?? item?.result_type ?? "";
+      if (type && !["hotel", "property", "accommodation"].some(t => type.toLowerCase().includes(t))) {
+        continue;
+      }
 
-      // Direkter booking.com Hotel-Link
-      if (href.includes("booking.com/hotel/")) {
+      // URL aus verschiedenen Feldern extrahieren
+      const urlSlug =
+        item?.url ?? item?.slug ?? item?.hotel_url ?? item?.deep_link ?? null;
+
+      if (urlSlug) {
+        const full = urlSlug.startsWith("http")
+          ? urlSlug
+          : `https://www.booking.com${urlSlug.startsWith("/") ? "" : "/hotel/"}${urlSlug}`;
+        // Nur den Pfad ohne Query-Parameter zurückgeben
         try {
-          // DuckDuckGo wrappet Links manchmal in Redirects
-          const url = href.startsWith("http") ? new URL(href) : null;
-          if (url && url.hostname.includes("booking.com")) {
-            foundUrl = `${url.origin}${url.pathname}`;
-            return;
-          }
-          // Manchmal ist die URL im href direkt
-          const match = href.match(/https?:\/\/[a-z.]*booking\.com\/hotel\/[^&?#"]+/);
-          if (match) foundUrl = match[0];
+          const parsed = new URL(full);
+          return `${parsed.origin}${parsed.pathname}`;
         } catch {
-          const match = href.match(/https?:\/\/[a-z.]*booking\.com\/hotel\/[^&?#"]+/);
-          if (match) foundUrl = match[0];
+          return full.split("?")[0];
         }
       }
-    });
+    }
 
-    return foundUrl;
-  } catch {
+    return null;
+  } catch (err: any) {
+    console.error("Discovery error:", err.message);
     return null;
   }
 }
