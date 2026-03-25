@@ -6,7 +6,7 @@ export default function Navbar({ t }: { t: Translations }) {
   const [open, setOpen] = useState(false);
 
   const links = [
-    [t.nav.home, "#"],
+    [t.nav.home, "/"],
     [t.nav.howItWorks, "#how-it-works"],
     [t.nav.trackHotel, "#track-hotels"],
     [t.nav.faq, "#faq"],
@@ -24,13 +24,13 @@ export default function Navbar({ t }: { t: Translations }) {
         padding: "0 3%",
         justifyContent: "space-between",
       }}>
-        {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        {/* Logo — clickable, centered on mobile via CSS */}
+        <a href="/" className="nav-logo-wrap" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
           <img src="/tripguard1.png" alt={t.brand} className="nav-logo" style={{ display: "block", height: 90, width: "auto", marginTop: -12 }} />
           <span className="nav-brand-text" style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.4rem", marginLeft: -20 }}>
-            <span style={{ color: "#f97316" }}>{t.brandPart1}</span><span style={{ color: "#0f2044" }}>{t.brandPart2}</span>{t.brandPart3 && <span style={{ color: "#f97316" }}>{t.brandPart3}</span>}<span style={{ color: "#f97316" }}>.</span>
+            <span style={{ color: "#f97316" }}>{t.brandPart1}</span><span style={{ color: "#0f2044" }}>{t.brandPart2}</span>{t.brandPart3 && <span style={{ color: "#f97316" }}>{t.brandPart3}</span>}<span style={{ color: "#0f2044" }}>.</span>
           </span>
-        </div>
+        </a>
 
         {/* Desktop center links */}
         <ul style={{ display: "flex", gap: "2rem", listStyle: "none", alignItems: "center" }} className="nav-desktop-links">
@@ -93,7 +93,12 @@ export default function Navbar({ t }: { t: Translations }) {
 
       <style>{`
         @media (min-width: 768px) { .nav-hamburger { display: none !important; } }
-        @media (max-width: 767px) { .nav-desktop-links { display: none !important; } .nav-logo { height: 56px !important; margin-top: -6px !important; } .nav-brand-text { font-size: 1.05rem !important; margin-left: -14px !important; } }
+        @media (max-width: 767px) {
+          .nav-desktop-links { display: none !important; }
+          .nav-logo { height: 50px !important; margin-top: -4px !important; }
+          .nav-brand-text { font-size: 0.95rem !important; margin-left: -12px !important; }
+          .nav-logo-wrap { position: absolute; left: 50%; transform: translateX(-50%); }
+        }
       `}</style>
     </>
   );

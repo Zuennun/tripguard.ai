@@ -34,15 +34,15 @@ function StatItem({ end, decimals, prefix, suffix, display, label, orange, durat
 
   return (
     <div style={{ display: "flex", alignItems: "stretch" }}>
-      <div style={{ flex: 1, textAlign: "center", padding: "1rem 1.5rem" }}>
-        <div style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "clamp(2rem, 3.5vw, 2.8rem)", color: orange ? "#f97316" : "#ffffff", letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: "0.5rem" }}>
+      <div style={{ flex: 1, textAlign: "center", padding: "1rem 1.5rem", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "clamp(1.6rem, 3vw, 2.8rem)", color: orange ? "#f97316" : "#ffffff", letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: "0.4rem" }}>
           {displayed}
         </div>
-        <div style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>
+        <div style={{ fontFamily: "var(--font-body)", fontSize: "0.78rem", color: "rgba(255,255,255,0.55)", fontWeight: 500, lineHeight: 1.3 }}>
           {label}
         </div>
       </div>
-      {index !== 3 && <div style={{ width: 1, background: "rgba(255,255,255,0.12)", alignSelf: "stretch", flexShrink: 0 }} />}
+      {index !== 3 && <div className="stat-divider" style={{ width: 1, background: "rgba(255,255,255,0.12)", alignSelf: "stretch", flexShrink: 0 }} />}
     </div>
   );
 }
@@ -67,11 +67,16 @@ export default function Stats({ t }: { t: Translations }) {
   ];
 
   return (
-    <section ref={ref} style={{ background: "#0f2044", padding: "3rem 2rem" }}>
+    <section ref={ref} style={{ background: "#0f2044", padding: "2.5rem 1.5rem" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }} className="stats-grid">
         {stats.map((stat, i) => <StatItem key={i} {...stat} active={active} index={i} />)}
       </div>
-      <style>{`@media(max-width:768px){.stats-grid{grid-template-columns:repeat(2,1fr) !important}}`}</style>
+      <style>{`
+        @media(max-width:768px){
+          .stats-grid { grid-template-columns: repeat(2,1fr) !important; }
+          .stat-divider { display: none !important; }
+        }
+      `}</style>
     </section>
   );
 }
