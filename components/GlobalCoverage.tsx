@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { type Translations } from "@/lib/translations";
 
 interface MarkerCard {
   region: string;
@@ -19,7 +20,7 @@ const markers: MarkerCard[] = [
   { region: "Australia", saved: "saved €121", img: "/australien.svg", top: "56%", left: "82%", anim: "float6" },
 ];
 
-export default function GlobalCoverage() {
+export default function GlobalCoverage({ t }: { t: Translations }) {
   const [hotelName, setHotelName] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
@@ -90,7 +91,7 @@ export default function GlobalCoverage() {
             textTransform: "uppercase", letterSpacing: "0.1em",
             marginBottom: "1rem",
           }}>
-            GLOBAL COVERAGE
+            {t.form.eyebrow}
           </div>
           <h2 style={{
             fontFamily: "var(--font-head)", fontWeight: 900,
@@ -98,8 +99,8 @@ export default function GlobalCoverage() {
             color: "#0f2044", lineHeight: 1.15,
             letterSpacing: "-0.02em",
           }}>
-            Track Hotels Anywhere,<br />
-            <span style={{ color: "#f97316" }}>Anytime.</span>
+            {t.form.headline}<br />
+            <span style={{ color: "#f97316" }}>{t.form.headlineSub}</span>
           </h2>
         </div>
 
@@ -192,7 +193,7 @@ export default function GlobalCoverage() {
                 textTransform: "uppercase",
                 letterSpacing: "0.05em",
               }}>
-                100% Free
+                {t.form.ribbon}
               </div>
             </div>
             <div style={{
@@ -201,20 +202,20 @@ export default function GlobalCoverage() {
               textTransform: "uppercase", letterSpacing: "0.1em",
               marginBottom: "0.75rem",
             }}>
-              START TRACKING
+              {t.form.formEyebrow}
             </div>
             <h3 style={{
               fontFamily: "var(--font-head)", fontWeight: 800,
               fontSize: "1.5rem", color: "#0f2044",
               lineHeight: 1.2, marginBottom: "0.75rem",
             }}>
-              Enter Your Booking,<br /><span style={{ color: "#f97316" }}>We Do The Rest.</span>
+              {t.form.formHeadline}<br /><span style={{ color: "#f97316" }}>{t.form.formHeadlineSub}</span>
             </h3>
             <p style={{
               fontFamily: "var(--font-body)", fontSize: "0.875rem",
               color: "#6b7280", lineHeight: 1.65, marginBottom: "1.75rem",
             }}>
-              Takes 60 seconds. We monitor your hotel price around the clock.
+              {t.form.formSub}
             </p>
 
             {submitted ? (
@@ -224,15 +225,15 @@ export default function GlobalCoverage() {
                 textAlign: "center", color: "#059669",
                 fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.95rem",
               }}>
-                ✓ We&apos;re now tracking your booking! Check your inbox.
+                {t.form.success}
               </div>
             ) : (
               <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
 
                 {/* Hotel Name */}
                 <div>
-                  <label style={labelStyle}>Hotel Name</label>
-                  <input type="text" placeholder="e.g. Marriott Berlin Mitte" value={hotelName}
+                  <label style={labelStyle}>{t.form.hotelName}</label>
+                  <input type="text" placeholder={t.form.hotelPlaceholder} value={hotelName}
                     onChange={e => setHotelName(e.target.value)} style={inputStyle}
                     onFocus={e => (e.currentTarget.style.borderColor = "#f97316")}
                     onBlur={e => (e.currentTarget.style.borderColor = "#e5e7eb")} />
@@ -241,15 +242,15 @@ export default function GlobalCoverage() {
                 {/* City + Country */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.65rem" }}>
                   <div>
-                    <label style={labelStyle}>City</label>
-                    <input type="text" placeholder="e.g. Berlin" value={city}
+                    <label style={labelStyle}>{t.form.city}</label>
+                    <input type="text" placeholder={t.form.cityPlaceholder} value={city}
                       onChange={e => setCity(e.target.value)} style={inputStyle}
                       onFocus={e => (e.currentTarget.style.borderColor = "#f97316")}
                       onBlur={e => (e.currentTarget.style.borderColor = "#e5e7eb")} />
                   </div>
                   <div>
-                    <label style={labelStyle}>Country</label>
-                    <input type="text" placeholder="e.g. Germany" value={country}
+                    <label style={labelStyle}>{t.form.country}</label>
+                    <input type="text" placeholder={t.form.countryPlaceholder} value={country}
                       onChange={e => setCountry(e.target.value)} style={inputStyle}
                       onFocus={e => (e.currentTarget.style.borderColor = "#f97316")}
                       onBlur={e => (e.currentTarget.style.borderColor = "#e5e7eb")} />
@@ -258,8 +259,8 @@ export default function GlobalCoverage() {
 
                 {/* Room Type */}
                 <div>
-                  <label style={labelStyle}>Room Type <span style={{ color: "#9ca3af", fontWeight: 400 }}>(English only)</span></label>
-                  <input type="text" placeholder="e.g. Deluxe Double Room" value={roomType}
+                  <label style={labelStyle}>{t.form.roomType} <span style={{ color: "#9ca3af", fontWeight: 400 }}>{t.form.roomTypeNote}</span></label>
+                  <input type="text" placeholder={t.form.roomTypePlaceholder} value={roomType}
                     onChange={e => setRoomType(e.target.value)} style={inputStyle}
                     onFocus={e => (e.currentTarget.style.borderColor = "#f97316")}
                     onBlur={e => (e.currentTarget.style.borderColor = "#e5e7eb")} />
@@ -268,9 +269,9 @@ export default function GlobalCoverage() {
                 {/* Rooms / Adults / Children */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.65rem" }}>
                   {[
-                    { label: "Rooms", ph: "1", val: rooms, set: setRooms },
-                    { label: "Adults", ph: "2", val: adults, set: setAdults },
-                    { label: "Children", ph: "0", val: children, set: setChildren },
+                    { label: t.form.rooms, ph: "1", val: rooms, set: setRooms },
+                    { label: t.form.adults, ph: "2", val: adults, set: setAdults },
+                    { label: t.form.children, ph: "0", val: children, set: setChildren },
                   ].map(f => (
                     <div key={f.label}>
                       <label style={labelStyle}>{f.label}</label>
@@ -284,31 +285,31 @@ export default function GlobalCoverage() {
 
                 {/* Meal Plan */}
                 <div>
-                  <label style={labelStyle}>Meal Plan</label>
+                  <label style={labelStyle}>{t.form.mealPlan}</label>
                   <select value={mealPlan} onChange={e => setMealPlan(e.target.value)}
                     style={{ ...inputStyle, appearance: "none" as const }}
                     onFocus={e => (e.currentTarget.style.borderColor = "#f97316")}
                     onBlur={e => (e.currentTarget.style.borderColor = "#e5e7eb")}>
-                    <option value="">Select meal plan…</option>
-                    <option value="room_only">Room Only</option>
-                    <option value="breakfast">Breakfast Included</option>
-                    <option value="half_board">Half Board</option>
-                    <option value="full_board">Full Board</option>
-                    <option value="all_inclusive">All Inclusive</option>
+                    <option value="">{t.form.mealPlanPlaceholder}</option>
+                    <option value="room_only">{t.form.mealOptions.roomOnly}</option>
+                    <option value="breakfast">{t.form.mealOptions.breakfast}</option>
+                    <option value="half_board">{t.form.mealOptions.halfBoard}</option>
+                    <option value="full_board">{t.form.mealOptions.fullBoard}</option>
+                    <option value="all_inclusive">{t.form.mealOptions.allInclusive}</option>
                   </select>
                 </div>
 
                 {/* Check-in / Check-out */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.65rem" }}>
                   <div>
-                    <label style={labelStyle}>Check-in</label>
+                    <label style={labelStyle}>{t.form.checkin}</label>
                     <input type="date" value={checkin}
                       onChange={e => setCheckin(e.target.value)} style={inputStyle}
                       onFocus={e => (e.currentTarget.style.borderColor = "#f97316")}
                       onBlur={e => (e.currentTarget.style.borderColor = "#e5e7eb")} />
                   </div>
                   <div>
-                    <label style={labelStyle}>Check-out</label>
+                    <label style={labelStyle}>{t.form.checkout}</label>
                     <input type="date" value={checkout}
                       onChange={e => setCheckout(e.target.value)} style={inputStyle}
                       onFocus={e => (e.currentTarget.style.borderColor = "#f97316")}
@@ -319,14 +320,14 @@ export default function GlobalCoverage() {
                 {/* Price + Currency */}
                 <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "0.65rem" }}>
                   <div>
-                    <label style={labelStyle}>Price You Paid</label>
-                    <input type="number" placeholder="e.g. 289" value={price}
+                    <label style={labelStyle}>{t.form.price}</label>
+                    <input type="number" placeholder={t.form.pricePlaceholder} value={price}
                       onChange={e => setPrice(e.target.value)} style={inputStyle}
                       onFocus={e => (e.currentTarget.style.borderColor = "#f97316")}
                       onBlur={e => (e.currentTarget.style.borderColor = "#e5e7eb")} />
                   </div>
                   <div>
-                    <label style={labelStyle}>Currency</label>
+                    <label style={labelStyle}>{t.form.currency}</label>
                     <select value={currency} onChange={e => setCurrency(e.target.value)}
                       style={{ ...inputStyle, appearance: "none" as const }}
                       onFocus={e => (e.currentTarget.style.borderColor = "#f97316")}
@@ -342,8 +343,8 @@ export default function GlobalCoverage() {
 
                 {/* Email */}
                 <div>
-                  <label style={labelStyle}>Your Email</label>
-                  <input type="email" placeholder="you@email.com" value={email}
+                  <label style={labelStyle}>{t.form.email}</label>
+                  <input type="email" placeholder={t.form.emailPlaceholder} value={email}
                     onChange={e => setEmail(e.target.value)} style={inputStyle}
                     onFocus={e => (e.currentTarget.style.borderColor = "#f97316")}
                     onBlur={e => (e.currentTarget.style.borderColor = "#e5e7eb")} />
@@ -367,7 +368,7 @@ export default function GlobalCoverage() {
                   onMouseEnter={e => { if (!loading) e.currentTarget.style.background = "#ea6c0a"; }}
                   onMouseLeave={e => { if (!loading) e.currentTarget.style.background = "#f97316"; }}
                 >
-                  {loading ? "Saving..." : "Start Tracking — Free →"}
+                  {loading ? t.form.saving : t.form.cta}
                 </button>
 
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem" }}>
@@ -387,7 +388,7 @@ export default function GlobalCoverage() {
                     ))}
                   </div>
                   <span style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "#6b7280" }}>
-                    <strong style={{ color: "#0f2044" }}>1.385+</strong> Bookings Tracked
+                    <strong style={{ color: "#0f2044" }}>1.385+</strong> {t.form.tracked.split("+")[1]?.trim() ?? t.form.tracked}
                   </span>
                 </div>
               </form>

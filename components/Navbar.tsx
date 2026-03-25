@@ -1,16 +1,17 @@
 "use client";
 import { useState } from "react";
+import { type Translations } from "@/lib/translations";
 
-const links = [
-  ["Home", "#"],
-  ["How it works", "#how-it-works"],
-  ["Track Hotel", "#track-hotels"],
-  ["FAQ", "#faq"],
-  ["Contact", "#contact"],
-];
-
-export default function Navbar() {
+export default function Navbar({ t }: { t: Translations }) {
   const [open, setOpen] = useState(false);
+
+  const links = [
+    [t.nav.home, "#"],
+    [t.nav.howItWorks, "#how-it-works"],
+    [t.nav.trackHotel, "#track-hotels"],
+    [t.nav.faq, "#faq"],
+    [t.nav.contact, "#contact"],
+  ];
 
   return (
     <>
@@ -25,31 +26,20 @@ export default function Navbar() {
       }}>
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <img src="/tripguard1.png" alt="TripGuard" style={{ display: "block", height: 90, width: "auto", marginTop: -12 }} />
+          <img src="/tripguard1.png" alt={t.brand} style={{ display: "block", height: 90, width: "auto", marginTop: -12 }} />
           <span style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.4rem", marginLeft: -20 }}>
             <span style={{ color: "#f97316" }}>Trip</span><span style={{ color: "#0f2044" }}>-Guard</span><span style={{ color: "#f97316" }}>.</span>
           </span>
         </div>
 
         {/* Desktop center links */}
-        <ul style={{
-          display: "flex", gap: "2rem", listStyle: "none", alignItems: "center",
-        }} className="nav-desktop-links">
+        <ul style={{ display: "flex", gap: "2rem", listStyle: "none", alignItems: "center" }} className="nav-desktop-links">
           {links.map(([label, href]) => (
             <li key={label}>
-              <a
-                href={href}
-                style={{
-                  color: "#6b7280", textDecoration: "none",
-                  fontSize: "0.9rem", fontWeight: 500,
-                  fontFamily: "var(--font-body)",
-                  transition: "color 0.15s",
-                }}
+              <a href={href} style={{ color: "#6b7280", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500, fontFamily: "var(--font-body)", transition: "color 0.15s" }}
                 onMouseEnter={e => (e.currentTarget.style.color = "#f97316")}
                 onMouseLeave={e => (e.currentTarget.style.color = "#6b7280")}
-              >
-                {label}
-              </a>
+              >{label}</a>
             </li>
           ))}
         </ul>
@@ -57,46 +47,25 @@ export default function Navbar() {
         {/* Desktop CTA */}
         <div className="nav-desktop-links">
           <a href="#track-hotels" style={{
-            background: "#f97316", color: "#ffffff",
-            border: "none", padding: "0.55rem 1.4rem",
-            borderRadius: 10, cursor: "pointer",
-            fontFamily: "var(--font-body)", fontSize: "0.9rem", fontWeight: 700,
-            boxShadow: "0 2px 10px rgba(249,115,22,0.3)",
-            animation: "navPulse 2.5s ease-in-out infinite",
+            background: "#f97316", color: "#ffffff", border: "none", padding: "0.55rem 1.4rem",
+            borderRadius: 10, cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "0.9rem", fontWeight: 700,
+            boxShadow: "0 2px 10px rgba(249,115,22,0.3)", animation: "navPulse 2.5s ease-in-out infinite",
             textDecoration: "none", display: "inline-block",
           }}
             onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = "#ea6c0a"; (e.currentTarget as HTMLAnchorElement).style.animation = "none"; }}
             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = "#f97316"; (e.currentTarget as HTMLAnchorElement).style.animation = "navPulse 2.5s ease-in-out infinite"; }}
           >
-            Start Tracking — Free
+            {t.nav.cta}
           </a>
-          <style>{`
-            @keyframes navPulse {
-              0%, 100% { box-shadow: 0 2px 10px rgba(249,115,22,0.3); transform: scale(1); }
-              50%       { box-shadow: 0 4px 20px rgba(249,115,22,0.55); transform: scale(1.04); }
-            }
-          `}</style>
+          <style>{`@keyframes navPulse { 0%,100%{box-shadow:0 2px 10px rgba(249,115,22,0.3);transform:scale(1)}50%{box-shadow:0 4px 20px rgba(249,115,22,0.55);transform:scale(1.04)} }`}</style>
         </div>
 
         {/* Hamburger */}
-        <button
-          onClick={() => setOpen(!open)}
-          className="nav-hamburger"
-          style={{
-            background: "none", border: "none", cursor: "pointer",
-            display: "flex", flexDirection: "column", gap: 5, padding: 4,
-          }}
-          aria-label="Toggle menu"
-        >
+        <button onClick={() => setOpen(!open)} className="nav-hamburger" style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", gap: 5, padding: 4 }} aria-label="Toggle menu">
           {[0, 1, 2].map(i => (
             <span key={i} style={{
-              width: 24, height: 2.5, background: "#0f2044",
-              borderRadius: 2, display: "block",
-              transition: "all 0.3s",
-              transform:
-                open && i === 0 ? "rotate(45deg) translate(5px,5px)" :
-                open && i === 1 ? "scaleX(0)" :
-                open && i === 2 ? "rotate(-45deg) translate(5px,-5px)" : "none",
+              width: 24, height: 2.5, background: "#0f2044", borderRadius: 2, display: "block", transition: "all 0.3s",
+              transform: open && i === 0 ? "rotate(45deg) translate(5px,5px)" : open && i === 1 ? "scaleX(0)" : open && i === 2 ? "rotate(-45deg) translate(5px,-5px)" : "none",
               opacity: open && i === 1 ? 0 : 1,
             }} />
           ))}
@@ -105,43 +74,20 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       <div style={{
-        position: "fixed", top: 68, left: 0, right: 0, zIndex: 199,
-        background: "#ffffff",
-        borderBottom: "1px solid #e5e7eb",
-        padding: open ? "1.25rem 5%" : "0 5%",
-        maxHeight: open ? 320 : 0,
-        overflow: "hidden",
-        transition: "all 0.35s cubic-bezier(.22,1,.36,1)",
+        position: "fixed", top: 68, left: 0, right: 0, zIndex: 199, background: "#ffffff",
+        borderBottom: "1px solid #e5e7eb", padding: open ? "1.25rem 5%" : "0 5%",
+        maxHeight: open ? 320 : 0, overflow: "hidden", transition: "all 0.35s cubic-bezier(.22,1,.36,1)",
         boxShadow: open ? "0 8px 24px rgba(0,0,0,0.08)" : "none",
       }}>
-        <ul style={{
-          listStyle: "none", display: "flex", flexDirection: "column",
-          gap: "1rem", marginBottom: "1.25rem",
-        }}>
+        <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "1.25rem" }}>
           {links.map(([label, href]) => (
             <li key={label}>
-              <a
-                href={href}
-                onClick={() => setOpen(false)}
-                style={{
-                  color: "#374151", textDecoration: "none",
-                  fontSize: "1rem", fontWeight: 500,
-                  fontFamily: "var(--font-body)",
-                }}
-              >
-                {label}
-              </a>
+              <a href={href} onClick={() => setOpen(false)} style={{ color: "#374151", textDecoration: "none", fontSize: "1rem", fontWeight: 500, fontFamily: "var(--font-body)" }}>{label}</a>
             </li>
           ))}
         </ul>
-        <a href="#track-hotels" onClick={() => setOpen(false)} style={{
-          width: "100%", background: "#f97316", color: "#ffffff",
-          border: "none", padding: "0.75rem",
-          borderRadius: 10, cursor: "pointer",
-          fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.95rem",
-          textDecoration: "none", display: "block", textAlign: "center",
-        }}>
-          Start Tracking
+        <a href="#track-hotels" onClick={() => setOpen(false)} style={{ width: "100%", background: "#f97316", color: "#ffffff", border: "none", padding: "0.75rem", borderRadius: 10, cursor: "pointer", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: "0.95rem", textDecoration: "none", display: "block", textAlign: "center" }}>
+          {t.nav.ctaMobile}
         </a>
       </div>
 

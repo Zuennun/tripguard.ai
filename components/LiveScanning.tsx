@@ -33,10 +33,12 @@ const platformColors: Record<string, string> = {
   "Agoda": "#a78bfa",
 };
 
+import { type Translations } from "@/lib/translations";
+
 const ROW_HEIGHT = 60;
 const VISIBLE = 7;
 
-export default function LiveScanning() {
+export default function LiveScanning({ t }: { t: Translations }) {
   const [activePlatform, setActivePlatform] = useState(0);
   const [offset, setOffset] = useState(0);
   const [sliding, setSliding] = useState(false);
@@ -95,7 +97,7 @@ export default function LiveScanning() {
                 fontFamily: "var(--font-body)", fontSize: "0.8rem",
                 color: "rgba(255,255,255,0.7)",
               }}>
-                Scanning{" "}
+                {t.live.scanning}{" "}
                 <span style={{ color: "#f97316", fontWeight: 600 }}>
                   {platforms[activePlatform]}
                 </span>
@@ -106,7 +108,7 @@ export default function LiveScanning() {
               fontFamily: "var(--font-body)", fontSize: "0.72rem",
               color: "rgba(255,255,255,0.35)",
             }}>
-              7,381 hotels scanned
+              7,381 {t.live.scanned}
             </span>
           </div>
 
@@ -195,7 +197,7 @@ export default function LiveScanning() {
             textTransform: "uppercase", letterSpacing: "0.1em",
             marginBottom: "1rem",
           }}>
-            LIVE SCANNING
+            {t.live.eyebrow}
           </div>
           <h2 style={{
             fontFamily: "var(--font-head)", fontWeight: 900,
@@ -203,15 +205,15 @@ export default function LiveScanning() {
             color: "#0f2044", lineHeight: 1.15,
             letterSpacing: "-0.02em", marginBottom: "1.25rem",
           }}>
-            We Scan 10+ Platforms<br />
-            <span style={{ color: "#f97316" }}>Around The Clock.</span>
+            {t.live.headline}<br />
+            <span style={{ color: "#f97316" }}>{t.live.headlineSub}</span>
           </h2>
           <p style={{
             fontFamily: "var(--font-body)", fontSize: "1rem",
             color: "#6b7280", lineHeight: 1.75,
             maxWidth: 440, marginBottom: "2rem",
           }}>
-            Every hour, our system automatically checks prices across all major booking platforms — finding you cheaper rates for the exact same room and dates.
+            {t.live.body}
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
             {[
@@ -219,7 +221,7 @@ export default function LiveScanning() {
               { name: "Expedia", bg: "#FFC72C", color: "#00355F" },
               { name: "Hotels.com", bg: "#C8102E", color: "#ffffff" },
               { name: "Agoda", bg: "#0f2044", color: "#ffffff" },
-              { name: "+6 more", bg: "transparent", color: "#374151" },
+              { name: t.live.morePlatforms, bg: "transparent", color: "#374151" },
             ].map(chip => (
               <div key={chip.name} style={{
                 padding: "0.45rem 1rem",
