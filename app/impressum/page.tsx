@@ -138,8 +138,8 @@ export default function ImpressumPage() {
 
                 <Section title="Contact">
                   <InfoRow label="Email" value={
-                    <a href="mailto:info@urlaubswaechter.com" style={{ color: "#f97316", textDecoration: "none" }}>
-                      info@urlaubswächter.com
+                    <a href="mailto:hello@rebookandsave.com" style={{ color: "#f97316", textDecoration: "none" }}>
+                      hello@rebookandsave.com
                     </a>
                   } />
                   <InfoRow label="Phone" value={

@@ -333,7 +333,7 @@ export const translations = {
       sub: "If there are questions you want to ask, we will answer all your questions.",
       founderText: "I'm Zünnun, based in Berlin — solo founder of RebookAndSave. I love to travel but I can't stand overpaying for hotels. Everyone likes to save money, right? So I built RebookAndSave to scan 10+ platforms automatically so travelers like you always get the best rate.",
       contactLabel: "Write to me:",
-      contactEmail: "info@urlaubswaechter.com",
+      contactEmail: "hello@rebookandsave.com",
       seeMore: "Maybe your question has been answered, check this out.",
       items: [
         { q: "What is RebookAndSave?", a: "RebookAndSave is a free service that monitors your hotel booking price after you've booked. When the price drops, we instantly alert you by email so you can rebook cheaper." },
