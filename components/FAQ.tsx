@@ -15,8 +15,8 @@ export default function FAQ({ t }: { t: Translations }) {
             <span style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.08em" }}>{t.faq.eyebrow}</span>
           </div>
           <h2 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(1.8rem,3vw,2.5rem)", color: "#0f2044", lineHeight: 1.15, letterSpacing: "-0.02em", marginBottom: "0.75rem" }}>
-            {t.faq.headline}<br />
-            {t.faq.eyebrow === "FAQ" ? <>For <span style={{ color: "#f97316" }}>{t.brand}?</span></> : <span style={{ color: "#f97316" }}>{t.brand}?</span>}
+            {t.faq.headline.split("|")[0]}<br />
+            <span style={{ color: "#f97316" }}>{t.faq.headline.split("|")[1]}</span>
           </h2>
           <p style={{ fontFamily: "var(--font-body)", color: "#9ca3af", fontSize: "0.95rem", lineHeight: 1.7, marginBottom: "2rem" }}>
             {t.faq.sub}

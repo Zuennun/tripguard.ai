@@ -16,11 +16,15 @@ export default function Features({ t }: { t: Translations }) {
             <path d="M2,14 Q10,4 18,12 Q26,20 34,10 Q42,2 50,12 Q56,18 58,10" stroke="#f97316" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <h2 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(2rem, 3vw, 2.8rem)", color: "#0f2044", lineHeight: 1.15, letterSpacing: "-0.02em", marginBottom: "1.25rem" }}>
-            {t.features.headline.split("!")[0]}!<br /><span style={{ color: "#f97316" }}>{t.features.headline.split("!")[1]}</span>
+            {t.features.headline.split("|")[0]}<br />
+            <span style={{ color: "#f97316" }}>{t.features.headline.split("|")[1]}</span>
           </h2>
           <p style={{ fontFamily: "var(--font-body)", fontSize: "1rem", color: "#6b7280", lineHeight: 1.75, maxWidth: 380 }}>
-            {t.features.sub.replace("free.", "")}
-            <span style={{ color: "#f97316", fontWeight: 600 }}>{t.features.sub.includes("free") ? "free." : "kostenlos."}</span>
+            {(() => {
+              const sub = t.features.sub;
+              const lastWord = sub.includes("kostenlos") ? "kostenlos." : "free.";
+              return <>{sub.replace(lastWord, "")}<span style={{ color: "#f97316", fontWeight: 600 }}>{lastWord}</span></>;
+            })()}
           </p>
         </div>
 

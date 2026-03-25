@@ -16,8 +16,8 @@ export const translations = {
       trackHotel: "Hotel tracken",
       faq: "FAQ",
       contact: "Kontakt",
-      cta: "Kostenlos starten",
-      ctaMobile: "Kostenlos starten",
+      cta: "Kostenlos Preisüberwachen",
+      ctaMobile: "Kostenlos Preisüberwachen",
     },
 
     // Hero
@@ -25,7 +25,7 @@ export const translations = {
       badge: "Smarte Hotel-Preisüberwachung — 100% kostenlos",
       headline: "Dein Hotel wurde günstiger. Wir sagen's dir.",
       sub: "Einmal eintragen. Urlaubswächter überwacht Hotelpreise auf 10+ Plattformen rund um die Uhr und benachrichtigt dich sofort, sobald der Preis fällt.",
-      cta: "Jetzt kostenlos starten →",
+      cta: "Kostenlos Preisüberwachen →",
       trust1: "✓ 100% kostenlos",
       trust2: "✓ Einrichtung in 60 Sekunden",
       tracked: "1.385+ Buchungen überwacht",
@@ -43,7 +43,7 @@ export const translations = {
     // Features
     features: {
       eyebrow: "SO FUNKTIONIERT'S",
-      headline: "So sparst du beim Reisen!",
+      headline: "So sparst du beim|Reisen!",
       sub: "Preise nach der Buchung überwachen und die Ersparnis selbst einstreichen — automatisch und völlig kostenlos.",
       card1Title: "Echtzeit-Überwachung",
       card1Text: "Wir prüfen Booking.com, Hotels.com, Expedia und 7+ weitere Plattformen stündlich — für dein genaues Zimmer und deine Daten.",
@@ -67,7 +67,7 @@ export const translations = {
     // Comparison
     comparison: {
       eyebrow: "DER VERGLEICH",
-      headline: "Hör auf zu viel zu zahlen.",
+      headline: "Nie wieder überzahlen.|Jetzt sparen.",
       sub: "Vergiss manuelle Preischecks — Urlaubswächter überwacht jede Plattform für dich und benachrichtigt dich sofort, wenn die Preise fallen.",
       without: "Ohne Urlaubswächter",
       withTitle: "Mit Urlaubswächter",
@@ -90,7 +90,7 @@ export const translations = {
     // Testimonials
     testimonials: {
       eyebrow: "KUNDENSTIMMEN",
-      headline: "Zufriedene Reisende sind unsere beste Werbung.",
+      headline: "Zufriedene Reisende|sind unsere beste Werbung",
       items: [
         { text: "Dank Urlaubswächter habe ich €180 bei meinem Paris-Hotel gespart. Ich hatte vorgebucht und es fast vergessen — dann plötzlich ein Alarm. Unglaublich!", name: "Sarah M.", country: "Deutschland" },
         { text: "Das ist das klügste Reise-Tool, das ich je benutzt habe. In 2 Minuten eingerichtet und noch in der gleichen Woche einen günstigeren Preis gefunden.", name: "Thomas R.", country: "USA" },
@@ -104,7 +104,7 @@ export const translations = {
     // FAQ
     faq: {
       eyebrow: "FAQ",
-      headline: "Hast du eine Frage?",
+      headline: "Hast du|eine Frage?",
       sub: "Wenn du Fragen hast, beantworten wir sie alle.",
       founderText: "Ich bin Zünnun, aus Berlin — Gründer von Urlaubswächter. Ich reise gerne, aber ich kann es nicht ausstehen, zu viel für Hotels zu zahlen. Jeder spart gerne Geld, oder? Also habe ich Urlaubswächter gebaut, um 10+ Plattformen automatisch zu scannen, damit Reisende wie du immer den besten Preis bekommen.",
       contactLabel: "Schreib mir:",
@@ -177,7 +177,7 @@ export const translations = {
       email: "Deine E-Mail",
       emailPlaceholder: "du@email.de",
       saving: "Speichern...",
-      cta: "Kostenlos überwachen →",
+      cta: "Kostenlos Preisüberwachen →",
       tracked: "1.385+ Buchungen überwacht",
       ribbon: "100% Kostenlos",
     },
@@ -272,7 +272,7 @@ export const translations = {
 
     features: {
       eyebrow: "HOW IT WORKS",
-      headline: "That's The Way To Save!",
+      headline: "That's The Way|To Save!",
       sub: "Track prices after booking and keep the savings for yourself — automatically and completely free.",
       card1Title: "Real-Time Monitoring",
       card1Text: "We scan Booking.com, Hotels.com, Expedia and 7+ more every hour — for your exact room and dates.",
@@ -294,7 +294,7 @@ export const translations = {
 
     comparison: {
       eyebrow: "THE COMPARISON",
-      headline: "Stop Overpaying. Start Saving.",
+      headline: "Stop Overpaying.|Start Saving.",
       sub: "Forget checking prices manually — RebookAndSave watches every platform for you and alerts you the instant rates drop.",
       without: "Without RebookAndSave",
       withTitle: "With RebookAndSave",
@@ -316,7 +316,7 @@ export const translations = {
 
     testimonials: {
       eyebrow: "TESTIMONIALS",
-      headline: "Happy Travelers Are Our Best Ads.",
+      headline: "Happy Travelers Are|Our Best Ads",
       items: [
         { text: "Thanks to RebookAndSave I saved €180 on my Paris hotel. I booked in advance and forgot about it — then suddenly got an alert. Incredible!", name: "Sarah M.", country: "Germany" },
         { text: "I think this is the smartest travel tool I've ever used. Set it up in 2 minutes and it found me a cheaper rate the same week.", name: "Thomas R.", country: "USA" },
@@ -329,7 +329,7 @@ export const translations = {
 
     faq: {
       eyebrow: "FAQ",
-      headline: "Got A Question?",
+      headline: "Got A|Question?",
       sub: "If there are questions you want to ask, we will answer all your questions.",
       founderText: "I'm Zünnun, based in Berlin — solo founder of RebookAndSave. I love to travel but I can't stand overpaying for hotels. Everyone likes to save money, right? So I built RebookAndSave to scan 10+ platforms automatically so travelers like you always get the best rate.",
       contactLabel: "Write to me:",

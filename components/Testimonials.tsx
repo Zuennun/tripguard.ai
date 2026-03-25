@@ -27,7 +27,7 @@ export default function Testimonials({ t }: { t: Translations }) {
               <span style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.08em" }}>{t.testimonials.eyebrow}</span>
             </div>
             <h2 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)", color: "#0f2044", lineHeight: 1.15, letterSpacing: "-0.02em" }}>
-              {t.testimonials.headline.split(".")[0]}.<br /><span style={{ color: "#f97316" }}>{t.testimonials.headline.split(".")[1]?.trim()}.</span>
+              {t.testimonials.headline.split("|")[0]}<br /><span style={{ color: "#f97316" }}>{t.testimonials.headline.split("|")[1]}</span>
             </h2>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
