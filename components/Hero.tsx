@@ -15,20 +15,23 @@ export default function Hero({ t }: { t: Translations }) {
           </div>
 
           <h1 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(2.4rem, 5vw, 4.2rem)", lineHeight: 1.08, letterSpacing: "-0.03em", color: "#0f2044", marginBottom: "1.25rem", position: "relative" }}>
-            <span style={{ color: "#f97316", position: "relative", display: "inline-block" }}>
-              {t.hero.headline.split(".")[0]}.
+            <span style={{ color: "#f97316" }}>
+              {t.hero.headline.split("|")[0]}.
+            </span>
+            <br />
+            <span style={{ position: "relative", display: "inline-block" }}>
+              {t.hero.headline.split("|")[1]}
               <img src="/IconAir.svg" alt="" aria-hidden="true" className="hero-icon-item" style={{ position: "absolute", top: -30, left: "96%", width: 44, height: 44, borderRadius: 10, boxShadow: "0 4px 14px rgba(0,0,0,0.15)", transform: "rotate(-10deg)", animation: "iconPopA 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.3s both, iconPulseA 3s ease-in-out 0.8s infinite" }} />
               <img src="/IconE.svg" alt="" aria-hidden="true" className="hero-icon-item" style={{ position: "absolute", top: -44, left: "132%", width: 50, height: 50, borderRadius: 12, boxShadow: "0 6px 18px rgba(0,0,0,0.15)", transform: "rotate(10deg)", animation: "iconPopE 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.15s both, iconPulseE 3s ease-in-out 0.65s infinite" }} />
               <img src="/iconB.svg" alt="" aria-hidden="true" className="hero-icon-item" style={{ position: "absolute", top: 4, left: "116%", width: 62, height: 62, borderRadius: 14, boxShadow: "0 8px 24px rgba(0,0,0,0.18)", transform: "rotate(-6deg)", animation: "iconPopB 0.5s cubic-bezier(0.34,1.56,0.64,1) 0s both, iconPulseB 3s ease-in-out 0.5s infinite" }} />
             </span>
             <br />
-            <span style={{ position: "relative", display: "inline-block", marginTop: -6 }}>
-              {t.hero.headline.split(".")[1]?.trim()}.
+            <span style={{ color: "#f97316", position: "relative", display: "inline-block", marginTop: -6 }}>
+              {t.hero.headline.split("|")[2]}
               <svg style={{ position: "absolute", bottom: -8, left: 0, width: "100%", height: 8 }} viewBox="0 0 200 8" preserveAspectRatio="none">
-                <path d="M0,6 Q25,1 50,5 Q75,9 100,4 Q125,0 150,5 Q175,9 200,4" stroke="#0f2044" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                <path d="M0,6 Q25,1 50,5 Q75,9 100,4 Q125,0 150,5 Q175,9 200,4" stroke="#f97316" strokeWidth="2.5" fill="none" strokeLinecap="round" />
               </svg>
             </span>
-            {t.hero.headline.split(".")[2]?.trim() && <><br /><span style={{ display: "inline-block", marginTop: 6 }}>{t.hero.headline.split(".")[2]?.trim()}.</span></>}
           </h1>
 
           <p style={{ fontSize: "1.05rem", color: "#6b7280", maxWidth: 460, lineHeight: 1.75, fontFamily: "var(--font-body)", marginBottom: "2.5rem" }}>

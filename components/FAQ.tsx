@@ -54,7 +54,7 @@ export default function FAQ({ t }: { t: Translations }) {
         </div>
       </div>
       <style>{`
-        @media(max-width:768px){.faq-grid{grid-template-columns:1fr !important;gap:3rem !important}.faq-section{padding:4rem 1.5rem !important}.faq-grid>div:first-child{text-align:center}.faq-grid>div:first-child>div:first-child{justify-content:center}}
+        @media(max-width:768px){.faq-grid{grid-template-columns:1fr !important;gap:3rem !important}.faq-section{padding:4rem 1.5rem !important}}
       `}</style>
     </section>
   );
