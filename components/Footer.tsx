@@ -16,7 +16,7 @@ export default function Footer({ t }: { t: Translations }) {
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: "1rem" }}>
               <img src="/tripguard1.png" alt={t.brand} style={{ height: 70, width: "auto", display: "block" }} />
               <span style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "1.35rem", color: "#0f2044", marginLeft: -5 }}>
-                <span style={{ color: "var(--orange)" }}>Trip</span>-Guard<span style={{ color: "var(--orange)" }}>.</span>
+                <span style={{ color: "var(--orange)" }}>{t.brandPart1}</span>{t.brandPart2}<span style={{ color: "var(--orange)" }}>.</span>
               </span>
             </div>
             <p style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.7, maxWidth: 240 }}>

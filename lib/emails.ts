@@ -1,23 +1,39 @@
 // ─── Shared layout helpers ───────────────────────────────────────────────────
 
-const LOGO = `
+type EmailLocale = "de" | "en";
+
+function getLogo(locale: EmailLocale): string {
+  const imgSrc = locale === "de"
+    ? "https://urlaubswaechter.de/tripguard1.png"
+    : "https://trip-guard.ai/tripguard1.png";
+  const brandHtml = locale === "de"
+    ? `<span style="color:#f97316">Urlaub</span><span style="color:#0f2044">wächter</span>.`
+    : `Trip<span style="color:#f97316">Guard</span>.`;
+  return `
   <table cellpadding="0" cellspacing="0" style="margin:0 auto">
     <tr>
       <td style="background:#ffffff;border-radius:10px;padding:6px 10px;vertical-align:middle">
-        <img src="https://trip-guard.ai/tripguard1.png" alt="TripGuard" height="36"
+        <img src="${imgSrc}" alt="${locale === "de" ? "Urlaubswächter" : "TripGuard"}" height="36"
              style="display:block;height:36px;width:auto;border:0" />
       </td>
       <td style="padding-left:10px;vertical-align:middle">
         <span style="font-size:22px;font-weight:900;color:#ffffff;font-family:Arial,sans-serif">
-          Trip<span style="color:#f97316">Guard</span>.
+          ${brandHtml}
         </span>
       </td>
     </tr>
   </table>`;
+}
 
-function wrap(content: string): string {
+function wrap(content: string, locale: EmailLocale = "en"): string {
+  const brandName = locale === "de" ? "Urlaubswächter" : "TripGuard";
+  const siteUrl = locale === "de" ? "https://urlaubswaechter.de" : "https://trip-guard.ai";
+  const siteDomain = locale === "de" ? "urlaubswaechter.de" : "trip-guard.ai";
+  const footerNote = locale === "de"
+    ? "Du erhältst diese E-Mail, weil du eine Buchung bei Urlaubswächter eingereicht hast."
+    : "You receive this email because you submitted a booking to TripGuard.";
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${locale}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -44,7 +60,7 @@ function wrap(content: string): string {
         <!-- HEADER -->
         <tr>
           <td style="background:#0f2044;padding:24px 32px;text-align:center">
-            ${LOGO}
+            ${getLogo(locale)}
           </td>
         </tr>
 
@@ -57,13 +73,13 @@ function wrap(content: string): string {
                      text-align:center">
             <p style="margin:0 0 4px;color:#9ba5b4;font-size:12px;
                       font-family:Arial,sans-serif">
-              TripGuard &nbsp;·&nbsp; Berlin &nbsp;·&nbsp;
-              <a href="https://trip-guard.ai" style="color:#f97316;text-decoration:none">
-                trip-guard.ai
+              ${brandName} &nbsp;·&nbsp; Berlin &nbsp;·&nbsp;
+              <a href="${siteUrl}" style="color:#f97316;text-decoration:none">
+                ${siteDomain}
               </a>
             </p>
             <p style="margin:0;color:#c8cdd6;font-size:11px;font-family:Arial,sans-serif">
-              You receive this email because you submitted a booking to TripGuard.
+              ${footerNote}
             </p>
           </td>
         </tr>
@@ -97,9 +113,33 @@ export function customerConfirmationEmail(data: {
   checkout?: string;
   parsedPrice: number | null;
   safeCurrency: string;
+  locale?: EmailLocale;
 }): string {
-  const { hotelName, city, country, checkin, checkout, parsedPrice, safeCurrency } = data;
+  const { hotelName, city, country, checkin, checkout, parsedPrice, safeCurrency, locale = "en" } = data;
   const location = [city, country].filter(Boolean).join(", ");
+
+  const isDe = locale === "de";
+  const heroTitle = isDe ? "Wir sind dran!" : "We're on it!";
+  const heroBody = isDe
+    ? `Deine Buchung im <strong style="color:#0f2044">${hotelName}</strong> wird jetzt rund um die Uhr überwacht.<br>Sobald wir einen günstigeren Preis für dasselbe Zimmer finden,<br>schreiben wir dir sofort — damit du sparst.`
+    : `Your booking at <strong style="color:#0f2044">${hotelName}</strong> is now being monitored 24/7.<br>The moment we find a cheaper price for the same room,<br>we'll email you instantly — so you can save.`;
+  const bookingLabel = isDe ? "Deine Buchung" : "Your Booking";
+  const checkinLabel = isDe ? "Check-in" : "Check-in";
+  const checkoutLabel = isDe ? "Check-out" : "Check-out";
+  const priceLabel = isDe ? "Gebuchter Preis" : "Price you paid";
+  const nextLabel = isDe ? "Was passiert als nächstes" : "What happens next";
+  const step1 = isDe
+    ? `Wir prüfen <strong>10+ Plattformen</strong> (Booking.com, Expedia, Hotels.com…) stündlich — für dein genaues Zimmer und deine Daten.`
+    : `We scan <strong>10+ platforms</strong> (Booking.com, Expedia, Hotels.com…) every hour for your exact room and dates.`;
+  const step2 = isDe
+    ? `Sobald ein <strong>günstigerer Preis auftaucht</strong>, bekommst du eine E-Mail mit dem neuen Preis und einem direkten Umbuchungslink.`
+    : `The moment a <strong>cheaper rate appears</strong>, you get an email with the new price and a direct rebook link.`;
+  const step3 = isDe
+    ? `Du <strong>stornierst &amp; buchst neu</strong> zum günstigeren Preis. Die Differenz gehört dir — fertig.`
+    : `You <strong>cancel &amp; rebook</strong> at the lower price. Pocket the difference — done.`;
+  const tipText = isDe
+    ? `<strong>💡 Tipp:</strong> Stelle sicher, dass deine Buchung <strong>kostenlos stornierbar</strong> ist — so kannst du jederzeit neu buchen, wenn wir einen besseren Preis finden.`
+    : `<strong>💡 Tip:</strong> Make sure your booking is <strong>free cancellation</strong> — that way you can always rebook without losing money if we find a better price.`;
 
   return wrap(`
     <!-- HERO -->
@@ -109,14 +149,11 @@ export function customerConfirmationEmail(data: {
                     margin:0 auto 20px;line-height:72px;font-size:36px">🛎️</div>
         <h1 style="margin:0 0 10px;color:#0f2044;font-size:24px;font-weight:800;
                    font-family:Arial,sans-serif;line-height:1.2">
-          We're on it!
+          ${heroTitle}
         </h1>
         <p style="margin:0;color:#5a6478;font-size:15px;line-height:1.6;
                   font-family:Arial,sans-serif">
-          Your booking at <strong style="color:#0f2044">${hotelName}</strong>
-          is now being monitored 24/7.<br>
-          The moment we find a cheaper price for the same room,<br>
-          we'll email you instantly — so you can save.
+          ${heroBody}
         </p>
       </td>
     </tr>
@@ -129,14 +166,14 @@ export function customerConfirmationEmail(data: {
           <tr><td class="card" style="padding:20px 24px">
             <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#9ba5b4;
                       text-transform:uppercase;letter-spacing:1px;
-                      font-family:Arial,sans-serif">Your Booking</p>
+                      font-family:Arial,sans-serif">${bookingLabel}</p>
             <p style="margin:0 0 2px;font-size:18px;font-weight:800;color:#0f2044;
                       font-family:Arial,sans-serif">${hotelName}</p>
             ${location ? `<p style="margin:0 0 14px;color:#8892a4;font-size:13px;font-family:Arial,sans-serif">📍 ${location}</p>` : `<p style="margin:0 0 14px"></p>`}
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-              ${row("Check-in", checkin || "—")}
-              ${row("Check-out", checkout || "—")}
-              ${row("Price you paid", parsedPrice ? `<span style="color:#f97316;font-size:15px">${parsedPrice} ${safeCurrency}</span>` : "—")}
+              ${row(checkinLabel, checkin || "—")}
+              ${row(checkoutLabel, checkout || "—")}
+              ${row(priceLabel, parsedPrice ? `<span style="color:#f97316;font-size:15px">${parsedPrice} ${safeCurrency}</span>` : "—")}
             </table>
           </td></tr>
         </table>
@@ -148,7 +185,7 @@ export function customerConfirmationEmail(data: {
       <td class="email-body" style="padding:0 32px 28px">
         <p style="margin:0 0 14px;font-size:11px;font-weight:700;color:#9ba5b4;
                   text-transform:uppercase;letter-spacing:1px;
-                  font-family:Arial,sans-serif">What happens next</p>
+                  font-family:Arial,sans-serif">${nextLabel}</p>
         <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
           <tr>
             <td style="vertical-align:top;width:32px;padding-top:2px">
@@ -157,10 +194,7 @@ export function customerConfirmationEmail(data: {
                           font-weight:700;font-size:13px;font-family:Arial,sans-serif">1</div>
             </td>
             <td style="padding:0 0 14px 10px;color:#444;font-size:14px;line-height:1.6;
-                       font-family:Arial,sans-serif">
-              We scan <strong>10+ platforms</strong> (Booking.com, Expedia, Hotels.com…)
-              every hour for your exact room and dates.
-            </td>
+                       font-family:Arial,sans-serif">${step1}</td>
           </tr>
           <tr>
             <td style="vertical-align:top;width:32px;padding-top:2px">
@@ -169,10 +203,7 @@ export function customerConfirmationEmail(data: {
                           font-weight:700;font-size:13px;font-family:Arial,sans-serif">2</div>
             </td>
             <td style="padding:0 0 14px 10px;color:#444;font-size:14px;line-height:1.6;
-                       font-family:Arial,sans-serif">
-              The moment a <strong>cheaper rate appears</strong>, you get an email
-              with the new price and a direct rebook link.
-            </td>
+                       font-family:Arial,sans-serif">${step2}</td>
           </tr>
           <tr>
             <td style="vertical-align:top;width:32px;padding-top:2px">
@@ -181,10 +212,7 @@ export function customerConfirmationEmail(data: {
                           font-weight:700;font-size:13px;font-family:Arial,sans-serif">3</div>
             </td>
             <td style="padding:0 0 0 10px;color:#444;font-size:14px;line-height:1.6;
-                       font-family:Arial,sans-serif">
-              You <strong>cancel &amp; rebook</strong> at the lower price.
-              Pocket the difference — done.
-            </td>
+                       font-family:Arial,sans-serif">${step3}</td>
           </tr>
         </table>
       </td>
@@ -198,15 +226,13 @@ export function customerConfirmationEmail(data: {
           <tr><td style="padding:16px 20px">
             <p style="margin:0;color:#7a3a00;font-size:14px;line-height:1.6;
                       font-family:Arial,sans-serif">
-              <strong>💡 Tip:</strong> Make sure your booking is
-              <strong>free cancellation</strong> — that way you can always rebook
-              without losing money if we find a better price.
+              ${tipText}
             </p>
           </td></tr>
         </table>
       </td>
     </tr>
-  `);
+  `, locale);
 }
 
 // ─── Founder notification email ──────────────────────────────────────────────
@@ -224,10 +250,11 @@ export function founderNotificationEmail(data: {
   parsedAdults: number;
   parsedChildren: number;
   email: string;
+  locale?: EmailLocale;
 }): string {
   const {
     hotelName, city, country, roomType, checkin, checkout,
-    parsedPrice, safeCurrency, parsedRooms, parsedAdults, parsedChildren, email,
+    parsedPrice, safeCurrency, parsedRooms, parsedAdults, parsedChildren, email, locale = "en",
   } = data;
   const location = [city, country].filter(Boolean).join(", ");
 
@@ -292,7 +319,7 @@ export function founderNotificationEmail(data: {
         </table>
       </td>
     </tr>
-  `);
+  `, locale);
 }
 
 // ─── Price alert email ────────────────────────────────────────────────────────
@@ -308,11 +335,13 @@ export function priceAlertEmail(data: {
   currency: string;
   source: string;
   bookingUrl: string;
+  locale?: EmailLocale;
 }): string {
-  const { hotelName, city, country, checkin, checkout, originalPrice, newPrice, currency, source, bookingUrl } = data;
+  const { hotelName, city, country, checkin, checkout, originalPrice, newPrice, currency, source, bookingUrl, locale = "en" } = data;
   const location = [city, country].filter(Boolean).join(", ");
   const savings = (originalPrice - newPrice).toFixed(2);
   const pct = Math.round(((originalPrice - newPrice) / originalPrice) * 100);
+  const isDe = locale === "de";
 
   return wrap(`
     <!-- HERO -->
@@ -322,13 +351,13 @@ export function priceAlertEmail(data: {
                     margin:0 auto 20px;line-height:72px;font-size:36px">💰</div>
         <h1 style="margin:0 0 10px;color:#0f2044;font-size:24px;font-weight:800;
                    font-family:Arial,sans-serif;line-height:1.2">
-          Cheaper price found!
+          ${isDe ? "Günstigerer Preis gefunden!" : "Cheaper price found!"}
         </h1>
         <p style="margin:0;color:#5a6478;font-size:15px;line-height:1.6;
                   font-family:Arial,sans-serif">
-          We found a lower price for your booking at<br>
-          <strong style="color:#0f2044">${hotelName}</strong>.
-          You can save <strong style="color:#059669">€${savings}</strong> right now.
+          ${isDe
+            ? `Wir haben einen günstigeren Preis für deine Buchung im<br><strong style="color:#0f2044">${hotelName}</strong> gefunden. Du kannst jetzt <strong style="color:#059669">${savings} ${currency}</strong> sparen.`
+            : `We found a lower price for your booking at<br><strong style="color:#0f2044">${hotelName}</strong>. You can save <strong style="color:#059669">${savings} ${currency}</strong> right now.`}
         </p>
       </td>
     </tr>
@@ -341,16 +370,16 @@ export function priceAlertEmail(data: {
           <tr><td class="card" style="padding:20px 24px">
             <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#9ba5b4;
                       text-transform:uppercase;letter-spacing:1px;
-                      font-family:Arial,sans-serif">Price Comparison</p>
+                      font-family:Arial,sans-serif">${isDe ? "Preisvergleich" : "Price Comparison"}</p>
             <p style="margin:0 0 16px;font-size:18px;font-weight:800;color:#0f2044;
                       font-family:Arial,sans-serif">${hotelName}</p>
             ${location ? `<p style="margin:0 0 14px;color:#8892a4;font-size:13px;font-family:Arial,sans-serif">📍 ${location}</p>` : ""}
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
               ${row("Check-in", checkin || "—")}
               ${row("Check-out", checkout || "—")}
-              ${row("Your price", `<span style="text-decoration:line-through;color:#9ba5b4">${originalPrice} ${currency}</span>`)}
-              ${row("New price on " + source, `<span style="color:#059669;font-size:15px;font-weight:700">${newPrice} ${currency}</span>`)}
-              ${row("You save", `<span style="color:#f97316;font-size:15px;font-weight:700">${savings} ${currency} (${pct}%)</span>`)}
+              ${row(isDe ? "Dein Preis" : "Your price", `<span style="text-decoration:line-through;color:#9ba5b4">${originalPrice} ${currency}</span>`)}
+              ${row((isDe ? "Neuer Preis bei " : "New price on ") + source, `<span style="color:#059669;font-size:15px;font-weight:700">${newPrice} ${currency}</span>`)}
+              ${row(isDe ? "Du sparst" : "You save", `<span style="color:#f97316;font-size:15px;font-weight:700">${savings} ${currency} (${pct}%)</span>`)}
             </table>
           </td></tr>
         </table>
@@ -365,12 +394,12 @@ export function priceAlertEmail(data: {
                   text-decoration:none;padding:14px 32px;border-radius:12px;
                   font-family:Arial,sans-serif;font-size:16px;font-weight:700;
                   box-shadow:0 4px 16px rgba(249,115,22,0.35)">
-          Book Now at ${newPrice} ${currency} →
+          ${isDe ? `Jetzt buchen für ${newPrice} ${currency} →` : `Book Now at ${newPrice} ${currency} →`}
         </a>
         <p style="margin:16px 0 0;color:#9ba5b4;font-size:12px;font-family:Arial,sans-serif">
-          Cancel your current booking first — make sure it's free cancellation.
+          ${isDe ? "Storniere zuerst deine aktuelle Buchung — stelle sicher, dass sie kostenlos stornierbar ist." : "Cancel your current booking first — make sure it's free cancellation."}
         </p>
       </td>
     </tr>
-  `);
+  `, locale);
 }

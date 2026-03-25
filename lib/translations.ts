@@ -5,6 +5,8 @@ export const translations = {
     // Brand
     brand: "Urlaubswächter",
     brandTagline: "Urlaubswächter.",
+    brandPart1: "Urlaub",
+    brandPart2: "wächter",
 
     // Navbar
     nav: {
@@ -233,6 +235,8 @@ export const translations = {
   en: {
     brand: "TripGuard",
     brandTagline: "TripGuard.",
+    brandPart1: "Trip",
+    brandPart2: "-Guard",
 
     nav: {
       home: "Home",

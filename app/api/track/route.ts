@@ -61,6 +61,9 @@ function isAllowedOrigin(origin: string): boolean {
   if (!origin) return true;
   if (origin.startsWith("http://localhost")) return true;
   if (origin.endsWith(".vercel.app")) return true;
+  if (origin.includes("urlaubsw")) return true;
+  if (origin.includes("rebookandsave")) return true;
+  if (origin.includes("trip-guard")) return true;
   const allowed = process.env.ALLOWED_ORIGIN;
   if (allowed && origin === allowed) return true;
   return false;
@@ -184,17 +187,22 @@ export async function POST(req: NextRequest) {
 
     const from = process.env.RESEND_FROM!;
     const notifyEmail = process.env.NOTIFY_EMAIL!;
+    const locale = (req.headers.get("x-locale") === "de" ? "de" : "en") as "de" | "en";
 
     const emailData = {
       hotelName, city, country, roomType, checkin, checkout,
-      parsedPrice, safeCurrency, parsedRooms, parsedAdults, parsedChildren, email,
+      parsedPrice, safeCurrency, parsedRooms, parsedAdults, parsedChildren, email, locale,
     };
+
+    const customerSubject = locale === "de"
+      ? `✅ Wir überwachen deinen Hotelpreis — Urlaubswächter`
+      : `✅ We're watching your hotel price — TripGuard`;
 
     // User confirmation
     await getResend().emails.send({
       from,
       to: email.toLowerCase().trim(),
-      subject: "✅ We're watching your hotel price — TripGuard",
+      subject: customerSubject,
       html: customerConfirmationEmail(emailData),
     });
 
