@@ -9,11 +9,8 @@ export default function FAQ({ t }: { t: Translations }) {
     <section id="faq" className="faq-section" style={{ background: "#ffffff", padding: "6rem 2rem", borderTop: "1px solid #f3f4f6", scrollMarginTop: "80px" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5rem", alignItems: "start" }} className="faq-grid">
 
-        <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "1rem" }}>
-            <div style={{ width: 28, height: 4, background: "#f97316", borderRadius: 2 }} />
-            <span style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.08em" }}>{t.faq.eyebrow}</span>
-          </div>
+        <div className="faq-left">
+          <span style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: "1rem" }}>{t.faq.eyebrow}</span>
           <h2 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(1.8rem,3vw,2.5rem)", color: "#0f2044", lineHeight: 1.15, letterSpacing: "-0.02em", marginBottom: "0.75rem" }}>
             {t.faq.headline.split("|")[0]}<br />
             <span style={{ color: "#f97316" }}>{t.faq.headline.split("|")[1]}</span>
@@ -37,7 +34,7 @@ export default function FAQ({ t }: { t: Translations }) {
         </div>
 
         <div>
-          <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", color: "#9ca3af", marginBottom: "1.25rem" }}>{t.faq.seeMore}</p>
+          <p className="faq-seemore" style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", color: "#9ca3af", marginBottom: "1.25rem" }}>{t.faq.seeMore}</p>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
             {t.faq.items.map((faq, i) => (
               <div key={i} style={{ border: "1px solid", borderRadius: 14, overflow: "hidden", borderColor: open === i ? "#f97316" : "#e5e7eb", transition: "border-color 0.2s" }}>
@@ -54,7 +51,7 @@ export default function FAQ({ t }: { t: Translations }) {
         </div>
       </div>
       <style>{`
-        @media(max-width:768px){.faq-grid{grid-template-columns:1fr !important;gap:3rem !important}.faq-section{padding:4rem 1.5rem !important}}
+        @media(max-width:768px){.faq-grid{grid-template-columns:1fr !important;gap:3rem !important}.faq-section{padding:4rem 1.5rem !important}.faq-left{text-align:center}.faq-seemore{text-align:center}}
       `}</style>
     </section>
   );

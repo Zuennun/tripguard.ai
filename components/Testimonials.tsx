@@ -21,11 +21,8 @@ export default function Testimonials({ t }: { t: Translations }) {
     <section style={{ background: "#ffffff", padding: "6rem 2rem" }} className="testimonials-section">
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <div className="testimonials-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "3rem", flexWrap: "wrap", gap: "1rem" }}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "0.75rem" }}>
-              <div style={{ width: 28, height: 4, background: "#f97316", borderRadius: 2 }} />
-              <span style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.08em" }}>{t.testimonials.eyebrow}</span>
-            </div>
+          <div className="testimonials-titles">
+            <span style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: "0.75rem" }}>{t.testimonials.eyebrow}</span>
             <h2 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)", color: "#0f2044", lineHeight: 1.15, letterSpacing: "-0.02em" }}>
               {t.testimonials.headline.split("|")[0]}<br /><span style={{ color: "#f97316" }}>{t.testimonials.headline.split("|")[1]}</span>
             </h2>
@@ -61,7 +58,8 @@ export default function Testimonials({ t }: { t: Translations }) {
       </div>
       <style>{`
         @media(max-width:900px){.testimonials-grid{grid-template-columns:1fr 1fr !important}}
-@media(max-width:580px){.testimonials-section{padding:4rem 1.25rem !important}.testimonials-grid{grid-template-columns:1fr !important}}
+        @media(max-width:768px){.testimonials-titles{text-align:center}}
+        @media(max-width:580px){.testimonials-section{padding:4rem 1.25rem !important}.testimonials-grid{grid-template-columns:1fr !important}}
       `}</style>
     </section>
   );

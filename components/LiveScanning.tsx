@@ -190,8 +190,8 @@ export default function LiveScanning({ t }: { t: Translations }) {
         </div>
 
         {/* RIGHT */}
-        <div>
-          <div style={{
+        <div className="scanning-right">
+          <div className="scanning-eyebrow" style={{
             fontFamily: "var(--font-body)", fontSize: "0.78rem",
             fontWeight: 700, color: "#f97316",
             textTransform: "uppercase", letterSpacing: "0.1em",
@@ -244,6 +244,7 @@ export default function LiveScanning({ t }: { t: Translations }) {
       <style>{`
         @media (max-width: 1024px) {
           .scanning-grid { grid-template-columns: 1fr !important; gap: 2.5rem !important; }
+          .scanning-right .scanning-eyebrow, .scanning-right h2 { text-align: center; }
         }
         @media (max-width: 640px) {
           .scanning-section { padding: 4rem 1.25rem !important; }

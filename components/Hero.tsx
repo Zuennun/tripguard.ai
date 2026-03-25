@@ -15,7 +15,7 @@ export default function Hero({ t }: { t: Translations }) {
           </div>
 
           <h1 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(2.4rem, 5vw, 4.2rem)", lineHeight: 1.08, letterSpacing: "-0.03em", color: "#0f2044", marginBottom: "1.25rem", position: "relative" }}>
-            <span style={{ color: "#f97316" }}>
+            <span>
               {t.hero.headline.split("|")[0]}.
             </span>
             <br />
