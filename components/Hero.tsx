@@ -3,7 +3,7 @@ import { type Translations } from "@/lib/translations";
 
 export default function Hero({ t }: { t: Translations }) {
   return (
-    <section className="hero-section" style={{ minHeight: "100vh", background: "linear-gradient(160deg, #ffffff 0%, #f9fafb 100%)", display: "flex", alignItems: "center", padding: "104px 5% 4rem", overflow: "hidden", position: "relative" }}>
+    <section className="hero-section" style={{ minHeight: "100vh", background: "linear-gradient(160deg, #ffffff 0%, #f9fafb 100%)", display: "flex", alignItems: "center", padding: "96px 5% 4rem", overflow: "hidden", position: "relative" }}>
       <img src="/map.svg" alt="" aria-hidden="true" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.6, pointerEvents: "none", userSelect: "none" }} />
 
       <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", alignItems: "center", position: "relative", zIndex: 1 }} className="hero-grid">

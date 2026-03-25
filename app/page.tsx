@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { type Locale, getTranslations } from "@/lib/translations";
 import Navbar from "@/components/Navbar";
+import ScrollToTop from "@/components/ScrollToTop";
 import Hero from "@/components/Hero";
 import Stats from "@/components/Stats";
 import Features from "@/components/Features";
@@ -18,6 +19,7 @@ export default function Home() {
 
   return (
     <main>
+      <ScrollToTop />
       <Navbar t={t} />
       <Hero t={t} />
       <Stats t={t} />

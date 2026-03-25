@@ -12,14 +12,14 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: isDE
       ? "Urlaubswächter — Nie wieder zu viel für ein Hotel zahlen"
-      : "TripGuard — Never Overpay for a Hotel Again",
+      : "RebookAndSave — Never Overpay for a Hotel Again",
     description: isDE
       ? "Urlaubswächter überwacht deinen Hotelpreis nach der Buchung und benachrichtigt dich, wenn er fällt. Automatisch Geld sparen — 100% kostenlos."
-      : "TripGuard monitors your hotel price after booking and alerts you when it drops. Save money automatically — 100% free.",
+      : "RebookAndSave monitors your hotel price after booking and alerts you when it drops. Save money automatically — 100% free.",
     openGraph: {
       title: isDE
         ? "Urlaubswächter — Nie wieder zu viel für ein Hotel zahlen"
-        : "TripGuard — Never Overpay for a Hotel Again",
+        : "RebookAndSave — Never Overpay for a Hotel Again",
       description: isDE
         ? "Hotelpreis tracken und nach der Buchung Geld sparen."
         : "Track your hotel price and save money after booking.",
