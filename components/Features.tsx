@@ -11,7 +11,7 @@ export default function Features({ t }: { t: Translations }) {
   return (
     <section id="how-it-works" className="features-section" style={{ background: "#ffffff", padding: "6rem 3rem", scrollMarginTop: "80px" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "40% 1fr", gap: "4rem", alignItems: "center" }} className="features-grid">
-        <div>
+        <div className="features-left">
           <svg width="60" height="20" viewBox="0 0 60 20" fill="none" style={{ marginBottom: "1.25rem" }}>
             <path d="M2,14 Q10,4 18,12 Q26,20 34,10 Q42,2 50,12 Q56,18 58,10" stroke="#f97316" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -42,7 +42,7 @@ export default function Features({ t }: { t: Translations }) {
         </div>
       </div>
       <style>{`
-        @media(max-width:1024px){.features-grid{grid-template-columns:1fr !important}.features-cards{grid-template-columns:repeat(3,1fr) !important}}
+        @media(max-width:1024px){.features-grid{grid-template-columns:1fr !important}.features-cards{grid-template-columns:repeat(3,1fr) !important}.features-left{text-align:center;display:flex;flex-direction:column;align-items:center}}
         @media(max-width:768px){.features-section{padding:4rem 1.5rem !important}.features-cards{grid-template-columns:1fr !important}}
       `}</style>
     </section>
