@@ -202,6 +202,7 @@ export const translations = {
       privacy: "Datenschutz",
       terms: "AGB",
       cookies: "Cookies",
+      imprint: "Impressum",
     },
 
     // Emails
@@ -404,6 +405,7 @@ export const translations = {
       privacy: "Privacy Policy",
       terms: "Terms",
       cookies: "Cookies",
+      imprint: "Legal Notice",
     },
 
     emails: {
