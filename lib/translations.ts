@@ -5,7 +5,7 @@ export const translations = {
     // Brand
     brand: "Urlaubswächter",
     brandTagline: "Urlaubswächter.",
-    brandPart1: "Urlaub",
+    brandPart1: "Urlaubs",
     brandPart2: "wächter",
     brandPart3: "",
 
