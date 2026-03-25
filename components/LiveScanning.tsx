@@ -215,7 +215,7 @@ export default function LiveScanning({ t }: { t: Translations }) {
           }}>
             {t.live.body}
           </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
+          <div className="scanning-chips" style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
             {[
               { name: "Booking.com", bg: "#003580", color: "#ffffff" },
               { name: "Expedia", bg: "#FFC72C", color: "#00355F" },
@@ -245,6 +245,7 @@ export default function LiveScanning({ t }: { t: Translations }) {
         @media (max-width: 1024px) {
           .scanning-grid { grid-template-columns: 1fr !important; gap: 2.5rem !important; }
           .scanning-right .scanning-eyebrow, .scanning-right h2 { text-align: center; }
+          .scanning-chips { justify-content: center; }
         }
         @media (max-width: 640px) {
           .scanning-section { padding: 4rem 1.25rem !important; }

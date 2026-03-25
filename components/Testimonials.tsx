@@ -27,7 +27,7 @@ export default function Testimonials({ t }: { t: Translations }) {
               {t.testimonials.headline.split("|")[0]}<br /><span style={{ color: "#f97316" }}>{t.testimonials.headline.split("|")[1]}</span>
             </h2>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div className="testimonials-nav" style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button onClick={() => setPage(p => Math.max(0, p - 1))} style={{ width: 44, height: 44, borderRadius: "50%", background: page === 0 ? "#ffffff" : "#0f2044", color: page === 0 ? "#9ca3af" : "#ffffff", border: "1px solid #e5e7eb", cursor: page === 0 ? "default" : "pointer", fontSize: "1rem", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} aria-label="Previous">←</button>
             <span style={{ fontFamily: "var(--font-body)", fontSize: "0.85rem", color: "#6b7280", fontWeight: 500, minWidth: 30, textAlign: "center" }}>{page + 1}/{totalPages}</span>
             <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} style={{ width: 44, height: 44, borderRadius: "50%", background: page === totalPages - 1 ? "#ffffff" : "#0f2044", color: page === totalPages - 1 ? "#9ca3af" : "#ffffff", border: "1px solid #e5e7eb", cursor: page === totalPages - 1 ? "default" : "pointer", fontSize: "1rem", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }} aria-label="Next">→</button>
@@ -58,7 +58,7 @@ export default function Testimonials({ t }: { t: Translations }) {
       </div>
       <style>{`
         @media(max-width:900px){.testimonials-grid{grid-template-columns:1fr 1fr !important}}
-        @media(max-width:768px){.testimonials-titles{text-align:center}}
+        @media(max-width:768px){.testimonials-titles{text-align:center}.testimonials-nav{width:100%;justify-content:center}}
         @media(max-width:580px){.testimonials-section{padding:4rem 1.25rem !important}.testimonials-grid{grid-template-columns:1fr !important}}
       `}</style>
     </section>
