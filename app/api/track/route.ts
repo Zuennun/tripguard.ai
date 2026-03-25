@@ -196,7 +196,7 @@ export async function POST(req: NextRequest) {
 
     const customerSubject = locale === "de"
       ? `✅ Wir überwachen deinen Hotelpreis — Urlaubswächter`
-      : `✅ We're watching your hotel price — TripGuard`;
+      : `✅ We're watching your hotel price — RebookAndSave`;
 
     // User confirmation
     await getResend().emails.send({

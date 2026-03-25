@@ -9,7 +9,7 @@ export default function ImpressumPage() {
   const t = getTranslations(locale);
   const isDe = locale === "de";
 
-  const brandName = isDe ? "Urlaubswächter" : "TripGuard";
+  const brandName = isDe ? "Urlaubswächter" : "RebookAndSave";
   const siteUrl = isDe ? "urlaubswaechter.com" : "rebookandsave.com";
 
   return (
@@ -130,7 +130,7 @@ export default function ImpressumPage() {
                     Information pursuant to § 5 DDG (German Digital Services Act)
                   </p>
                   <InfoRow label="Name" value="Zünnun Ardal" />
-                  <InfoRow label="Company" value="TripGuard (rebookandsave.com)" />
+                  <InfoRow label="Company" value="RebookAndSave (rebookandsave.com)" />
                   <InfoRow label="Address" value={<>Haydnstraße 26<br />12167 Berlin<br />Germany</>} />
                 </Section>
 

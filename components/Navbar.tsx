@@ -28,7 +28,7 @@ export default function Navbar({ t }: { t: Translations }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <img src="/tripguard1.png" alt={t.brand} style={{ display: "block", height: 90, width: "auto", marginTop: -12 }} />
           <span style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.4rem", marginLeft: -20 }}>
-            <span style={{ color: "#f97316" }}>{t.brandPart1}</span><span style={{ color: "#0f2044" }}>{t.brandPart2}</span><span style={{ color: "#f97316" }}>.</span>
+            <span style={{ color: "#f97316" }}>{t.brandPart1}</span><span style={{ color: "#0f2044" }}>{t.brandPart2}</span>{t.brandPart3 && <span style={{ color: "#f97316" }}>{t.brandPart3}</span>}<span style={{ color: "#f97316" }}>.</span>
           </span>
         </div>
 

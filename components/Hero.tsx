@@ -28,7 +28,7 @@ export default function Hero({ t }: { t: Translations }) {
                 <path d="M0,6 Q25,1 50,5 Q75,9 100,4 Q125,0 150,5 Q175,9 200,4" stroke="#f97316" strokeWidth="2.5" fill="none" strokeLinecap="round" />
               </svg>
             </span>
-            <br /><span style={{ display: "inline-block", marginTop: 6 }}>{t.hero.headline.split(".")[2]?.trim()}.</span>
+            {t.hero.headline.split(".")[2]?.trim() && <><br /><span style={{ display: "inline-block", marginTop: 6 }}>{t.hero.headline.split(".")[2]?.trim()}.</span></>}
           </h1>
 
           <p style={{ fontSize: "1.05rem", color: "#6b7280", maxWidth: 460, lineHeight: 1.75, fontFamily: "var(--font-body)", marginBottom: "2.5rem" }}>

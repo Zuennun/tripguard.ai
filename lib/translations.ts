@@ -7,6 +7,7 @@ export const translations = {
     brandTagline: "Urlaubswächter.",
     brandPart1: "Urlaub",
     brandPart2: "wächter",
+    brandPart3: "",
 
     // Navbar
     nav: {
@@ -234,10 +235,11 @@ export const translations = {
   },
 
   en: {
-    brand: "TripGuard",
-    brandTagline: "TripGuard.",
-    brandPart1: "Trip",
-    brandPart2: "-Guard",
+    brand: "RebookAndSave",
+    brandTagline: "RebookAndSave.",
+    brandPart1: "Rebook",
+    brandPart2: "And",
+    brandPart3: "Save",
 
     nav: {
       home: "Home",
@@ -252,12 +254,12 @@ export const translations = {
     hero: {
       badge: "Smart Hotel Price Tracking — 100% Free",
       headline: "Your Hotel Got Cheaper. We'll Tell You.",
-      sub: "Add your booking once. TripGuard monitors hotel prices across 10+ platforms 24/7 and alerts you the instant the price drops.",
+      sub: "Add your booking once. RebookAndSave monitors hotel prices across 10+ platforms 24/7 and alerts you the instant the price drops.",
       cta: "Start Tracking — Free →",
       trust1: "✓ 100% Free",
       trust2: "✓ Setup in 60 seconds",
       tracked: "1,385+ Bookings Tracked",
-      imgAlt: "TripGuard price tracking demo",
+      imgAlt: "RebookAndSave price tracking demo",
     },
 
     stats: {
@@ -292,9 +294,9 @@ export const translations = {
     comparison: {
       eyebrow: "THE COMPARISON",
       headline: "Stop Overpaying. Start Saving.",
-      sub: "Forget checking prices manually — TripGuard watches every platform for you and alerts you the instant rates drop.",
-      without: "Without TripGuard",
-      withTitle: "With TripGuard",
+      sub: "Forget checking prices manually — RebookAndSave watches every platform for you and alerts you the instant rates drop.",
+      without: "Without RebookAndSave",
+      withTitle: "With RebookAndSave",
       withoutList: [
         "Overpay for your hotel",
         "Check prices manually — takes hours",
@@ -315,9 +317,9 @@ export const translations = {
       eyebrow: "TESTIMONIALS",
       headline: "Happy Travelers Are Our Best Ads.",
       items: [
-        { text: "Thanks to TripGuard I saved €180 on my Paris hotel. I booked in advance and forgot about it — then suddenly got an alert. Incredible!", name: "Sarah M.", country: "Germany" },
+        { text: "Thanks to RebookAndSave I saved €180 on my Paris hotel. I booked in advance and forgot about it — then suddenly got an alert. Incredible!", name: "Sarah M.", country: "Germany" },
         { text: "I think this is the smartest travel tool I've ever used. Set it up in 2 minutes and it found me a cheaper rate the same week.", name: "Thomas R.", country: "USA" },
-        { text: "TripGuard saved me €300 on a Dubai hotel. The alert came at 6am and I rebooked before work. Life changing for frequent travelers.", name: "Jana K.", country: "Austria" },
+        { text: "RebookAndSave saved me €300 on a Dubai hotel. The alert came at 6am and I rebooked before work. Life changing for frequent travelers.", name: "Jana K.", country: "Austria" },
         { text: "Saved €250 on a Rome hotel. The alerts are spot on — exact same room, much cheaper.", name: "Marco B.", country: "Italy" },
         { text: "Best travel hack ever. Never checking prices manually again. Setup was super easy.", name: "Lisa H.", country: "UK" },
         { text: "Used it for business travel and saved my company over €800 in one month.", name: "Ahmed K.", country: "UAE" },
@@ -328,15 +330,15 @@ export const translations = {
       eyebrow: "FAQ",
       headline: "Got A Question?",
       sub: "If there are questions you want to ask, we will answer all your questions.",
-      founderText: "I'm Zünnun, based in Berlin — solo founder of TripGuard. I love to travel but I can't stand overpaying for hotels. Everyone likes to save money, right? So I built TripGuard to scan 10+ platforms automatically so travelers like you always get the best rate.",
+      founderText: "I'm Zünnun, based in Berlin — solo founder of RebookAndSave. I love to travel but I can't stand overpaying for hotels. Everyone likes to save money, right? So I built RebookAndSave to scan 10+ platforms automatically so travelers like you always get the best rate.",
       contactLabel: "Write to me:",
       seeMore: "Maybe your question has been answered, check this out.",
       items: [
-        { q: "What is TripGuard?", a: "TripGuard is a free service that monitors your hotel booking price after you've booked. When the price drops, we instantly alert you by email so you can rebook cheaper." },
-        { q: "How does TripGuard make money?", a: "We earn a small affiliate commission when you rebook through our links — at no extra cost to you. The service is completely free for users." },
+        { q: "What is RebookAndSave?", a: "RebookAndSave is a free service that monitors your hotel booking price after you've booked. When the price drops, we instantly alert you by email so you can rebook cheaper." },
+        { q: "How does RebookAndSave make money?", a: "We earn a small affiliate commission when you rebook through our links — at no extra cost to you. The service is completely free for users." },
         { q: "Which platforms do you scan?", a: "We scan 10+ platforms including Booking.com, Hotels.com, Expedia, Agoda, and more. We match your exact hotel, room type, and dates to make sure you always get the best available rate." },
         { q: "How quickly do I get alerted?", a: "It depends on the hotel and market — sometimes a price drop happens within a few days, other times it shows up 2–4 weeks before your trip begins. Our system scans hourly so you never miss a drop." },
-        { q: "When will I hear from TripGuard?", a: "We only contact you when we find a cheaper rate for your exact booking. You won't receive random emails — only real savings alerts." },
+        { q: "When will I hear from RebookAndSave?", a: "We only contact you when we find a cheaper rate for your exact booking. You won't receive random emails — only real savings alerts." },
         { q: "Is my data safe?", a: "Absolutely. We never share your data and only use your email to send price drop alerts. You can delete your booking anytime." },
       ],
     },
@@ -401,7 +403,7 @@ export const translations = {
       account: "Account",
       supportCenter: "Support Center",
       accessibility: "Accessibility",
-      rights: "© 2026 TripGuard. All rights reserved.",
+      rights: "© 2026 RebookAndSave. All rights reserved.",
       privacy: "Privacy Policy",
       terms: "Terms",
       cookies: "Cookies",
@@ -409,7 +411,7 @@ export const translations = {
     },
 
     emails: {
-      confirmSubject: "✅ We're watching your hotel price — TripGuard",
+      confirmSubject: "✅ We're watching your hotel price — RebookAndSave",
       confirmTitle: "We're on it!",
       confirmBody: "Your booking at {hotel} is now being monitored 24/7. The moment we find a cheaper price for the same room, we'll email you instantly — so you can save.",
       confirmCard: "Your Booking",
@@ -421,7 +423,7 @@ export const translations = {
       confirmStep2: "The moment a <strong>cheaper rate appears</strong>, you get an email with the new price and a direct rebook link.",
       confirmStep3: "You <strong>cancel & rebook</strong> at the lower price. Pocket the difference — done.",
       confirmTip: "<strong>💡 Tip:</strong> Make sure your booking is <strong>free cancellation</strong> — that way you can always rebook without losing money if we find a better price.",
-      alertSubject: "💰 Cheaper price found for {hotel} — TripGuard",
+      alertSubject: "💰 Cheaper price found for {hotel} — RebookAndSave",
       alertTitle: "Cheaper price found!",
       alertBody: "We found a lower price for your booking at {hotel}. You can save {savings} right now.",
       alertComparison: "Price Comparison",
