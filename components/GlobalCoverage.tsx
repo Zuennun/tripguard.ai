@@ -80,7 +80,7 @@ export default function GlobalCoverage({ t }: { t: Translations }) {
   }
 
   return (
-    <section id="track-hotels" className="coverage-section" style={{ background: "#ffffff", padding: "6rem 1.5rem" }}>
+    <section id="track-hotels" className="coverage-section" style={{ background: "#ffffff", padding: "6rem 1.5rem", scrollMarginTop: "80px" }}>
       <div style={{ maxWidth: 1600, margin: "0 auto" }}>
 
         {/* Header */}

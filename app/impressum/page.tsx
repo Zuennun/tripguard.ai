@@ -67,7 +67,7 @@ export default function ImpressumPage() {
                 <Section title="Kontakt">
                   <InfoRow label="E-Mail" value={
                     <a href="mailto:info@urlaubswaechter.com" style={{ color: "#f97316", textDecoration: "none" }}>
-                      info@urlaubswaechter.com
+                      info@urlaubswächter.com
                     </a>
                   } />
                   <InfoRow label="Telefon" value={
@@ -139,7 +139,7 @@ export default function ImpressumPage() {
                 <Section title="Contact">
                   <InfoRow label="Email" value={
                     <a href="mailto:info@urlaubswaechter.com" style={{ color: "#f97316", textDecoration: "none" }}>
-                      info@urlaubswaechter.com
+                      info@urlaubswächter.com
                     </a>
                   } />
                   <InfoRow label="Phone" value={

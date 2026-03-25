@@ -13,12 +13,14 @@ export default function Navbar({ t }: { t: Translations }) {
     [t.nav.contact, "#contact"],
   ];
 
+  const dotColor = t.brandPart3 ? "#0f2044" : "#f97316"; // navy if 3 parts (EN), orange if 2 parts (DE)
+
   const brandEl = (
     <span style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.4rem" }}>
       <span style={{ color: "#f97316" }}>{t.brandPart1}</span>
       <span style={{ color: "#0f2044" }}>{t.brandPart2}</span>
       {t.brandPart3 && <span style={{ color: "#f97316" }}>{t.brandPart3}</span>}
-      <span style={{ color: "#0f2044" }}>.</span>
+      <span style={{ color: dotColor }}>.</span>
     </span>
   );
 
@@ -43,11 +45,11 @@ export default function Navbar({ t }: { t: Translations }) {
           position: "absolute", left: "50%", transform: "translateX(-50%)",
           textDecoration: "none", display: "none",
         }}>
-          <span style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1rem" }}>
+          <span style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.15rem" }}>
             <span style={{ color: "#f97316" }}>{t.brandPart1}</span>
             <span style={{ color: "#0f2044" }}>{t.brandPart2}</span>
             {t.brandPart3 && <span style={{ color: "#f97316" }}>{t.brandPart3}</span>}
-            <span style={{ color: "#0f2044" }}>.</span>
+            <span style={{ color: dotColor }}>.</span>
           </span>
         </a>
 
@@ -125,7 +127,7 @@ export default function Navbar({ t }: { t: Translations }) {
           .nav-desktop-links { display: none !important; }
           .nav-brand-desktop { display: none !important; }
           .nav-brand-mobile { display: flex !important; }
-          .nav-logo { height: 62px !important; margin-top: -6px !important; }
+          .nav-logo { height: 72px !important; margin-top: -8px !important; }
         }
       `}</style>
     </>

@@ -6,7 +6,7 @@ export default function FAQ({ t }: { t: Translations }) {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="faq-section" style={{ background: "#ffffff", padding: "6rem 2rem", borderTop: "1px solid #f3f4f6" }}>
+    <section id="faq" className="faq-section" style={{ background: "#ffffff", padding: "6rem 2rem", borderTop: "1px solid #f3f4f6", scrollMarginTop: "80px" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5rem", alignItems: "start" }} className="faq-grid">
 
         <div>
@@ -29,8 +29,8 @@ export default function FAQ({ t }: { t: Translations }) {
               <div style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.6, marginBottom: "0.5rem" }}>
                 {t.faq.founderText}
               </div>
-              <a href="mailto:hello@tripguard.ai" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "#f97316", fontWeight: 600, textDecoration: "none" }}>
-                hello@tripguard.ai
+              <a href={`mailto:${t.faq.contactEmail}`} style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "#f97316", fontWeight: 600, textDecoration: "none" }}>
+                {t.faq.contactEmail}
               </a>
             </div>
           </div>

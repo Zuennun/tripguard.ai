@@ -9,7 +9,7 @@ export default function Features({ t }: { t: Translations }) {
   ];
 
   return (
-    <section id="how-it-works" className="features-section" style={{ background: "#ffffff", padding: "6rem 3rem" }}>
+    <section id="how-it-works" className="features-section" style={{ background: "#ffffff", padding: "6rem 3rem", scrollMarginTop: "80px" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "40% 1fr", gap: "4rem", alignItems: "center" }} className="features-grid">
         <div>
           <svg width="60" height="20" viewBox="0 0 60 20" fill="none" style={{ marginBottom: "1.25rem" }}>

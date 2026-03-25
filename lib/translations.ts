@@ -108,6 +108,7 @@ export const translations = {
       sub: "Wenn du Fragen hast, beantworten wir sie alle.",
       founderText: "Ich bin Zünnun, aus Berlin — Gründer von Urlaubswächter. Ich reise gerne, aber ich kann es nicht ausstehen, zu viel für Hotels zu zahlen. Jeder spart gerne Geld, oder? Also habe ich Urlaubswächter gebaut, um 10+ Plattformen automatisch zu scannen, damit Reisende wie du immer den besten Preis bekommen.",
       contactLabel: "Schreib mir:",
+      contactEmail: "info@urlaubswaechter.com",
       seeMore: "Vielleicht wurde deine Frage bereits beantwortet, schau mal hier.",
       items: [
         {
@@ -332,6 +333,7 @@ export const translations = {
       sub: "If there are questions you want to ask, we will answer all your questions.",
       founderText: "I'm Zünnun, based in Berlin — solo founder of RebookAndSave. I love to travel but I can't stand overpaying for hotels. Everyone likes to save money, right? So I built RebookAndSave to scan 10+ platforms automatically so travelers like you always get the best rate.",
       contactLabel: "Write to me:",
+      contactEmail: "info@urlaubswaechter.com",
       seeMore: "Maybe your question has been answered, check this out.",
       items: [
         { q: "What is RebookAndSave?", a: "RebookAndSave is a free service that monitors your hotel booking price after you've booked. When the price drops, we instantly alert you by email so you can rebook cheaper." },
