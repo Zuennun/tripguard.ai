@@ -244,6 +244,8 @@ export default function LiveScanning({ t }: { t: Translations }) {
       <style>{`
         @media (max-width: 1024px) {
           .scanning-grid { grid-template-columns: 1fr !important; gap: 2.5rem !important; }
+          .scanning-grid > div:last-child { text-align: center; }
+          .scanning-grid > div:last-child > div { justify-content: center; }
         }
         @media (max-width: 640px) {
           .scanning-section { padding: 4rem 1.25rem !important; }

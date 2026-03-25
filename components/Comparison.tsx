@@ -13,12 +13,12 @@ export default function Comparison({ t }: { t: Translations }) {
         </p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", maxWidth: 1060, margin: "0 auto", alignItems: "start", padding: "1rem 0 2rem" }} className="comparison-grid">
-        <div className="comparison-card-l" style={{ borderRadius: 22, overflow: "hidden", boxShadow: "0 8px 32px rgba(15,32,68,0.14)", transform: "rotate(-2deg)" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", maxWidth: 1060, margin: "0 auto", alignItems: "stretch", padding: "1rem 0 2rem" }} className="comparison-grid">
+        <div className="comparison-card-l" style={{ borderRadius: 22, overflow: "hidden", boxShadow: "0 8px 32px rgba(15,32,68,0.14)", transform: "rotate(-2deg)", display: "flex", flexDirection: "column" }}>
           <div style={{ background: "#0f2044", padding: "1.25rem 2rem", fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1rem", color: "#ffffff", textAlign: "center" }}>
             {t.comparison.without}
           </div>
-          <div style={{ background: "#ffffff", padding: "2rem" }}>
+          <div style={{ background: "#ffffff", padding: "2rem", flex: 1 }}>
             <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
               {t.comparison.withoutList.map((item, i) => (
                 <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.9rem" }}>
@@ -30,16 +30,24 @@ export default function Comparison({ t }: { t: Translations }) {
           </div>
         </div>
 
-        <div className="comparison-card-r" style={{ borderRadius: 22, overflow: "hidden", boxShadow: "0 8px 32px rgba(249,115,22,0.15)", transform: "rotate(2deg)" }}>
+        <div className="comparison-card-r" style={{ borderRadius: 22, overflow: "hidden", boxShadow: "0 8px 32px rgba(249,115,22,0.15)", transform: "rotate(2deg)", display: "flex", flexDirection: "column" }}>
           <div style={{ background: "#f97316", padding: "1.25rem 2rem", fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1rem", color: "#ffffff", textAlign: "center" }}>
             {t.comparison.withTitle}
           </div>
-          <div style={{ background: "#ffffff", padding: "2rem" }}>
+          <div style={{ background: "#ffffff", padding: "2rem", flex: 1 }}>
             <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
               {t.comparison.withList.map((item, i) => (
                 <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.9rem" }}>
                   <span style={{ width: 22, height: 22, borderRadius: 6, background: "rgba(15,32,68,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1, color: "#0f2044", fontSize: "0.8rem", fontWeight: 800 }}>✓</span>
-                  <span style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", color: "#374151", lineHeight: 1.55 }}>{item}</span>
+                  <span style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", color: "#374151", lineHeight: 1.55 }}>
+                    {item.includes("10+") ? (
+                      <>
+                        {item.split("10+")[0]}
+                        <span style={{ color: "#f97316", fontWeight: 700 }}>10+</span>
+                        {item.split("10+")[1]}
+                      </>
+                    ) : item}
+                  </span>
                 </li>
               ))}
             </ul>

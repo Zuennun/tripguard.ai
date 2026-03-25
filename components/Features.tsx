@@ -42,7 +42,7 @@ export default function Features({ t }: { t: Translations }) {
         </div>
       </div>
       <style>{`
-        @media(max-width:1024px){.features-grid{grid-template-columns:1fr !important}.features-cards{grid-template-columns:repeat(3,1fr) !important}}
+        @media(max-width:1024px){.features-grid{grid-template-columns:1fr !important}.features-cards{grid-template-columns:repeat(3,1fr) !important}.features-grid>div:first-child{text-align:center}}
         @media(max-width:768px){.features-section{padding:4rem 1.5rem !important}.features-cards{grid-template-columns:1fr !important}}
       `}</style>
     </section>

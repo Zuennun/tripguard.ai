@@ -20,7 +20,7 @@ export default function Testimonials({ t }: { t: Translations }) {
   return (
     <section style={{ background: "#ffffff", padding: "6rem 2rem" }} className="testimonials-section">
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "3rem", flexWrap: "wrap", gap: "1rem" }}>
+        <div className="testimonials-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "3rem", flexWrap: "wrap", gap: "1rem" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "0.75rem" }}>
               <div style={{ width: 28, height: 4, background: "#f97316", borderRadius: 2 }} />
@@ -61,6 +61,7 @@ export default function Testimonials({ t }: { t: Translations }) {
       </div>
       <style>{`
         @media(max-width:900px){.testimonials-grid{grid-template-columns:1fr 1fr !important}}
+        @media(max-width:768px){.testimonials-header{text-align:center !important;align-items:center !important}}
         @media(max-width:580px){.testimonials-section{padding:4rem 1.25rem !important}.testimonials-grid{grid-template-columns:1fr !important}}
       `}</style>
     </section>

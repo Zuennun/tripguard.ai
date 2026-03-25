@@ -46,11 +46,11 @@ export const translations = {
       headline: "So sparst du beim|Reisen!",
       sub: "Preise nach der Buchung überwachen und die Ersparnis selbst einstreichen — automatisch und völlig kostenlos.",
       card1Title: "Echtzeit-Überwachung",
-      card1Text: "Wir prüfen Booking.com, Hotels.com, Expedia und 7+ weitere Plattformen stündlich — für dein genaues Zimmer und deine Daten.",
+      card1Text: "Dein Zimmer wird stündlich auf 10+ Plattformen geprüft — vollautomatisch, rund um die Uhr, ohne dass du einen Finger rühren musst.",
       card2Title: "Sofortige Preisalarme",
-      card2Text: "Sobald ein günstigerer Preis auftaucht, bekommst du eine E-Mail mit dem neuen Preis und einem direkten Umbuchungslink.",
+      card2Text: "Fällt der Preis, bist du sofort dabei. Du erhältst eine E-Mail mit dem neuen Preis und einem direkten Link zur Umbuchung.",
       card3Title: "Garantierte Ersparnis",
-      card3Text: "Stornieren und günstiger neu buchen. Intelligentes Matching stellt sicher, dass wir dich nur beim exakt gleichen Zimmer benachrichtigen.",
+      card3Text: "Altes Ticket stornieren, günstiger neu buchen — fertig. Wir matchen nur exakt dein Zimmer und deine Daten, damit du wirklich sparst.",
     },
 
     // Live Scanning
@@ -67,7 +67,7 @@ export const translations = {
     // Comparison
     comparison: {
       eyebrow: "DER VERGLEICH",
-      headline: "Nie wieder überzahlen.|Jetzt sparen.",
+      headline: "Kein Cent zu viel.|Mehr für die Urlaubskasse.",
       sub: "Vergiss manuelle Preischecks — Urlaubswächter überwacht jede Plattform für dich und benachrichtigt dich sofort, wenn die Preise fallen.",
       without: "Ohne Urlaubswächter",
       withTitle: "Mit Urlaubswächter",
