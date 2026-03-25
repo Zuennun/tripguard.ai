@@ -26,8 +26,8 @@ export default function Navbar({ t }: { t: Translations }) {
       }}>
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <img src="/tripguard1.png" alt={t.brand} style={{ display: "block", height: 90, width: "auto", marginTop: -12 }} />
-          <span style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.4rem", marginLeft: -20 }}>
+          <img src="/tripguard1.png" alt={t.brand} className="nav-logo" style={{ display: "block", height: 90, width: "auto", marginTop: -12 }} />
+          <span className="nav-brand-text" style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.4rem", marginLeft: -20 }}>
             <span style={{ color: "#f97316" }}>{t.brandPart1}</span><span style={{ color: "#0f2044" }}>{t.brandPart2}</span>{t.brandPart3 && <span style={{ color: "#f97316" }}>{t.brandPart3}</span>}<span style={{ color: "#f97316" }}>.</span>
           </span>
         </div>
@@ -93,7 +93,7 @@ export default function Navbar({ t }: { t: Translations }) {
 
       <style>{`
         @media (min-width: 768px) { .nav-hamburger { display: none !important; } }
-        @media (max-width: 767px) { .nav-desktop-links { display: none !important; } }
+        @media (max-width: 767px) { .nav-desktop-links { display: none !important; } .nav-logo { height: 56px !important; margin-top: -6px !important; } .nav-brand-text { font-size: 1.05rem !important; margin-left: -14px !important; } }
       `}</style>
     </>
   );
