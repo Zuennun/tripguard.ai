@@ -76,7 +76,7 @@ export default function Hero({ t }: { t: Translations }) {
         @keyframes iconPulseE { 0%,100%{transform:scale(1) rotate(-8deg)}50%{transform:scale(1.07) rotate(-8deg)} }
         @keyframes iconPopA { 0%{transform:scale(0) rotate(-15deg);opacity:0}100%{transform:scale(1) rotate(-15deg);opacity:1} }
         @keyframes iconPulseA { 0%,100%{transform:scale(1) rotate(-15deg)}50%{transform:scale(1.07) rotate(-15deg)} }
-        @media(max-width:900px){.hero-grid{grid-template-columns:1fr !important;gap:2rem !important}.hero-left{text-align:center}.hero-badge{justify-content:center !important}.hero-benefits{justify-content:center !important}.hero-social{justify-content:center !important}.hero-gif{max-width:380px !important}.hero-icon-item{display:none !important}}
+        @media(max-width:900px){.hero-grid{grid-template-columns:1fr !important;gap:2rem !important}.hero-left{text-align:center}.hero-badge{justify-content:center !important}.hero-benefits{justify-content:center !important}.hero-social{justify-content:center !important}.hero-gif{max-width:380px !important}}
         @media(max-width:640px){.hero-section{padding:110px 5% 3rem !important;min-height:auto !important}.hero-badge{font-size:0.78rem !important;padding:0.4rem 1rem !important;white-space:nowrap !important}.hero-cta-wrap a{width:100% !important;display:block !important;text-align:center !important;box-sizing:border-box}.hero-gif{max-width:260px !important}.hero-right{display:none !important}}
       `}</style>
     </section>
