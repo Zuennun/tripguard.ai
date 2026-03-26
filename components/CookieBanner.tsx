@@ -7,6 +7,7 @@ export default function CookieBanner() {
   const [visible, setVisible] = useState(false);
   const [isDe, setIsDe] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [analytics, setAnalytics] = useState(false);
 
   useEffect(() => {
     const consent = localStorage.getItem(STORAGE_KEY);
@@ -25,11 +26,15 @@ export default function CookieBanner() {
     setVisible(false);
   }
 
+  function acceptCustom() {
+    localStorage.setItem(STORAGE_KEY, analytics ? "all" : "necessary");
+    setVisible(false);
+  }
+
   if (!visible) return null;
 
   return (
     <>
-      {/* Backdrop blur on mobile */}
       <div style={{
         position: "fixed", inset: 0, zIndex: 998,
         background: "rgba(15,32,68,0.25)",
@@ -49,12 +54,11 @@ export default function CookieBanner() {
         animation: "cookieSlideUp 0.4s cubic-bezier(0.34,1.56,0.64,1) both",
       }}>
 
-        {/* Top accent bar */}
         <div style={{ height: 4, background: "linear-gradient(90deg, #0f2044 0%, #f97316 100%)" }} />
 
         <div style={{ padding: "1.5rem 1.75rem" }}>
 
-          {/* Header row */}
+          {/* Header */}
           <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "1rem" }}>
             <div style={{
               width: 44, height: 44, borderRadius: 12, background: "#0f2044",
@@ -62,16 +66,10 @@ export default function CookieBanner() {
               flexShrink: 0, fontSize: "1.3rem",
             }}>🍪</div>
             <div style={{ flex: 1 }}>
-              <div style={{
-                fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1rem",
-                color: "#0f2044", marginBottom: "0.3rem",
-              }}>
+              <div style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1rem", color: "#0f2044", marginBottom: "0.3rem" }}>
                 {isDe ? "Wir nutzen Cookies" : "We use cookies"}
               </div>
-              <p style={{
-                fontFamily: "var(--font-body)", fontSize: "0.85rem",
-                color: "#6b7280", lineHeight: 1.6, margin: 0,
-              }}>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "0.85rem", color: "#6b7280", lineHeight: 1.6, margin: 0 }}>
                 {isDe
                   ? <>Wir setzen technisch notwendige Cookies ein und, mit deiner Zustimmung, auch Analyse-Cookies zur Verbesserung unseres Services. Mehr dazu in unserer{" "}
                     <a href="/datenschutz" style={{ color: "#f97316", textDecoration: "none", fontWeight: 600 }}>Datenschutzerklärung</a>.</>
@@ -98,15 +96,34 @@ export default function CookieBanner() {
 
             {expanded && (
               <div style={{ marginTop: "0.75rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <CookieRow
-                  name={isDe ? "Notwendige Cookies" : "Necessary Cookies"}
-                  desc={isDe ? "Für den Betrieb der Website zwingend erforderlich." : "Essential for the website to function."}
-                  required
-                />
-                <CookieRow
-                  name={isDe ? "Analyse-Cookies" : "Analytics Cookies"}
-                  desc={isDe ? "Helfen uns zu verstehen, wie Besucher die Seite nutzen (z. B. Vercel Analytics)." : "Help us understand how visitors use the site (e.g. Vercel Analytics)."}
-                />
+                {/* Necessary — always on */}
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", background: "#f8f9fb", borderRadius: 10, padding: "0.65rem 0.9rem", gap: "1rem" }}>
+                  <div>
+                    <div style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: "0.82rem", color: "#0f2044" }}>
+                      {isDe ? "Notwendige Cookies" : "Necessary Cookies"}
+                    </div>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.78rem", color: "#9ca3af", marginTop: 2 }}>
+                      {isDe ? "Für den Betrieb der Website zwingend erforderlich." : "Essential for the website to function."}
+                    </div>
+                  </div>
+                  <Toggle on={true} disabled />
+                </div>
+
+                {/* Analytics — clickable */}
+                <div
+                  style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", background: "#f8f9fb", borderRadius: 10, padding: "0.65rem 0.9rem", gap: "1rem", cursor: "pointer" }}
+                  onClick={() => setAnalytics(v => !v)}
+                >
+                  <div>
+                    <div style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: "0.82rem", color: "#0f2044" }}>
+                      {isDe ? "Analyse-Cookies" : "Analytics Cookies"}
+                    </div>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.78rem", color: "#9ca3af", marginTop: 2 }}>
+                      {isDe ? "Helfen uns zu verstehen, wie Besucher die Seite nutzen (z. B. Vercel Analytics)." : "Help us understand how visitors use the site (e.g. Vercel Analytics)."}
+                    </div>
+                  </div>
+                  <Toggle on={analytics} onClick={() => setAnalytics(v => !v)} />
+                </div>
               </div>
             )}
           </div>
@@ -129,21 +146,39 @@ export default function CookieBanner() {
             >
               {isDe ? "Alle akzeptieren" : "Accept all"}
             </button>
-            <button
-              onClick={acceptNecessary}
-              style={{
-                flex: 1, minWidth: 140,
-                background: "#ffffff", color: "#0f2044",
-                border: "1.5px solid #e5e7eb", borderRadius: 12, cursor: "pointer",
-                fontFamily: "var(--font-head)", fontWeight: 600, fontSize: "0.9rem",
-                padding: "0.7rem 1.5rem",
-                transition: "border-color 0.15s, color 0.15s",
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#0f2044"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#e5e7eb"; }}
-            >
-              {isDe ? "Nur notwendige" : "Necessary only"}
-            </button>
+            {expanded ? (
+              <button
+                onClick={acceptCustom}
+                style={{
+                  flex: 1, minWidth: 140,
+                  background: "#ffffff", color: "#0f2044",
+                  border: "1.5px solid #0f2044", borderRadius: 12, cursor: "pointer",
+                  fontFamily: "var(--font-head)", fontWeight: 600, fontSize: "0.9rem",
+                  padding: "0.7rem 1.5rem",
+                  transition: "background 0.15s",
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "#f8f9fb"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "#ffffff"; }}
+              >
+                {isDe ? "Auswahl speichern" : "Save selection"}
+              </button>
+            ) : (
+              <button
+                onClick={acceptNecessary}
+                style={{
+                  flex: 1, minWidth: 140,
+                  background: "#ffffff", color: "#0f2044",
+                  border: "1.5px solid #e5e7eb", borderRadius: 12, cursor: "pointer",
+                  fontFamily: "var(--font-head)", fontWeight: 600, fontSize: "0.9rem",
+                  padding: "0.7rem 1.5rem",
+                  transition: "border-color 0.15s",
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#0f2044"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#e5e7eb"; }}
+              >
+                {isDe ? "Nur notwendige" : "Necessary only"}
+              </button>
+            )}
           </div>
 
         </div>
@@ -159,30 +194,27 @@ export default function CookieBanner() {
   );
 }
 
-function CookieRow({ name, desc, required }: { name: string; desc: string; required?: boolean }) {
+function Toggle({ on, disabled, onClick }: { on: boolean; disabled?: boolean; onClick?: () => void }) {
   return (
-    <div style={{
-      display: "flex", alignItems: "flex-start", justifyContent: "space-between",
-      background: "#f8f9fb", borderRadius: 10, padding: "0.65rem 0.9rem", gap: "1rem",
-    }}>
-      <div>
-        <div style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: "0.82rem", color: "#0f2044" }}>{name}</div>
-        <div style={{ fontFamily: "var(--font-body)", fontSize: "0.78rem", color: "#9ca3af", marginTop: 2 }}>{desc}</div>
-      </div>
-      <div style={{
+    <div
+      onClick={disabled ? undefined : onClick}
+      style={{
         flexShrink: 0,
-        width: 36, height: 20, borderRadius: 10,
-        background: required ? "#0f2044" : "#e5e7eb",
-        position: "relative", cursor: required ? "default" : "pointer",
-      }}>
-        <div style={{
-          position: "absolute", top: 3, left: required ? 19 : 3,
-          width: 14, height: 14, borderRadius: "50%",
-          background: "#ffffff",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-          transition: "left 0.2s",
-        }} />
-      </div>
+        width: 44, height: 24, borderRadius: 12,
+        background: on ? "#0f2044" : "#d1d5db",
+        position: "relative",
+        cursor: disabled ? "default" : "pointer",
+        transition: "background 0.2s",
+      }}
+    >
+      <div style={{
+        position: "absolute", top: 4,
+        left: on ? 22 : 4,
+        width: 16, height: 16, borderRadius: "50%",
+        background: "#ffffff",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.25)",
+        transition: "left 0.2s",
+      }} />
     </div>
   );
 }
