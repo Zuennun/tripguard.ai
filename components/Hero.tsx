@@ -12,12 +12,9 @@ export default function Hero({ t }: { t: Translations }) {
           <h1 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(2.4rem, 5vw, 4.2rem)", lineHeight: 1.08, letterSpacing: "-0.03em", color: "#0f2044", marginBottom: "1.25rem" }}>
             <span style={{ position: "relative", display: "inline-block" }}>
               {t.hero.headline.split("|")[0]}
-              {/* Airbnb — at the "e" of "wurde", inline with text */}
-              <img src="/IconAir.svg" alt="" aria-hidden="true" className="hero-float-icon" style={{ position: "absolute", top: 2, left: "calc(100% - 8px)", width: 46, height: 46, borderRadius: 12, boxShadow: "0 6px 18px rgba(0,0,0,0.18)", transform: "rotate(5deg)", animation: "iconPopA 0.5s cubic-bezier(0.34,1.56,0.64,1) 0s both, iconPulseA 3s ease-in-out 0.5s infinite" }} />
-              {/* Booking — next to Airbnb, like Reddit in example */}
-              <img src="/iconB (2).svg" alt="" aria-hidden="true" className="hero-float-icon" style={{ position: "absolute", top: -4, left: "calc(100% + 42px)", width: 52, height: 52, borderRadius: 13, boxShadow: "0 8px 22px rgba(0,0,0,0.2)", transform: "rotate(8deg)", animation: "iconPopB 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.1s both, iconPulseB 3s ease-in-out 0.6s infinite" }} />
-              {/* Expedia — above Booking, like X in example */}
-              <img src="/IconE.svg" alt="" aria-hidden="true" className="hero-float-icon" style={{ position: "absolute", top: -38, left: "calc(100% + 56px)", width: 36, height: 36, borderRadius: 9, boxShadow: "0 4px 14px rgba(0,0,0,0.15)", transform: "rotate(-10deg)", animation: "iconPopE 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.2s both, iconPulseE 3s ease-in-out 0.7s infinite" }} />
+              <img src="/IconAir.svg" alt="" aria-hidden="true" className="hero-float-icon" style={{ position: "absolute", top: 4, left: "calc(100% + 2px)", width: 48, height: 48, borderRadius: 12, boxShadow: "0 6px 18px rgba(0,0,0,0.18)", transform: "rotate(5deg)", animation: "iconPopA 0.5s cubic-bezier(0.34,1.56,0.64,1) 0s both, iconPulseA 3s ease-in-out 0.5s infinite" }} />
+              <img src="/iconB (2).svg" alt="" aria-hidden="true" className="hero-float-icon" style={{ position: "absolute", top: 0, left: "calc(100% + 54px)", width: 52, height: 52, borderRadius: 13, boxShadow: "0 8px 22px rgba(0,0,0,0.2)", transform: "rotate(8deg)", animation: "iconPopB 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.1s both, iconPulseB 3s ease-in-out 0.6s infinite" }} />
+              <img src="/IconE.svg" alt="" aria-hidden="true" className="hero-float-icon" style={{ position: "absolute", top: -34, left: "calc(100% + 62px)", width: 34, height: 34, borderRadius: 8, boxShadow: "0 4px 14px rgba(0,0,0,0.15)", transform: "rotate(-12deg)", animation: "iconPopE 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.2s both, iconPulseE 3s ease-in-out 0.7s infinite" }} />
             </span>
             <br />
             <span>{t.hero.headline.split("|")[1]}</span>
