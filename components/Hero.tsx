@@ -9,10 +9,12 @@ export default function Hero({ t }: { t: Translations }) {
       <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", alignItems: "center", position: "relative", zIndex: 1 }} className="hero-grid">
 
         <div className="hero-left">
-<h1 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(2.4rem, 5vw, 4.2rem)", lineHeight: 1.08, letterSpacing: "-0.03em", color: "#0f2044", marginBottom: "1.25rem", position: "relative", paddingRight: 80 }}>
-            <img src="/iconB.svg" alt="" aria-hidden="true" style={{ position: "absolute", top: -8, right: 10, width: 58, height: 58, borderRadius: 14, boxShadow: "0 8px 24px rgba(0,0,0,0.18)", transform: "rotate(8deg)", animation: "iconPopB 0.5s cubic-bezier(0.34,1.56,0.64,1) 0s both, iconPulseB 3s ease-in-out 0.5s infinite" }} />
-            <img src="/IconE.svg" alt="" aria-hidden="true" style={{ position: "absolute", top: -38, right: 52, width: 46, height: 46, borderRadius: 12, boxShadow: "0 6px 18px rgba(0,0,0,0.15)", transform: "rotate(-10deg)", animation: "iconPopE 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.15s both, iconPulseE 3s ease-in-out 0.65s infinite" }} />
-            <img src="/IconAir.svg" alt="" aria-hidden="true" style={{ position: "absolute", top: 42, right: 4, width: 40, height: 40, borderRadius: 10, boxShadow: "0 4px 14px rgba(0,0,0,0.15)", transform: "rotate(-6deg)", animation: "iconPopA 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.3s both, iconPulseA 3s ease-in-out 0.8s infinite" }} />
+          <div style={{ display: "flex", gap: 14, marginBottom: "1.25rem" }} className="hero-icons-row">
+            <img src="/IconE.svg" alt="" aria-hidden="true" style={{ width: 48, height: 48, borderRadius: 12, boxShadow: "0 6px 18px rgba(0,0,0,0.15)", transform: "rotate(-8deg)", animation: "iconPopE 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.15s both, iconPulseE 3s ease-in-out 0.65s infinite" }} />
+            <img src="/iconB.svg" alt="" aria-hidden="true" style={{ width: 56, height: 56, borderRadius: 14, boxShadow: "0 8px 24px rgba(0,0,0,0.18)", transform: "rotate(6deg)", animation: "iconPopB 0.5s cubic-bezier(0.34,1.56,0.64,1) 0s both, iconPulseB 3s ease-in-out 0.5s infinite" }} />
+            <img src="/IconAir.svg" alt="" aria-hidden="true" style={{ width: 44, height: 44, borderRadius: 10, boxShadow: "0 4px 14px rgba(0,0,0,0.15)", transform: "rotate(-5deg)", animation: "iconPopA 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.3s both, iconPulseA 3s ease-in-out 0.8s infinite" }} />
+          </div>
+          <h1 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(2.4rem, 5vw, 4.2rem)", lineHeight: 1.08, letterSpacing: "-0.03em", color: "#0f2044", marginBottom: "1.25rem" }}>
             <span>{t.hero.headline.split("|")[0]}</span>
             <br />
             <span>{t.hero.headline.split("|")[1]}</span>
@@ -72,7 +74,7 @@ export default function Hero({ t }: { t: Translations }) {
         @keyframes iconPulseE { 0%,100%{transform:scale(1) rotate(-8deg)}50%{transform:scale(1.07) rotate(-8deg)} }
         @keyframes iconPopA { 0%{transform:scale(0) rotate(-15deg);opacity:0}100%{transform:scale(1) rotate(-15deg);opacity:1} }
         @keyframes iconPulseA { 0%,100%{transform:scale(1) rotate(-15deg)}50%{transform:scale(1.07) rotate(-15deg)} }
-        @media(max-width:900px){.hero-grid{grid-template-columns:1fr !important;gap:2rem !important}.hero-left{text-align:center}.hero-badge{justify-content:center !important}.hero-benefits{justify-content:center !important}.hero-social{justify-content:center !important}.hero-gif{max-width:380px !important}}
+        @media(max-width:900px){.hero-grid{grid-template-columns:1fr !important;gap:2rem !important}.hero-left{text-align:center}.hero-badge{justify-content:center !important}.hero-benefits{justify-content:center !important}.hero-social{justify-content:center !important}.hero-gif{max-width:380px !important}.hero-icons-row{justify-content:center}}
         @media(max-width:640px){.hero-section{padding:110px 5% 3rem !important;min-height:auto !important}.hero-badge{font-size:0.78rem !important;padding:0.4rem 1rem !important;white-space:nowrap !important}.hero-cta-wrap a{width:100% !important;display:block !important;text-align:center !important;box-sizing:border-box}.hero-gif{max-width:260px !important}.hero-right{display:none !important}}
       `}</style>
     </section>
