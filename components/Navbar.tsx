@@ -76,7 +76,7 @@ export default function Navbar({ t }: { t: Translations }) {
             onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = "#ea6c0a"; (e.currentTarget as HTMLAnchorElement).style.animation = "none"; }}
             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = "#f97316"; (e.currentTarget as HTMLAnchorElement).style.animation = "navPulse 2.5s ease-in-out infinite"; }}
           >{t.nav.cta}</a>
-          <style>{`@keyframes navPulse{0%,100%{box-shadow:0 2px 10px rgba(249,115,22,0.3);transform:scale(1)}50%{box-shadow:0 4px 20px rgba(249,115,22,0.55);transform:scale(1.04)}}`}</style>
+          <style>{`@keyframes navPulse{0%,100%{box-shadow:0 2px 10px rgba(249,115,22,0.3)}50%{box-shadow:0 4px 20px rgba(249,115,22,0.6)}}`}</style>
         </div>
 
         {/* Hamburger — always right */}
