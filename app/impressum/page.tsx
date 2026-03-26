@@ -9,8 +9,8 @@ export default function ImpressumPage() {
   const t = getTranslations(locale);
   const isDe = locale === "de";
 
-  const brandName = isDe ? "Urlaubswächter" : "RebookAndSave";
-  const siteUrl = isDe ? "urlaubswaechter.com" : "rebookandsave.com";
+  const brandName = "RebookAndSave";
+  const siteUrl = "rebookandsave.com";
 
   return (
     <>
@@ -58,7 +58,7 @@ export default function ImpressumPage() {
               <>
                 <Section title="Angaben gemäß § 5 DDG">
                   <InfoRow label="Name" value="Zünnun Ardal" />
-                  <InfoRow label="Unternehmen" value="Urlaubswächter" />
+                  <InfoRow label="Unternehmen" value="RebookAndSave" />
                   <InfoRow label="Adresse" value={<>Haydnstraße 26<br />12167 Berlin<br />Deutschland</>} />
                 </Section>
 
@@ -66,8 +66,8 @@ export default function ImpressumPage() {
 
                 <Section title="Kontakt">
                   <InfoRow label="E-Mail" value={
-                    <a href="mailto:info@urlaubswaechter.com" style={{ color: "#f97316", textDecoration: "none" }}>
-                      info@urlaubswächter.com
+                    <a href="mailto:hello@rebookandsave.com" style={{ color: "#f97316", textDecoration: "none" }}>
+                      hello@rebookandsave.com
                     </a>
                   } />
                   <InfoRow label="Telefon" value={

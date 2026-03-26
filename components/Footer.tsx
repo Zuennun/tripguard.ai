@@ -54,9 +54,8 @@ export default function Footer({ t }: { t: Translations }) {
           <div style={{ display: "flex", gap: "1.5rem" }}>
             <a href="/impressum" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{t.footer.imprint}</a>
             <a href="/datenschutz" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{t.footer.privacy}</a>
-            {[t.footer.terms, t.footer.cookies].map(l => (
-              <a key={l} href="#" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{l}</a>
-            ))}
+            <a href="/agb" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{t.footer.terms}</a>
+            <a href="#" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{t.footer.cookies}</a>
           </div>
         </div>
       </div>
