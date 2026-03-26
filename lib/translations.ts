@@ -3,11 +3,11 @@ export type Locale = "de" | "en";
 export const translations = {
   de: {
     // Brand
-    brand: "Urlaubswächter",
-    brandTagline: "Urlaubswächter.",
-    brandPart1: "Urlaubs",
-    brandPart2: "wächter",
-    brandPart3: "",
+    brand: "RebookAndSave",
+    brandTagline: "RebookAndSave.",
+    brandPart1: "Rebook",
+    brandPart2: "And",
+    brandPart3: "Save",
 
     // Navbar
     nav: {
@@ -24,12 +24,12 @@ export const translations = {
     hero: {
       badge: "Smarte Hotel-Preisüberwachung — 100% kostenlos",
       headline: "Dein Hotel wurde.|günstiger.|Wir sagen's dir.",
-      sub: "Einmal eintragen. Urlaubswächter überwacht Hotelpreise auf 10+ Plattformen rund um die Uhr und benachrichtigt dich sofort, sobald der Preis fällt.",
+      sub: "Einmal eintragen. RebookAndSave überwacht Hotelpreise auf 10+ Plattformen rund um die Uhr und benachrichtigt dich sofort, sobald der Preis fällt.",
       cta: "Kostenlos Preisüberwachen →",
       trust1: "✓ 100% kostenlos",
       trust2: "✓ Einrichtung in 60 Sekunden",
       tracked: "1.385+ Buchungen überwacht",
-      imgAlt: "Urlaubswächter Preisüberwachung Demo",
+      imgAlt: "RebookAndSave Preisüberwachung Demo",
     },
 
     // Stats
@@ -68,9 +68,9 @@ export const translations = {
     comparison: {
       eyebrow: "DER VERGLEICH",
       headline: "Kein Cent zu viel.|Mehr für die Urlaubskasse.",
-      sub: "Vergiss manuelle Preischecks — Urlaubswächter überwacht jede Plattform für dich und benachrichtigt dich sofort, wenn die Preise fallen.",
-      without: "Ohne Urlaubswächter",
-      withTitle: "Mit Urlaubswächter",
+      sub: "Vergiss manuelle Preischecks — RebookAndSave überwacht jede Plattform für dich und benachrichtigt dich sofort, wenn die Preise fallen.",
+      without: "Ohne RebookAndSave",
+      withTitle: "Mit RebookAndSave",
       withoutList: [
         "Zu viel für dein Hotel zahlen",
         "Preise manuell prüfen — dauert Stunden",
@@ -92,9 +92,9 @@ export const translations = {
       eyebrow: "KUNDENSTIMMEN",
       headline: "Zufriedene Reisende|sind unsere beste Werbung",
       items: [
-        { text: "Dank Urlaubswächter habe ich €180 bei meinem Paris-Hotel gespart. Ich hatte vorgebucht und es fast vergessen — dann plötzlich ein Alarm. Unglaublich!", name: "Sarah M.", country: "Deutschland" },
+        { text: "Dank RebookAndSave habe ich €180 bei meinem Paris-Hotel gespart. Ich hatte vorgebucht und es fast vergessen — dann plötzlich ein Alarm. Unglaublich!", name: "Sarah M.", country: "Deutschland" },
         { text: "Das ist das klügste Reise-Tool, das ich je benutzt habe. In 2 Minuten eingerichtet und noch in der gleichen Woche einen günstigeren Preis gefunden.", name: "Thomas R.", country: "USA" },
-        { text: "Urlaubswächter hat mir €300 bei einem Dubai-Hotel gespart. Der Alarm kam um 6 Uhr morgens und ich habe vor der Arbeit neu gebucht. Genial für Vielreisende.", name: "Jana K.", country: "Österreich" },
+        { text: "RebookAndSave hat mir €300 bei einem Dubai-Hotel gespart. Der Alarm kam um 6 Uhr morgens und ich habe vor der Arbeit neu gebucht. Genial für Vielreisende.", name: "Jana K.", country: "Österreich" },
         { text: "€250 bei einem Rom-Hotel gespart. Die Alarme sind präzise — exakt das gleiche Zimmer, viel günstiger.", name: "Marco B.", country: "Italien" },
         { text: "Bester Reise-Hack ever. Nie wieder manuell Preise prüfen. Einrichtung war super einfach.", name: "Lisa H.", country: "UK" },
         { text: "Für Geschäftsreisen genutzt und meinem Unternehmen über €800 in einem Monat gespart.", name: "Ahmed K.", country: "VAE" },
@@ -106,17 +106,17 @@ export const translations = {
       eyebrow: "FAQ",
       headline: "Hast du|eine Frage?",
       sub: "Wenn du Fragen hast, beantworten wir sie alle.",
-      founderText: "Ich bin Zünnun, aus Berlin — Gründer von Urlaubswächter. Ich reise gerne, aber ich kann es nicht ausstehen, zu viel für Hotels zu zahlen. Jeder spart gerne Geld, oder? Also habe ich Urlaubswächter gebaut, um 10+ Plattformen automatisch zu scannen, damit Reisende wie du immer den besten Preis bekommen.",
+      founderText: "Ich bin Zünnun, aus Berlin — Gründer von RebookAndSave. Ich reise gerne, aber ich kann es nicht ausstehen, zu viel für Hotels zu zahlen. Jeder spart gerne Geld, oder? Also habe ich RebookAndSave gebaut, um 10+ Plattformen automatisch zu scannen, damit Reisende wie du immer den besten Preis bekommen.",
       contactLabel: "Schreib mir:",
-      contactEmail: "info@urlaubswaechter.com",
+      contactEmail: "hello@rebookandsave.com",
       seeMore: "Vielleicht wurde deine Frage bereits beantwortet, schau mal hier.",
       items: [
         {
-          q: "Was ist Urlaubswächter?",
-          a: "Urlaubswächter ist ein kostenloser Service, der deinen Hotelbuchungspreis überwacht, nachdem du gebucht hast. Wenn der Preis fällt, benachrichtigen wir dich sofort per E-Mail, damit du günstiger neu buchen kannst.",
+          q: "Was ist RebookAndSave?",
+          a: "RebookAndSave ist ein kostenloser Service, der deinen Hotelbuchungspreis überwacht, nachdem du gebucht hast. Wenn der Preis fällt, benachrichtigen wir dich sofort per E-Mail, damit du günstiger neu buchen kannst.",
         },
         {
-          q: "Wie verdient Urlaubswächter Geld?",
+          q: "Wie verdient RebookAndSave Geld?",
           a: "Wir verdienen eine kleine Affiliate-Provision, wenn du über unsere Links neu buchst — ohne Mehrkosten für dich. Der Service ist für Nutzer vollständig kostenlos.",
         },
         {
@@ -128,7 +128,7 @@ export const translations = {
           a: "Das hängt vom Hotel und Markt ab — manchmal fällt ein Preis innerhalb weniger Tage, manchmal zeigt er sich 2–4 Wochen vor Reisebeginn. Unser System scannt stündlich, damit du keine Preissenkung verpasst.",
         },
         {
-          q: "Wann höre ich von Urlaubswächter?",
+          q: "Wann höre ich von RebookAndSave?",
           a: "Wir melden uns nur, wenn wir einen günstigeren Preis für deine genaue Buchung finden. Du bekommst keine zufälligen E-Mails — nur echte Spar-Alarme.",
         },
         {
@@ -200,7 +200,7 @@ export const translations = {
       account: "Konto",
       supportCenter: "Hilfecenter",
       accessibility: "Barrierefreiheit",
-      rights: "© 2026 Urlaubswächter. Alle Rechte vorbehalten.",
+      rights: "© 2026 RebookAndSave. Alle Rechte vorbehalten.",
       privacy: "Datenschutz",
       terms: "AGB",
       cookies: "Cookies",
@@ -209,7 +209,7 @@ export const translations = {
 
     // Emails
     emails: {
-      confirmSubject: "✅ Wir beobachten deinen Hotelpreis — Urlaubswächter",
+      confirmSubject: "✅ Wir beobachten deinen Hotelpreis — RebookAndSave",
       confirmTitle: "Wir sind dran!",
       confirmBody: "Deine Buchung bei {hotel} wird jetzt rund um die Uhr überwacht. Sobald wir einen günstigeren Preis für das gleiche Zimmer finden, benachrichtigen wir dich sofort — damit du sparen kannst.",
       confirmCard: "Deine Buchung",
