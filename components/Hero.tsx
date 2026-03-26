@@ -12,9 +12,9 @@ export default function Hero({ t }: { t: Translations }) {
           <h1 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(2.4rem, 5vw, 4.2rem)", lineHeight: 1.08, letterSpacing: "-0.03em", color: "#0f2044", marginBottom: "1.25rem" }}>
             <span style={{ position: "relative", display: "inline-block" }}>
               {t.hero.headline.split("|")[0]}
-              <img src="/iconB (2).svg" alt="" aria-hidden="true" style={{ position: "absolute", top: -16, left: "calc(100% + 4px)", width: 38, height: 38, borderRadius: 10, boxShadow: "0 6px 18px rgba(0,0,0,0.2)", transform: "rotate(8deg)", animation: "iconPopB 0.5s cubic-bezier(0.34,1.56,0.64,1) 0s both, iconPulseB 3s ease-in-out 0.5s infinite" }} />
-              <img src="/IconE.svg" alt="" aria-hidden="true" style={{ position: "absolute", top: -38, left: "calc(100% + 38px)", width: 32, height: 32, borderRadius: 8, boxShadow: "0 4px 14px rgba(0,0,0,0.15)", transform: "rotate(-10deg)", animation: "iconPopE 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.15s both, iconPulseE 3s ease-in-out 0.65s infinite" }} />
-              <img src="/IconAir.svg" alt="" aria-hidden="true" style={{ position: "absolute", top: 8, left: "calc(100% + 22px)", width: 30, height: 30, borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.15)", transform: "rotate(-5deg)", animation: "iconPopA 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.25s both, iconPulseA 3s ease-in-out 0.75s infinite" }} />
+              <img src="/iconB (2).svg" alt="" aria-hidden="true" className="hero-float-icon" style={{ position: "absolute", top: -22, left: "calc(100% + 8px)", width: 54, height: 54, borderRadius: 14, boxShadow: "0 8px 24px rgba(0,0,0,0.2)", transform: "rotate(8deg)", animation: "iconPopB 0.5s cubic-bezier(0.34,1.56,0.64,1) 0s both, iconPulseB 3s ease-in-out 0.5s infinite" }} />
+              <img src="/IconE.svg" alt="" aria-hidden="true" className="hero-float-icon" style={{ position: "absolute", top: -52, left: "calc(100% + 52px)", width: 46, height: 46, borderRadius: 12, boxShadow: "0 6px 18px rgba(0,0,0,0.15)", transform: "rotate(-10deg)", animation: "iconPopE 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.15s both, iconPulseE 3s ease-in-out 0.65s infinite" }} />
+              <img src="/IconAir.svg" alt="" aria-hidden="true" className="hero-float-icon" style={{ position: "absolute", top: 12, left: "calc(100% + 30px)", width: 42, height: 42, borderRadius: 10, boxShadow: "0 4px 14px rgba(0,0,0,0.15)", transform: "rotate(-6deg)", animation: "iconPopA 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.25s both, iconPulseA 3s ease-in-out 0.75s infinite" }} />
             </span>
             <br />
             <span>{t.hero.headline.split("|")[1]}</span>
@@ -74,7 +74,9 @@ export default function Hero({ t }: { t: Translations }) {
         @keyframes iconPulseE { 0%,100%{transform:scale(1) rotate(-8deg)}50%{transform:scale(1.07) rotate(-8deg)} }
         @keyframes iconPopA { 0%{transform:scale(0) rotate(-15deg);opacity:0}100%{transform:scale(1) rotate(-15deg);opacity:1} }
         @keyframes iconPulseA { 0%,100%{transform:scale(1) rotate(-15deg)}50%{transform:scale(1.07) rotate(-15deg)} }
-        @media(max-width:900px){.hero-grid{grid-template-columns:1fr !important;gap:2rem !important}.hero-left{text-align:center}.hero-badge{justify-content:center !important}.hero-benefits{justify-content:center !important}.hero-social{justify-content:center !important}.hero-gif{max-width:380px !important}.hero-icons-row{justify-content:center}}
+        .hero-float-icon{display:none}
+        @media(min-width:901px){.hero-float-icon{display:block !important}}
+        @media(max-width:900px){.hero-grid{grid-template-columns:1fr !important;gap:2rem !important}.hero-left{text-align:center}.hero-badge{justify-content:center !important}.hero-benefits{justify-content:center !important}.hero-social{justify-content:center !important}.hero-gif{max-width:380px !important}}
         @media(max-width:640px){.hero-section{padding:110px 5% 3rem !important;min-height:auto !important}.hero-badge{font-size:0.78rem !important;padding:0.4rem 1rem !important;white-space:nowrap !important}.hero-cta-wrap a{width:100% !important;display:block !important;text-align:center !important;box-sizing:border-box}.hero-gif{max-width:260px !important}.hero-right{display:none !important}}
       `}</style>
     </section>
