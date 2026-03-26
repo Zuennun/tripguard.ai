@@ -3,7 +3,7 @@ import { type Translations } from "@/lib/translations";
 
 export default function Hero({ t }: { t: Translations }) {
   return (
-    <section className="hero-section" style={{ minHeight: "100vh", background: "linear-gradient(160deg, #ffffff 0%, #f9fafb 100%)", display: "flex", alignItems: "center", padding: "130px 5% 4rem", overflow: "hidden", position: "relative" }}>
+    <section className="hero-section" style={{ minHeight: "100vh", background: "linear-gradient(160deg, #ffffff 0%, #f9fafb 100%)", display: "flex", alignItems: "flex-start", padding: "150px 5% 4rem", overflow: "hidden", position: "relative" }}>
       <img src="/map.svg" alt="" aria-hidden="true" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.6, pointerEvents: "none", userSelect: "none" }} />
 
       <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", alignItems: "center", position: "relative", zIndex: 1 }} className="hero-grid">
@@ -12,9 +12,9 @@ export default function Hero({ t }: { t: Translations }) {
 <h1 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(2.4rem, 5vw, 4.2rem)", lineHeight: 1.08, letterSpacing: "-0.03em", color: "#0f2044", marginBottom: "1.25rem", position: "relative" }}>
             <span style={{ position: "relative", display: "inline-block" }}>
               {t.hero.headline.split("|")[0]}
-              <img src="/IconAir.svg" alt="" aria-hidden="true" className="hero-icon-item" style={{ position: "absolute", top: -30, left: "96%", width: 44, height: 44, borderRadius: 10, boxShadow: "0 4px 14px rgba(0,0,0,0.15)", transform: "rotate(-10deg)", animation: "iconPopA 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.3s both, iconPulseA 3s ease-in-out 0.8s infinite" }} />
-              <img src="/IconE.svg" alt="" aria-hidden="true" className="hero-icon-item" style={{ position: "absolute", top: -44, left: "132%", width: 50, height: 50, borderRadius: 12, boxShadow: "0 6px 18px rgba(0,0,0,0.15)", transform: "rotate(10deg)", animation: "iconPopE 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.15s both, iconPulseE 3s ease-in-out 0.65s infinite" }} />
-              <img src="/iconB.svg" alt="" aria-hidden="true" className="hero-icon-item" style={{ position: "absolute", top: 4, left: "116%", width: 62, height: 62, borderRadius: 14, boxShadow: "0 8px 24px rgba(0,0,0,0.18)", transform: "rotate(-6deg)", animation: "iconPopB 0.5s cubic-bezier(0.34,1.56,0.64,1) 0s both, iconPulseB 3s ease-in-out 0.5s infinite" }} />
+              <img src="/Booking.png" alt="Booking.com" className="hero-icon-item" style={{ position: "absolute", top: -38, left: "102%", width: 52, height: 52, borderRadius: 14, objectFit: "contain", background: "#003580", padding: 6, boxShadow: "0 6px 20px rgba(0,53,128,0.3)", transform: "rotate(-8deg)", animation: "iconPopA 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.1s both, iconPulseA 3s ease-in-out 0.6s infinite" }} />
+              <img src="/Hotels.com.png" alt="Hotels.com" className="hero-icon-item" style={{ position: "absolute", top: -54, left: "148%", width: 58, height: 58, borderRadius: 14, objectFit: "contain", background: "#C8102E", padding: 6, boxShadow: "0 6px 20px rgba(200,16,46,0.3)", transform: "rotate(10deg)", animation: "iconPopB 0.5s cubic-bezier(0.34,1.56,0.64,1) 0s both, iconPulseB 3s ease-in-out 0.5s infinite" }} />
+              <img src="/Agoda.png" alt="Agoda" className="hero-icon-item" style={{ position: "absolute", top: 6, left: "130%", width: 48, height: 48, borderRadius: 14, objectFit: "contain", background: "#ffffff", padding: 4, boxShadow: "0 6px 20px rgba(0,0,0,0.15)", transform: "rotate(-4deg)", animation: "iconPopE 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.2s both, iconPulseE 3s ease-in-out 0.7s infinite" }} />
             </span>
             <br />
             <span style={{ display: "inline-block" }}>
@@ -77,7 +77,7 @@ export default function Hero({ t }: { t: Translations }) {
         @keyframes iconPopA { 0%{transform:scale(0) rotate(-15deg);opacity:0}100%{transform:scale(1) rotate(-15deg);opacity:1} }
         @keyframes iconPulseA { 0%,100%{transform:scale(1) rotate(-15deg)}50%{transform:scale(1.07) rotate(-15deg)} }
         @media(max-width:900px){.hero-grid{grid-template-columns:1fr !important;gap:2rem !important}.hero-left{text-align:center}.hero-badge{justify-content:center !important}.hero-benefits{justify-content:center !important}.hero-social{justify-content:center !important}.hero-gif{max-width:380px !important}.hero-icon-item{display:none !important}}
-        @media(max-width:640px){.hero-section{padding:90px 5% 3rem !important;min-height:auto !important}.hero-badge{font-size:0.78rem !important;padding:0.4rem 1rem !important;white-space:nowrap !important}.hero-cta-wrap a{width:100% !important;display:block !important;text-align:center !important;box-sizing:border-box}.hero-gif{max-width:260px !important}.hero-right{display:none !important}}
+        @media(max-width:640px){.hero-section{padding:110px 5% 3rem !important;min-height:auto !important}.hero-badge{font-size:0.78rem !important;padding:0.4rem 1rem !important;white-space:nowrap !important}.hero-cta-wrap a{width:100% !important;display:block !important;text-align:center !important;box-sizing:border-box}.hero-gif{max-width:260px !important}.hero-right{display:none !important}}
       `}</style>
     </section>
   );
