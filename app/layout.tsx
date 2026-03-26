@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
 import { getTranslations, type Locale } from "@/lib/translations";
+import CookieBanner from "@/components/CookieBanner";
 
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = headers();
@@ -11,14 +12,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const isDE = locale === "de";
   return {
     title: isDE
-      ? "Urlaubswächter — Nie wieder zu viel für ein Hotel zahlen"
+      ? "RebookAndSave — Nie wieder zu viel für ein Hotel zahlen"
       : "RebookAndSave — Never Overpay for a Hotel Again",
     description: isDE
-      ? "Urlaubswächter überwacht deinen Hotelpreis nach der Buchung und benachrichtigt dich, wenn er fällt. Automatisch Geld sparen — 100% kostenlos."
+      ? "RebookAndSave überwacht deinen Hotelpreis nach der Buchung und benachrichtigt dich, wenn er fällt. Automatisch Geld sparen — 100% kostenlos."
       : "RebookAndSave monitors your hotel price after booking and alerts you when it drops. Save money automatically — 100% free.",
     openGraph: {
       title: isDE
-        ? "Urlaubswächter — Nie wieder zu viel für ein Hotel zahlen"
+        ? "RebookAndSave — Nie wieder zu viel für ein Hotel zahlen"
         : "RebookAndSave — Never Overpay for a Hotel Again",
       description: isDE
         ? "Hotelpreis tracken und nach der Buchung Geld sparen."
@@ -35,7 +36,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang={locale}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <CookieBanner />
+      </body>
     </html>
   );
 }
