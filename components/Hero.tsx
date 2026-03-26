@@ -9,17 +9,13 @@ export default function Hero({ t }: { t: Translations }) {
       <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", alignItems: "center", position: "relative", zIndex: 1 }} className="hero-grid">
 
         <div className="hero-left">
-<h1 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(2.4rem, 5vw, 4.2rem)", lineHeight: 1.08, letterSpacing: "-0.03em", color: "#0f2044", marginBottom: "1.25rem", position: "relative" }}>
-            <span style={{ position: "relative", display: "inline-block" }}>
-              {t.hero.headline.split("|")[0]}
-              <img src="/Booking.png" alt="Booking.com" className="hero-icon-item" style={{ position: "absolute", top: -38, left: "102%", width: 52, height: 52, borderRadius: 14, objectFit: "contain", background: "#003580", padding: 6, boxShadow: "0 6px 20px rgba(0,53,128,0.3)", transform: "rotate(-8deg)", animation: "iconPopA 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.1s both, iconPulseA 3s ease-in-out 0.6s infinite" }} />
-              <img src="/Hotels.com.png" alt="Hotels.com" className="hero-icon-item" style={{ position: "absolute", top: -54, left: "148%", width: 58, height: 58, borderRadius: 14, objectFit: "contain", background: "#C8102E", padding: 6, boxShadow: "0 6px 20px rgba(200,16,46,0.3)", transform: "rotate(10deg)", animation: "iconPopB 0.5s cubic-bezier(0.34,1.56,0.64,1) 0s both, iconPulseB 3s ease-in-out 0.5s infinite" }} />
-              <img src="/Agoda.png" alt="Agoda" className="hero-icon-item" style={{ position: "absolute", top: 6, left: "130%", width: 48, height: 48, borderRadius: 14, objectFit: "contain", background: "#ffffff", padding: 4, boxShadow: "0 6px 20px rgba(0,0,0,0.15)", transform: "rotate(-4deg)", animation: "iconPopE 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.2s both, iconPulseE 3s ease-in-out 0.7s infinite" }} />
-            </span>
+<h1 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(2.4rem, 5vw, 4.2rem)", lineHeight: 1.08, letterSpacing: "-0.03em", color: "#0f2044", marginBottom: "1.25rem", position: "relative", paddingRight: 80 }}>
+            <img src="/iconB.svg" alt="" aria-hidden="true" style={{ position: "absolute", top: -8, right: 10, width: 58, height: 58, borderRadius: 14, boxShadow: "0 8px 24px rgba(0,0,0,0.18)", transform: "rotate(8deg)", animation: "iconPopB 0.5s cubic-bezier(0.34,1.56,0.64,1) 0s both, iconPulseB 3s ease-in-out 0.5s infinite" }} />
+            <img src="/IconE.svg" alt="" aria-hidden="true" style={{ position: "absolute", top: -38, right: 52, width: 46, height: 46, borderRadius: 12, boxShadow: "0 6px 18px rgba(0,0,0,0.15)", transform: "rotate(-10deg)", animation: "iconPopE 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.15s both, iconPulseE 3s ease-in-out 0.65s infinite" }} />
+            <img src="/IconAir.svg" alt="" aria-hidden="true" style={{ position: "absolute", top: 42, right: 4, width: 40, height: 40, borderRadius: 10, boxShadow: "0 4px 14px rgba(0,0,0,0.15)", transform: "rotate(-6deg)", animation: "iconPopA 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.3s both, iconPulseA 3s ease-in-out 0.8s infinite" }} />
+            <span>{t.hero.headline.split("|")[0]}</span>
             <br />
-            <span style={{ display: "inline-block" }}>
-              {t.hero.headline.split("|")[1]}
-            </span>
+            <span>{t.hero.headline.split("|")[1]}</span>
             <br />
             <span style={{ color: "#f97316", position: "relative", display: "inline-block", marginTop: -6 }}>
               {t.hero.headline.split("|")[2]}
