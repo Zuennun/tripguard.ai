@@ -9,12 +9,7 @@ export default function Hero({ t }: { t: Translations }) {
       <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", alignItems: "center", position: "relative", zIndex: 1 }} className="hero-grid">
 
         <div className="hero-left">
-          <div className="hero-badge" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#fff4ed", border: "1px solid rgba(249,115,22,0.25)", padding: "0.5rem 1.4rem", borderRadius: 100, fontSize: "0.95rem", fontWeight: 600, color: "#ea6c0a", fontFamily: "var(--font-body)", marginBottom: "1.5rem", marginTop: "1rem" }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#f97316", display: "inline-block", animation: "heroPulse 2s ease-in-out infinite" }} />
-            {t.hero.badge}
-          </div>
-
-          <h1 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(2.4rem, 5vw, 4.2rem)", lineHeight: 1.08, letterSpacing: "-0.03em", color: "#0f2044", marginBottom: "1.25rem", position: "relative" }}>
+<h1 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(2.4rem, 5vw, 4.2rem)", lineHeight: 1.08, letterSpacing: "-0.03em", color: "#0f2044", marginBottom: "1.25rem", position: "relative" }}>
             <span>
               {t.hero.headline.split("|")[0]}
             </span>
