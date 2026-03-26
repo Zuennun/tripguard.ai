@@ -19,7 +19,7 @@ export default function Footer({ t }: { t: Translations }) {
                 <span style={{ color: "var(--orange)" }}>{t.brandPart1}</span><span style={{ color: "#0f2044" }}>{t.brandPart2}</span>{t.brandPart3 && <span style={{ color: "var(--orange)" }}>{t.brandPart3}</span>}<span style={{ color: t.brandPart3 ? "#0f2044" : "var(--orange)" }}>.</span>
               </span>
             </div>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.7, maxWidth: 240 }}>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.7, maxWidth: 240, textAlign: "center" }}>
               {t.footer.tagline}
             </p>
             <div style={{ display: "flex", gap: 10, marginTop: "1.25rem" }}>

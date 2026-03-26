@@ -205,7 +205,7 @@ export default function LiveScanning({ t }: { t: Translations }) {
             color: "#0f2044", lineHeight: 1.15,
             letterSpacing: "-0.02em", marginBottom: "1.25rem",
           }}>
-            {t.live.headline.split("10+")[0]}<span style={{ color: "#f97316" }}>10+</span>{t.live.headline.split("10+")[1]}<br />
+            {t.live.headline.split("10+")[0]}<span style={{ color: "#0f2044" }}>10+</span>{t.live.headline.split("10+")[1]}<br />
             <span style={{ color: "#f97316" }}>{t.live.headlineSub}</span>
           </h2>
           <p style={{

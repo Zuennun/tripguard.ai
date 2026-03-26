@@ -23,7 +23,7 @@ export const translations = {
     // Hero
     hero: {
       badge: "Smarte Hotel-Preisüberwachung — 100% kostenlos",
-      headline: "Dein Hotel wurde|günstiger.|Wir sagen's dir.",
+      headline: "Dein Hotel wurde.|günstiger.|Wir sagen's dir.",
       sub: "Einmal eintragen. Urlaubswächter überwacht Hotelpreise auf 10+ Plattformen rund um die Uhr und benachrichtigt dich sofort, sobald der Preis fällt.",
       cta: "Kostenlos Preisüberwachen →",
       trust1: "✓ 100% kostenlos",
@@ -254,7 +254,7 @@ export const translations = {
 
     hero: {
       badge: "Smart Hotel Price Tracking — 100% Free",
-      headline: "Your Hotel Got|Cheaper.|We'll Tell You.",
+      headline: "Your Hotel Got.|Cheaper.|We'll Tell You.",
       sub: "Add your booking once. RebookAndSave monitors hotel prices across 10+ platforms 24/7 and alerts you the instant the price drops.",
       cta: "Start Tracking — Free →",
       trust1: "✓ 100% Free",
@@ -329,7 +329,7 @@ export const translations = {
 
     faq: {
       eyebrow: "FAQ",
-      headline: "Got A|Question?",
+      headline: "Got A |Question?",
       sub: "If there are questions you want to ask, we will answer all your questions.",
       founderText: "I'm Zünnun, based in Berlin — solo founder of RebookAndSave. I love to travel but I can't stand overpaying for hotels. Everyone likes to save money, right? So I built RebookAndSave to scan 10+ platforms automatically so travelers like you always get the best rate.",
       contactLabel: "Write to me:",

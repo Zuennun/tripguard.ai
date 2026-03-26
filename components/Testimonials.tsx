@@ -58,7 +58,7 @@ export default function Testimonials({ t }: { t: Translations }) {
       </div>
       <style>{`
         @media(max-width:900px){.testimonials-grid{grid-template-columns:1fr 1fr !important}}
-        @media(max-width:768px){.testimonials-titles{text-align:center}.testimonials-nav{width:100%;justify-content:center}}
+        @media(max-width:768px){.testimonials-titles{text-align:center;width:100%}.testimonials-nav{width:100%;justify-content:center}}
         @media(max-width:580px){.testimonials-section{padding:4rem 1.25rem !important}.testimonials-grid{grid-template-columns:1fr !important}}
       `}</style>
     </section>

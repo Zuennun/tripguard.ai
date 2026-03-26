@@ -6,7 +6,7 @@ export default function Comparison({ t }: { t: Translations }) {
     <section className="comparison-section" style={{ background: "#ffffff", padding: "7rem 3rem" }}>
       <div style={{ textAlign: "center", marginBottom: "4rem" }}>
         <h2 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(2rem, 4vw, 3rem)", color: "#0f2044", lineHeight: 1.12, letterSpacing: "-0.03em", marginBottom: "1rem" }}>
-          {t.comparison.headline.split("|")[0]} <span style={{ color: "#f97316" }}>{t.comparison.headline.split("|")[1]}</span>
+          {t.comparison.headline.split("|")[0]}<br /><span style={{ color: "#f97316" }}>{t.comparison.headline.split("|")[1]}</span>
         </h2>
         <p style={{ fontFamily: "var(--font-body)", fontSize: "1.05rem", color: "#6b7280", lineHeight: 1.7, maxWidth: 560, margin: "0 auto" }}>
           {t.comparison.sub}
