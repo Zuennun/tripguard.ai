@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const DE_DOMAINS = ["urlaubswächter.de", "xn--urlaubswchter-mlb.de", "urlaubswaechter.de"];
-
 export function middleware(req: NextRequest) {
   const host = req.headers.get("host") || "";
-  const isDe = DE_DOMAINS.some(d => host.includes(d)) || host.includes("urlaubsw");
+  const acceptLanguage = req.headers.get("accept-language") || "";
 
-  const locale = isDe ? "de" : "en";
+  // DE if: urlaubswächter domain OR browser language is German (DACH region)
+  const isDeDomain = host.includes("urlaubsw");
+  const isDeLanguage = acceptLanguage.toLowerCase().startsWith("de");
+
+  const locale = isDeDomain || isDeLanguage ? "de" : "en";
 
   const res = NextResponse.next();
   res.headers.set("x-locale", locale);

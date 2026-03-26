@@ -12,7 +12,7 @@ export default function Footer({ t }: { t: Translations }) {
     <footer id="contact" style={{ background: "var(--navy)", padding: "4rem 2rem 2rem" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: "3rem", marginBottom: "3rem" }} className="footer-grid">
-          <div style={{ background: "#ffffff", borderRadius: 20, padding: "1.75rem", display: "flex", flexDirection: "column" }}>
+          <div style={{ background: "#ffffff", borderRadius: 20, padding: "1.75rem", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: "1rem" }}>
               <img src="/tripguard1.png" alt={t.brand} style={{ height: 70, width: "auto", display: "block" }} />
               <span style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "1.35rem", color: "#0f2044", marginLeft: -5 }}>
