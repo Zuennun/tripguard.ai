@@ -53,7 +53,8 @@ export default function Footer({ t }: { t: Translations }) {
           <span style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)" }}>{t.footer.rights}</span>
           <div style={{ display: "flex", gap: "1.5rem" }}>
             <a href="/impressum" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{t.footer.imprint}</a>
-            {[t.footer.privacy, t.footer.terms, t.footer.cookies].map(l => (
+            <a href="/datenschutz" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{t.footer.privacy}</a>
+            {[t.footer.terms, t.footer.cookies].map(l => (
               <a key={l} href="#" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{l}</a>
             ))}
           </div>
