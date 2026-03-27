@@ -3,11 +3,11 @@ export type Locale = "de" | "en";
 export const translations = {
   de: {
     // Brand
-    brand: "RebookAndSave",
-    brandTagline: "RebookAndSave.",
-    brandPart1: "Rebook",
-    brandPart2: "And",
-    brandPart3: "Save",
+    brand: "SaveMyHoliday",
+    brandTagline: "SaveMyHoliday.",
+    brandPart1: "Save",
+    brandPart2: "My",
+    brandPart3: "Holiday",
 
     // Navbar
     nav: {
@@ -24,12 +24,12 @@ export const translations = {
     hero: {
       badge: "Smarte Hotel-Preisüberwachung — 100% kostenlos",
       headline: "Dein Hotel wurde|günstiger.|Wir sagen's dir.",
-      sub: "Einmal eintragen. RebookAndSave überwacht Hotelpreise auf 10+ Plattformen rund um die Uhr und benachrichtigt dich sofort, sobald der Preis fällt.",
+      sub: "Einmal eintragen. SaveMyHoliday überwacht Hotelpreise auf 10+ Plattformen rund um die Uhr und benachrichtigt dich sofort, sobald der Preis fällt.",
       cta: "Kostenlos Preisüberwachen →",
       trust1: "✓ 100% kostenlos",
       trust2: "✓ Einrichtung in 60 Sekunden",
       tracked: "1.385+ Buchungen überwacht",
-      imgAlt: "RebookAndSave Preisüberwachung Demo",
+      imgAlt: "SaveMyHoliday Preisüberwachung Demo",
     },
 
     // Stats
@@ -68,9 +68,9 @@ export const translations = {
     comparison: {
       eyebrow: "DER VERGLEICH",
       headline: "Kein Cent zu viel.|Mehr für die Urlaubskasse.",
-      sub: "Vergiss manuelle Preischecks — RebookAndSave überwacht jede Plattform für dich und benachrichtigt dich sofort, wenn die Preise fallen.",
-      without: "Ohne RebookAndSave",
-      withTitle: "Mit RebookAndSave",
+      sub: "Vergiss manuelle Preischecks — SaveMyHoliday überwacht jede Plattform für dich und benachrichtigt dich sofort, wenn die Preise fallen.",
+      without: "Ohne SaveMyHoliday",
+      withTitle: "Mit SaveMyHoliday",
       withoutList: [
         "Zu viel für dein Hotel zahlen",
         "Preise manuell prüfen — dauert Stunden",
@@ -92,9 +92,9 @@ export const translations = {
       eyebrow: "KUNDENSTIMMEN",
       headline: "Zufriedene Reisende|sind unsere beste Werbung",
       items: [
-        { text: "Dank RebookAndSave habe ich €180 bei meinem Paris-Hotel gespart. Ich hatte vorgebucht und es fast vergessen — dann plötzlich ein Alarm. Unglaublich!", name: "Sarah M.", country: "Deutschland" },
+        { text: "Dank SaveMyHoliday habe ich €180 bei meinem Paris-Hotel gespart. Ich hatte vorgebucht und es fast vergessen — dann plötzlich ein Alarm. Unglaublich!", name: "Sarah M.", country: "Deutschland" },
         { text: "Das ist das klügste Reise-Tool, das ich je benutzt habe. In 2 Minuten eingerichtet und noch in der gleichen Woche einen günstigeren Preis gefunden.", name: "Thomas R.", country: "USA" },
-        { text: "RebookAndSave hat mir €300 bei einem Dubai-Hotel gespart. Der Alarm kam um 6 Uhr morgens und ich habe vor der Arbeit neu gebucht. Genial für Vielreisende.", name: "Jana K.", country: "Österreich" },
+        { text: "SaveMyHoliday hat mir €300 bei einem Dubai-Hotel gespart. Der Alarm kam um 6 Uhr morgens und ich habe vor der Arbeit neu gebucht. Genial für Vielreisende.", name: "Jana K.", country: "Österreich" },
         { text: "€250 bei einem Rom-Hotel gespart. Die Alarme sind präzise — exakt das gleiche Zimmer, viel günstiger.", name: "Marco B.", country: "Italien" },
         { text: "Bester Reise-Hack ever. Nie wieder manuell Preise prüfen. Einrichtung war super einfach.", name: "Lisa H.", country: "UK" },
         { text: "Für Geschäftsreisen genutzt und meinem Unternehmen über €800 in einem Monat gespart.", name: "Ahmed K.", country: "VAE" },
@@ -106,17 +106,17 @@ export const translations = {
       eyebrow: "FAQ",
       headline: "Hast du|eine Frage?",
       sub: "Wenn du Fragen hast, beantworten wir sie alle.",
-      founderText: "Ich bin Zünnun, aus Berlin — Gründer von RebookAndSave. Ich reise gerne, aber ich kann es nicht ausstehen, zu viel für Hotels zu zahlen. Jeder spart gerne Geld, oder? Also habe ich RebookAndSave gebaut, um 10+ Plattformen automatisch zu scannen, damit Reisende wie du immer den besten Preis bekommen.",
+      founderText: "Ich bin Zünnun, aus Berlin — Gründer von SaveMyHoliday. Ich reise gerne, aber ich kann es nicht ausstehen, zu viel für Hotels zu zahlen. Jeder spart gerne Geld, oder? Also habe ich SaveMyHoliday gebaut, um 10+ Plattformen automatisch zu scannen, damit Reisende wie du immer den besten Preis bekommen.",
       contactLabel: "Schreib mir:",
-      contactEmail: "hello@rebookandsave.com",
+      contactEmail: "hello@savemyholiday.com",
       seeMore: "Vielleicht wurde deine Frage bereits beantwortet, schau mal hier.",
       items: [
         {
-          q: "Was ist RebookAndSave?",
-          a: "RebookAndSave ist ein kostenloser Service, der deinen Hotelbuchungspreis überwacht, nachdem du gebucht hast. Wenn der Preis fällt, benachrichtigen wir dich sofort per E-Mail, damit du günstiger neu buchen kannst.",
+          q: "Was ist SaveMyHoliday?",
+          a: "SaveMyHoliday ist ein kostenloser Service, der deinen Hotelbuchungspreis überwacht, nachdem du gebucht hast. Wenn der Preis fällt, benachrichtigen wir dich sofort per E-Mail, damit du günstiger neu buchen kannst.",
         },
         {
-          q: "Wie verdient RebookAndSave Geld?",
+          q: "Wie verdient SaveMyHoliday Geld?",
           a: "Wir verdienen eine kleine Affiliate-Provision, wenn du über unsere Links neu buchst — ohne Mehrkosten für dich. Der Service ist für Nutzer vollständig kostenlos.",
         },
         {
@@ -128,7 +128,7 @@ export const translations = {
           a: "Das hängt vom Hotel und Markt ab — manchmal fällt ein Preis innerhalb weniger Tage, manchmal zeigt er sich 2–4 Wochen vor Reisebeginn. Unser System scannt stündlich, damit du keine Preissenkung verpasst.",
         },
         {
-          q: "Wann höre ich von RebookAndSave?",
+          q: "Wann höre ich von SaveMyHoliday?",
           a: "Wir melden uns nur, wenn wir einen günstigeren Preis für deine genaue Buchung finden. Du bekommst keine zufälligen E-Mails — nur echte Spar-Alarme.",
         },
         {
@@ -200,7 +200,7 @@ export const translations = {
       account: "Konto",
       supportCenter: "Hilfecenter",
       accessibility: "Barrierefreiheit",
-      rights: "© 2026 RebookAndSave. Alle Rechte vorbehalten.",
+      rights: "© 2026 SaveMyHoliday. Alle Rechte vorbehalten.",
       privacy: "Datenschutz",
       terms: "AGB",
       cookies: "Cookies",
@@ -209,7 +209,7 @@ export const translations = {
 
     // Emails
     emails: {
-      confirmSubject: "✅ Wir beobachten deinen Hotelpreis — RebookAndSave",
+      confirmSubject: "✅ Wir beobachten deinen Hotelpreis — SaveMyHoliday",
       confirmTitle: "Wir sind dran!",
       confirmBody: "Deine Buchung bei {hotel} wird jetzt rund um die Uhr überwacht. Sobald wir einen günstigeren Preis für das gleiche Zimmer finden, benachrichtigen wir dich sofort — damit du sparen kannst.",
       confirmCard: "Deine Buchung",
@@ -221,7 +221,7 @@ export const translations = {
       confirmStep2: "Sobald ein <strong>günstigerer Preis erscheint</strong>, bekommst du eine E-Mail mit dem neuen Preis und einem direkten Umbuchungslink.",
       confirmStep3: "Du <strong>stornierst und buchst neu</strong> zum günstigeren Preis. Stecke die Differenz ein — fertig.",
       confirmTip: "<strong>💡 Tipp:</strong> Stelle sicher, dass deine Buchung <strong>kostenlose Stornierung</strong> hat — so kannst du immer neu buchen, ohne Geld zu verlieren, wenn wir einen besseren Preis finden.",
-      alertSubject: "💰 Günstigerer Preis gefunden für {hotel} — Urlaubswächter",
+      alertSubject: "💰 Günstigerer Preis gefunden für {hotel} — SaveMyHoliday",
       alertTitle: "Günstigerer Preis gefunden!",
       alertBody: "Wir haben einen niedrigeren Preis für deine Buchung bei {hotel} gefunden. Du kannst jetzt {savings} sparen.",
       alertComparison: "Preisvergleich",
@@ -236,11 +236,11 @@ export const translations = {
   },
 
   en: {
-    brand: "RebookAndSave",
-    brandTagline: "RebookAndSave.",
-    brandPart1: "Rebook",
-    brandPart2: "And",
-    brandPart3: "Save",
+    brand: "SaveMyHoliday",
+    brandTagline: "SaveMyHoliday.",
+    brandPart1: "Save",
+    brandPart2: "My",
+    brandPart3: "Holiday",
 
     nav: {
       home: "Home",
@@ -255,12 +255,12 @@ export const translations = {
     hero: {
       badge: "Smart Hotel Price Tracking — 100% Free",
       headline: "Your Hotel Got|Cheaper.|We'll Tell You.",
-      sub: "Add your booking once. RebookAndSave monitors hotel prices across 10+ platforms 24/7 and alerts you the instant the price drops.",
+      sub: "Add your booking once. SaveMyHoliday monitors hotel prices across 10+ platforms 24/7 and alerts you the instant the price drops.",
       cta: "Start Tracking — Free →",
       trust1: "✓ 100% Free",
       trust2: "✓ Setup in 60 seconds",
       tracked: "1,385+ Bookings Tracked",
-      imgAlt: "RebookAndSave price tracking demo",
+      imgAlt: "SaveMyHoliday price tracking demo",
     },
 
     stats: {
@@ -295,9 +295,9 @@ export const translations = {
     comparison: {
       eyebrow: "THE COMPARISON",
       headline: "Stop Overpaying.|Start Saving.",
-      sub: "Forget checking prices manually — RebookAndSave watches every platform for you and alerts you the instant rates drop.",
-      without: "Without RebookAndSave",
-      withTitle: "With RebookAndSave",
+      sub: "Forget checking prices manually — SaveMyHoliday watches every platform for you and alerts you the instant rates drop.",
+      without: "Without SaveMyHoliday",
+      withTitle: "With SaveMyHoliday",
       withoutList: [
         "Overpay for your hotel",
         "Check prices manually — takes hours",
@@ -318,9 +318,9 @@ export const translations = {
       eyebrow: "TESTIMONIALS",
       headline: "Happy Travelers Are|Our Best Ads",
       items: [
-        { text: "Thanks to RebookAndSave I saved €180 on my Paris hotel. I booked in advance and forgot about it — then suddenly got an alert. Incredible!", name: "Sarah M.", country: "Germany" },
+        { text: "Thanks to SaveMyHoliday I saved €180 on my Paris hotel. I booked in advance and forgot about it — then suddenly got an alert. Incredible!", name: "Sarah M.", country: "Germany" },
         { text: "I think this is the smartest travel tool I've ever used. Set it up in 2 minutes and it found me a cheaper rate the same week.", name: "Thomas R.", country: "USA" },
-        { text: "RebookAndSave saved me €300 on a Dubai hotel. The alert came at 6am and I rebooked before work. Life changing for frequent travelers.", name: "Jana K.", country: "Austria" },
+        { text: "SaveMyHoliday saved me €300 on a Dubai hotel. The alert came at 6am and I rebooked before work. Life changing for frequent travelers.", name: "Jana K.", country: "Austria" },
         { text: "Saved €250 on a Rome hotel. The alerts are spot on — exact same room, much cheaper.", name: "Marco B.", country: "Italy" },
         { text: "Best travel hack ever. Never checking prices manually again. Setup was super easy.", name: "Lisa H.", country: "UK" },
         { text: "Used it for business travel and saved my company over €800 in one month.", name: "Ahmed K.", country: "UAE" },
@@ -331,16 +331,16 @@ export const translations = {
       eyebrow: "FAQ",
       headline: "Got A |Question?",
       sub: "If there are questions you want to ask, we will answer all your questions.",
-      founderText: "I'm Zünnun, based in Berlin — solo founder of RebookAndSave. I love to travel but I can't stand overpaying for hotels. Everyone likes to save money, right? So I built RebookAndSave to scan 10+ platforms automatically so travelers like you always get the best rate.",
+      founderText: "I'm Zünnun, based in Berlin — solo founder of SaveMyHoliday. I love to travel but I can't stand overpaying for hotels. Everyone likes to save money, right? So I built SaveMyHoliday to scan 10+ platforms automatically so travelers like you always get the best rate.",
       contactLabel: "Write to me:",
-      contactEmail: "hello@rebookandsave.com",
+      contactEmail: "hello@savemyholiday.com",
       seeMore: "Maybe your question has been answered, check this out.",
       items: [
-        { q: "What is RebookAndSave?", a: "RebookAndSave is a free service that monitors your hotel booking price after you've booked. When the price drops, we instantly alert you by email so you can rebook cheaper." },
-        { q: "How does RebookAndSave make money?", a: "We earn a small affiliate commission when you rebook through our links — at no extra cost to you. The service is completely free for users." },
+        { q: "What is SaveMyHoliday?", a: "SaveMyHoliday is a free service that monitors your hotel booking price after you've booked. When the price drops, we instantly alert you by email so you can rebook cheaper." },
+        { q: "How does SaveMyHoliday make money?", a: "We earn a small affiliate commission when you rebook through our links — at no extra cost to you. The service is completely free for users." },
         { q: "Which platforms do you scan?", a: "We scan 10+ platforms including Booking.com, Hotels.com, Expedia, Agoda, and more. We match your exact hotel, room type, and dates to make sure you always get the best available rate." },
         { q: "How quickly do I get alerted?", a: "It depends on the hotel and market — sometimes a price drop happens within a few days, other times it shows up 2–4 weeks before your trip begins. Our system scans hourly so you never miss a drop." },
-        { q: "When will I hear from RebookAndSave?", a: "We only contact you when we find a cheaper rate for your exact booking. You won't receive random emails — only real savings alerts." },
+        { q: "When will I hear from SaveMyHoliday?", a: "We only contact you when we find a cheaper rate for your exact booking. You won't receive random emails — only real savings alerts." },
         { q: "Is my data safe?", a: "Absolutely. We never share your data and only use your email to send price drop alerts. You can delete your booking anytime." },
       ],
     },
@@ -405,7 +405,7 @@ export const translations = {
       account: "Account",
       supportCenter: "Support Center",
       accessibility: "Accessibility",
-      rights: "© 2026 RebookAndSave. All rights reserved.",
+      rights: "© 2026 SaveMyHoliday. All rights reserved.",
       privacy: "Privacy Policy",
       terms: "Terms",
       cookies: "Cookies",
@@ -413,7 +413,7 @@ export const translations = {
     },
 
     emails: {
-      confirmSubject: "✅ We're watching your hotel price — RebookAndSave",
+      confirmSubject: "✅ We're watching your hotel price — SaveMyHoliday",
       confirmTitle: "We're on it!",
       confirmBody: "Your booking at {hotel} is now being monitored 24/7. The moment we find a cheaper price for the same room, we'll email you instantly — so you can save.",
       confirmCard: "Your Booking",
@@ -425,7 +425,7 @@ export const translations = {
       confirmStep2: "The moment a <strong>cheaper rate appears</strong>, you get an email with the new price and a direct rebook link.",
       confirmStep3: "You <strong>cancel & rebook</strong> at the lower price. Pocket the difference — done.",
       confirmTip: "<strong>💡 Tip:</strong> Make sure your booking is <strong>free cancellation</strong> — that way you can always rebook without losing money if we find a better price.",
-      alertSubject: "💰 Cheaper price found for {hotel} — RebookAndSave",
+      alertSubject: "💰 Cheaper price found for {hotel} — SaveMyHoliday",
       alertTitle: "Cheaper price found!",
       alertBody: "We found a lower price for your booking at {hotel}. You can save {savings} right now.",
       alertComparison: "Price Comparison",

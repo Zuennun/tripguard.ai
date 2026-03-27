@@ -37,7 +37,7 @@ export default function DatenschutzPage() {
               fontFamily: "var(--font-body)", fontSize: "0.95rem",
               color: "rgba(255,255,255,0.5)", marginTop: "0.75rem",
             }}>
-              RebookAndSave · rebookandsave.com
+              SaveMyHoliday · savemyholiday.com
             </p>
           </div>
         </div>
@@ -55,11 +55,11 @@ export default function DatenschutzPage() {
               <>
                 <Section title="1. Verantwortlicher">
                   <InfoRow label="Name" value="Zünnun Ardal" />
-                  <InfoRow label="Unternehmen" value="Rebookandsave" />
+                  <InfoRow label="Unternehmen" value="SaveMyHoliday" />
                   <InfoRow label="Adresse" value={<>Haydnstraße 26<br />12167 Berlin<br />Deutschland</>} />
                   <InfoRow label="E-Mail" value={
-                    <a href="mailto:hello@rebookandsave.com" style={{ color: "#f97316", textDecoration: "none" }}>
-                      hello@rebookandsave.com
+                    <a href="mailto:hello@savemyholiday.com" style={{ color: "#f97316", textDecoration: "none" }}>
+                      hello@savemyholiday.com
                     </a>
                   } />
                 </Section>
@@ -245,11 +245,11 @@ export default function DatenschutzPage() {
               <>
                 <Section title="1. Data Controller">
                   <InfoRow label="Name" value="Zünnun Ardal" />
-                  <InfoRow label="Company" value="Rebookandsave" />
+                  <InfoRow label="Company" value="SaveMyHoliday" />
                   <InfoRow label="Address" value={<>Haydnstraße 26<br />12167 Berlin<br />Germany</>} />
                   <InfoRow label="Email" value={
-                    <a href="mailto:hello@rebookandsave.com" style={{ color: "#f97316", textDecoration: "none" }}>
-                      hello@rebookandsave.com
+                    <a href="mailto:hello@savemyholiday.com" style={{ color: "#f97316", textDecoration: "none" }}>
+                      hello@savemyholiday.com
                     </a>
                   } />
                 </Section>

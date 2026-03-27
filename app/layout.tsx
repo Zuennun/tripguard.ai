@@ -12,15 +12,15 @@ export async function generateMetadata(): Promise<Metadata> {
   const isDE = locale === "de";
   return {
     title: isDE
-      ? "RebookAndSave — Nie wieder zu viel für ein Hotel zahlen"
-      : "RebookAndSave — Never Overpay for a Hotel Again",
+      ? "SaveMyHoliday — Nie wieder zu viel für ein Hotel zahlen"
+      : "SaveMyHoliday — Never Overpay for a Hotel Again",
     description: isDE
-      ? "RebookAndSave überwacht deinen Hotelpreis nach der Buchung und benachrichtigt dich, wenn er fällt. Automatisch Geld sparen — 100% kostenlos."
-      : "RebookAndSave monitors your hotel price after booking and alerts you when it drops. Save money automatically — 100% free.",
+      ? "SaveMyHoliday überwacht deinen Hotelpreis nach der Buchung und benachrichtigt dich, wenn er fällt. Automatisch Geld sparen — 100% kostenlos."
+      : "SaveMyHoliday monitors your hotel price after booking and alerts you when it drops. Save money automatically — 100% free.",
     openGraph: {
       title: isDE
-        ? "RebookAndSave — Nie wieder zu viel für ein Hotel zahlen"
-        : "RebookAndSave — Never Overpay for a Hotel Again",
+        ? "SaveMyHoliday — Nie wieder zu viel für ein Hotel zahlen"
+        : "SaveMyHoliday — Never Overpay for a Hotel Again",
       description: isDE
         ? "Hotelpreis tracken und nach der Buchung Geld sparen."
         : "Track your hotel price and save money after booking.",

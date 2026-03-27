@@ -4,16 +4,16 @@ type EmailLocale = "de" | "en";
 
 function getLogo(locale: EmailLocale): string {
   const imgSrc = locale === "de"
-    ? "https://urlaubswaechter.com/tripguard1.png"
-    : "https://rebookandsave.com/tripguard1.png";
+    ? "https://savemyholiday.com/tripguard1.png"
+    : "https://savemyholiday.com/tripguard1.png";
   const brandHtml = locale === "de"
-    ? `<span style="color:#f97316">Urlaub</span><span style="color:#0f2044">wächter</span>.`
-    : `<span style="color:#f97316">Rebook</span><span style="color:#0f2044">And</span><span style="color:#f97316">Save</span>.`;
+    ? `<span style="color:#f97316">Save</span><span style="color:#0f2044">My</span><span style="color:#f97316">Holiday</span>.`
+    : `<span style="color:#f97316">Save</span><span style="color:#0f2044">My</span><span style="color:#f97316">Holiday</span>.`;
   return `
   <table cellpadding="0" cellspacing="0" style="margin:0 auto">
     <tr>
       <td style="background:#ffffff;border-radius:10px;padding:6px 10px;vertical-align:middle">
-        <img src="${imgSrc}" alt="${locale === "de" ? "Urlaubswächter" : "RebookAndSave"}" height="36"
+        <img src="${imgSrc}" alt="${locale === "de" ? "SaveMyHoliday" : "SaveMyHoliday"}" height="36"
              style="display:block;height:36px;width:auto;border:0" />
       </td>
       <td style="padding-left:10px;vertical-align:middle">
@@ -26,11 +26,11 @@ function getLogo(locale: EmailLocale): string {
 }
 
 function wrap(content: string, locale: EmailLocale = "en"): string {
-  const brandName = locale === "de" ? "Urlaubswächter" : "RebookAndSave";
-  const siteUrl = locale === "de" ? "https://urlaubswaechter.com" : "https://rebookandsave.com";
-  const siteDomain = locale === "de" ? "urlaubswaechter.com" : "rebookandsave.com";
+  const brandName = locale === "de" ? "SaveMyHoliday" : "SaveMyHoliday";
+  const siteUrl = locale === "de" ? "https://savemyholiday.com" : "https://savemyholiday.com";
+  const siteDomain = locale === "de" ? "savemyholiday.com" : "savemyholiday.com";
   const footerNote = locale === "de"
-    ? "Du erhältst diese E-Mail, weil du eine Buchung bei Urlaubswächter eingereicht hast."
+    ? "Du erhältst diese E-Mail, weil du eine Buchung bei SaveMyHoliday eingereicht hast."
     : "You receive this email because you submitted a booking to TripGuard.";
   return `<!DOCTYPE html>
 <html lang="${locale}">

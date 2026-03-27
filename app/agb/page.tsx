@@ -37,7 +37,7 @@ export default function AgbPage() {
               fontFamily: "var(--font-body)", fontSize: "0.95rem",
               color: "rgba(255,255,255,0.5)", marginTop: "0.75rem",
             }}>
-              RebookAndSave · rebookandsave.com
+              SaveMyHoliday · savemyholiday.com
             </p>
           </div>
         </div>
@@ -56,11 +56,11 @@ export default function AgbPage() {
                 <Section title="1. Geltungsbereich">
                   <p style={bodyStyle}>
                     Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für die Nutzung des Online-Dienstes
-                    „RebookAndSave", betrieben von:
+                    „SaveMyHoliday", betrieben von:
                   </p>
                   <div style={{ ...bodyStyle, marginTop: "1rem", lineHeight: 2 }}>
                     Zünnun Ardal<br />
-                    RebookAndSave<br />
+                    SaveMyHoliday<br />
                     Haydnstraße 26<br />
                     12167 Berlin<br />
                     Deutschland
@@ -74,7 +74,7 @@ export default function AgbPage() {
 
                 <Section title="2. Leistungsbeschreibung">
                   <p style={bodyStyle}>
-                    RebookAndSave stellt einen digitalen Service zur Verfügung, mit dem Nutzer Hotelpreise
+                    SaveMyHoliday stellt einen digitalen Service zur Verfügung, mit dem Nutzer Hotelpreise
                     nach einer Buchung überwachen können. Der Service umfasst insbesondere:
                   </p>
                   <ul style={listStyle}>
@@ -85,7 +85,7 @@ export default function AgbPage() {
                     <li>ggf. Empfehlungen zu Drittanbietern (z. B. Buchungsplattformen oder Aktivitäten)</li>
                   </ul>
                   <p style={{ ...bodyStyle, marginTop: "0.75rem" }}>
-                    RebookAndSave ist kein Reiseveranstalter, Vermittler oder Anbieter von Unterkünften.
+                    SaveMyHoliday ist kein Reiseveranstalter, Vermittler oder Anbieter von Unterkünften.
                   </p>
                 </Section>
 
@@ -106,7 +106,7 @@ export default function AgbPage() {
 
                 <Section title="4. Kein Garantieversprechen">
                   <p style={bodyStyle}>
-                    Die von RebookAndSave bereitgestellten Informationen erfolgen ohne Gewähr.
+                    Die von SaveMyHoliday bereitgestellten Informationen erfolgen ohne Gewähr.
                     Insbesondere wird keine Garantie übernommen für:
                   </p>
                   <ul style={listStyle}>
@@ -121,8 +121,8 @@ export default function AgbPage() {
 
                 <Section title="5. Haftung">
                   <p style={bodyStyle}>
-                    RebookAndSave haftet nur für Schäden, die auf vorsätzlichem oder grob fahrlässigem Verhalten
-                    beruhen. Bei einfacher Fahrlässigkeit haftet RebookAndSave nur bei Verletzung wesentlicher
+                    SaveMyHoliday haftet nur für Schäden, die auf vorsätzlichem oder grob fahrlässigem Verhalten
+                    beruhen. Bei einfacher Fahrlässigkeit haftet SaveMyHoliday nur bei Verletzung wesentlicher
                     Vertragspflichten (Kardinalpflichten). Die Haftung ist auf den vorhersehbaren,
                     typischerweise eintretenden Schaden begrenzt.
                   </p>
@@ -140,13 +140,13 @@ export default function AgbPage() {
 
                 <Section title="6. Haftungsausschluss bei Umbuchungen und Preisänderungen">
                   <p style={bodyStyle}>
-                    Die durch RebookAndSave bereitgestellten Informationen, insbesondere zu Preisentwicklungen
+                    Die durch SaveMyHoliday bereitgestellten Informationen, insbesondere zu Preisentwicklungen
                     und möglichen Einsparungen, dienen ausschließlich als unverbindliche Hinweise.
                     Die Entscheidung, eine bestehende Buchung zu stornieren, umzubuchen oder neu vorzunehmen,
                     liegt ausschließlich beim Nutzer.
                   </p>
                   <p style={{ ...bodyStyle, marginTop: "0.75rem" }}>
-                    RebookAndSave übernimmt insbesondere keine Haftung für:
+                    SaveMyHoliday übernimmt insbesondere keine Haftung für:
                   </p>
                   <ul style={listStyle}>
                     <li>nicht mehr verfügbare Unterkünfte nach einer Stornierung</li>
@@ -156,7 +156,7 @@ export default function AgbPage() {
                   </ul>
                   <p style={{ ...bodyStyle, marginTop: "0.75rem" }}>
                     Dem Nutzer ist bewusst, dass Preise und Verfügbarkeiten von Drittanbietern jederzeit
-                    variieren können und nicht von RebookAndSave beeinflusst werden.
+                    variieren können und nicht von SaveMyHoliday beeinflusst werden.
                   </p>
                 </Section>
 
@@ -164,7 +164,7 @@ export default function AgbPage() {
 
                 <Section title="7. Verfügbarkeit des Dienstes">
                   <p style={bodyStyle}>
-                    RebookAndSave bemüht sich um eine möglichst unterbrechungsfreie Verfügbarkeit des Dienstes.
+                    SaveMyHoliday bemüht sich um eine möglichst unterbrechungsfreie Verfügbarkeit des Dienstes.
                     Ein Anspruch auf permanente Verfügbarkeit oder fehlerfreie Funktion besteht nicht.
                   </p>
                 </Section>
@@ -172,7 +172,7 @@ export default function AgbPage() {
                 <Divider />
 
                 <Section title="8. Änderungen des Dienstes">
-                  <p style={bodyStyle}>RebookAndSave behält sich das Recht vor:</p>
+                  <p style={bodyStyle}>SaveMyHoliday behält sich das Recht vor:</p>
                   <ul style={listStyle}>
                     <li>Funktionen zu ändern</li>
                     <li>den Service zu erweitern oder einzuschränken</li>
@@ -197,8 +197,8 @@ export default function AgbPage() {
 
                 <Section title="10. Drittanbieter und externe Links">
                   <p style={bodyStyle}>
-                    RebookAndSave kann Links zu externen Websites oder Diensten enthalten. Für Inhalte, Preise,
-                    Verfügbarkeiten oder Bedingungen dieser Drittanbieter übernimmt RebookAndSave keine
+                    SaveMyHoliday kann Links zu externen Websites oder Diensten enthalten. Für Inhalte, Preise,
+                    Verfügbarkeiten oder Bedingungen dieser Drittanbieter übernimmt SaveMyHoliday keine
                     Verantwortung.
                   </p>
                 </Section>
@@ -207,7 +207,7 @@ export default function AgbPage() {
 
                 <Section title="11. Kündigung und Sperrung">
                   <p style={bodyStyle}>
-                    Nutzer können die Nutzung des Dienstes jederzeit beenden. RebookAndSave behält sich das
+                    Nutzer können die Nutzung des Dienstes jederzeit beenden. SaveMyHoliday behält sich das
                     Recht vor, Nutzer bei Verstößen gegen diese AGB zu sperren oder den Zugang einzuschränken.
                   </p>
                 </Section>
@@ -220,7 +220,7 @@ export default function AgbPage() {
                     <a href="/datenschutz" style={{ color: "#f97316", textDecoration: "none" }}>
                       Datenschutzerklärung
                     </a>{" "}
-                    von RebookAndSave.
+                    von SaveMyHoliday.
                   </p>
                 </Section>
 
@@ -238,11 +238,11 @@ export default function AgbPage() {
               <>
                 <Section title="1. Scope">
                   <p style={bodyStyle}>
-                    These Terms and Conditions govern the use of the online service "RebookAndSave", operated by:
+                    These Terms and Conditions govern the use of the online service "SaveMyHoliday", operated by:
                   </p>
                   <div style={{ ...bodyStyle, marginTop: "1rem", lineHeight: 2 }}>
                     Zünnun Ardal<br />
-                    RebookAndSave<br />
+                    SaveMyHoliday<br />
                     Haydnstraße 26<br />
                     12167 Berlin<br />
                     Germany
@@ -256,7 +256,7 @@ export default function AgbPage() {
 
                 <Section title="2. Service Description">
                   <p style={bodyStyle}>
-                    RebookAndSave provides a digital service that allows users to monitor hotel prices after
+                    SaveMyHoliday provides a digital service that allows users to monitor hotel prices after
                     a booking. The service includes in particular:
                   </p>
                   <ul style={listStyle}>
@@ -267,7 +267,7 @@ export default function AgbPage() {
                     <li>Recommendations for third-party providers (e.g. booking platforms or activities)</li>
                   </ul>
                   <p style={{ ...bodyStyle, marginTop: "0.75rem" }}>
-                    RebookAndSave is not a tour operator, intermediary, or accommodation provider.
+                    SaveMyHoliday is not a tour operator, intermediary, or accommodation provider.
                   </p>
                 </Section>
 
@@ -288,7 +288,7 @@ export default function AgbPage() {
 
                 <Section title="4. No Guarantee">
                   <p style={bodyStyle}>
-                    The information provided by RebookAndSave is provided without warranty.
+                    The information provided by SaveMyHoliday is provided without warranty.
                     In particular, no guarantee is given for:
                   </p>
                   <ul style={listStyle}>
@@ -303,8 +303,8 @@ export default function AgbPage() {
 
                 <Section title="5. Liability">
                   <p style={bodyStyle}>
-                    RebookAndSave is only liable for damages resulting from intentional or grossly negligent
-                    conduct. In cases of simple negligence, RebookAndSave is only liable for breaches of
+                    SaveMyHoliday is only liable for damages resulting from intentional or grossly negligent
+                    conduct. In cases of simple negligence, SaveMyHoliday is only liable for breaches of
                     material contractual obligations (cardinal obligations). Liability is limited to
                     foreseeable, typically occurring damage.
                   </p>
@@ -322,12 +322,12 @@ export default function AgbPage() {
 
                 <Section title="6. Disclaimer for Rebookings and Price Changes">
                   <p style={bodyStyle}>
-                    The information provided by RebookAndSave, in particular regarding price developments and
+                    The information provided by SaveMyHoliday, in particular regarding price developments and
                     potential savings, serves exclusively as non-binding guidance. The decision to cancel,
                     rebook or make a new booking rests solely with the user.
                   </p>
                   <p style={{ ...bodyStyle, marginTop: "0.75rem" }}>
-                    RebookAndSave accepts no liability in particular for:
+                    SaveMyHoliday accepts no liability in particular for:
                   </p>
                   <ul style={listStyle}>
                     <li>accommodation no longer available after cancellation</li>
@@ -337,7 +337,7 @@ export default function AgbPage() {
                   </ul>
                   <p style={{ ...bodyStyle, marginTop: "0.75rem" }}>
                     The user is aware that prices and availability from third-party providers may vary at
-                    any time and are not influenced by RebookAndSave.
+                    any time and are not influenced by SaveMyHoliday.
                   </p>
                 </Section>
 
@@ -345,7 +345,7 @@ export default function AgbPage() {
 
                 <Section title="7. Service Availability">
                   <p style={bodyStyle}>
-                    RebookAndSave strives for the most uninterrupted availability of the service possible.
+                    SaveMyHoliday strives for the most uninterrupted availability of the service possible.
                     There is no entitlement to permanent availability or error-free operation.
                   </p>
                 </Section>
@@ -353,7 +353,7 @@ export default function AgbPage() {
                 <Divider />
 
                 <Section title="8. Changes to the Service">
-                  <p style={bodyStyle}>RebookAndSave reserves the right to:</p>
+                  <p style={bodyStyle}>SaveMyHoliday reserves the right to:</p>
                   <ul style={listStyle}>
                     <li>modify features</li>
                     <li>expand or restrict the service</li>
@@ -378,7 +378,7 @@ export default function AgbPage() {
 
                 <Section title="10. Third-Party Providers and External Links">
                   <p style={bodyStyle}>
-                    RebookAndSave may contain links to external websites or services. RebookAndSave accepts
+                    SaveMyHoliday may contain links to external websites or services. SaveMyHoliday accepts
                     no responsibility for the content, prices, availability or conditions of these
                     third-party providers.
                   </p>
@@ -388,7 +388,7 @@ export default function AgbPage() {
 
                 <Section title="11. Termination and Blocking">
                   <p style={bodyStyle}>
-                    Users may stop using the service at any time. RebookAndSave reserves the right to block
+                    Users may stop using the service at any time. SaveMyHoliday reserves the right to block
                     users or restrict access in the event of violations of these Terms.
                   </p>
                 </Section>
@@ -401,7 +401,7 @@ export default function AgbPage() {
                     <a href="/datenschutz" style={{ color: "#f97316", textDecoration: "none" }}>
                       Privacy Policy
                     </a>{" "}
-                    of RebookAndSave.
+                    of SaveMyHoliday.
                   </p>
                 </Section>
 

@@ -9,8 +9,8 @@ export default function ImpressumPage() {
   const t = getTranslations(locale);
   const isDe = locale === "de";
 
-  const brandName = "RebookAndSave";
-  const siteUrl = "rebookandsave.com";
+  const brandName = "SaveMyHoliday";
+  const siteUrl = "savemyholiday.com";
 
   return (
     <>
@@ -58,7 +58,7 @@ export default function ImpressumPage() {
               <>
                 <Section title="Angaben gemäß § 5 DDG">
                   <InfoRow label="Name" value="Zünnun Ardal" />
-                  <InfoRow label="Unternehmen" value="RebookAndSave" />
+                  <InfoRow label="Unternehmen" value="SaveMyHoliday" />
                   <InfoRow label="Adresse" value={<>Haydnstraße 26<br />12167 Berlin<br />Deutschland</>} />
                 </Section>
 
@@ -66,8 +66,8 @@ export default function ImpressumPage() {
 
                 <Section title="Kontakt">
                   <InfoRow label="E-Mail" value={
-                    <a href="mailto:hello@rebookandsave.com" style={{ color: "#f97316", textDecoration: "none" }}>
-                      hello@rebookandsave.com
+                    <a href="mailto:hello@savemyholiday.com" style={{ color: "#f97316", textDecoration: "none" }}>
+                      hello@savemyholiday.com
                     </a>
                   } />
                   <InfoRow label="Telefon" value={
@@ -130,7 +130,7 @@ export default function ImpressumPage() {
                     Information pursuant to § 5 DDG (German Digital Services Act)
                   </p>
                   <InfoRow label="Name" value="Zünnun Ardal" />
-                  <InfoRow label="Company" value="RebookAndSave (rebookandsave.com)" />
+                  <InfoRow label="Company" value="SaveMyHoliday (savemyholiday.com)" />
                   <InfoRow label="Address" value={<>Haydnstraße 26<br />12167 Berlin<br />Germany</>} />
                 </Section>
 
@@ -138,8 +138,8 @@ export default function ImpressumPage() {
 
                 <Section title="Contact">
                   <InfoRow label="Email" value={
-                    <a href="mailto:hello@rebookandsave.com" style={{ color: "#f97316", textDecoration: "none" }}>
-                      hello@rebookandsave.com
+                    <a href="mailto:hello@savemyholiday.com" style={{ color: "#f97316", textDecoration: "none" }}>
+                      hello@savemyholiday.com
                     </a>
                   } />
                   <InfoRow label="Phone" value={
