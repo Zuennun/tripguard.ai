@@ -33,14 +33,14 @@ export default function Footer({ t }: { t: Translations }) {
         </div>
 
         {/* Bottom bar */}
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
-          <span style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)" }}>{t.footer.rights}</span>
-          <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
-            <a href="/impressum" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{t.footer.imprint}</a>
-            <a href="/datenschutz" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{t.footer.privacy}</a>
-            <a href="/agb" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{t.footer.terms}</a>
-            <a href="/cookies" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{t.footer.cookies}</a>
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "1.5rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem", textAlign: "center" }}>
+          <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", justifyContent: "center" }}>
+            <a href="/impressum" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>{t.footer.imprint}</a>
+            <a href="/datenschutz" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>{t.footer.privacy}</a>
+            <a href="/agb" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>{t.footer.terms}</a>
+            <a href="/cookies" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>{t.footer.cookies}</a>
           </div>
+          <span style={{ fontFamily: "var(--font-body)", fontSize: "0.78rem", color: "rgba(255,255,255,0.2)" }}>{t.footer.rights}</span>
         </div>
       </div>
     </footer>
