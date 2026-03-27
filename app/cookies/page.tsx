@@ -48,7 +48,7 @@ export default function CookiesPage() {
           <div style={{
             background: "#ffffff", borderRadius: 20,
             boxShadow: "0 4px 24px rgba(15,32,68,0.08)",
-            padding: "2.5rem 3rem",
+            padding: "2rem 1.5rem", 
           }}>
 
             {isDe ? (

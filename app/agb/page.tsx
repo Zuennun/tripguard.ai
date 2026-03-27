@@ -48,7 +48,7 @@ export default function AgbPage() {
             background: "#ffffff",
             borderRadius: 20,
             boxShadow: "0 4px 24px rgba(15,32,68,0.08)",
-            padding: "2.5rem 3rem",
+            padding: "2rem 1.5rem", 
           }}>
 
             {isDe ? (
@@ -474,7 +474,7 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
       </span>
       <span style={{
         fontFamily: "var(--font-body)", fontSize: "0.925rem",
-        color: "#0f2044", lineHeight: 1.6,
+        color: "#0f2044", lineHeight: 1.6, wordBreak: "break-all",
       }}>
         {value}
       </span>
