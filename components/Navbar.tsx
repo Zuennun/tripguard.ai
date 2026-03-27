@@ -36,7 +36,7 @@ export default function Navbar({ t }: { t: Translations }) {
         {/* LEFT: logo + brand (desktop) / logo only (mobile) */}
         <a href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", zIndex: 1 }}>
           <img src="/tripguard1.png" alt={t.brand} className="nav-logo"
-            style={{ display: "block", height: 160, width: "auto", marginTop: -10 }} />
+            style={{ display: "block", height: 80, width: "auto", marginTop: -10 }} />
           <span className="nav-brand-desktop" style={{ marginLeft: -18 }}>{brandEl}</span>
         </a>
 

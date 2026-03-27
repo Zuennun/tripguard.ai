@@ -10,7 +10,7 @@ export default function Footer({ t }: { t: Translations }) {
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", marginBottom: "2.5rem" }}>
           <div style={{ background: "#ffffff", borderRadius: 20, padding: "1.5rem 2rem", display: "inline-flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <img src="/tripguard1.png" alt={t.brand} style={{ height: 140, width: "auto", display: "block" }} />
+              <img src="/tripguard1.png" alt={t.brand} style={{ height: 70, width: "auto", display: "block" }} />
               <span style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "1.35rem", color: "#0f2044", marginLeft: -5 }}>
                 <span style={{ color: "var(--orange)" }}>{t.brandPart1}</span>
                 <span style={{ color: "#0f2044" }}>{t.brandPart2}</span>
