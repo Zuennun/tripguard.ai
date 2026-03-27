@@ -2,27 +2,26 @@
 import { type Translations } from "@/lib/translations";
 
 export default function Footer({ t }: { t: Translations }) {
-  const cols = [
-    { title: t.footer.company, links: [t.footer.aboutUs, t.footer.features, t.footer.pricing, t.footer.news, t.footer.faq] },
-    { title: t.footer.resources, links: [t.footer.events, t.footer.blog, t.footer.contactUs, t.footer.feedback] },
-    { title: t.footer.support, links: [t.footer.account, t.footer.supportCenter, t.footer.contactUs, t.footer.accessibility] },
-  ];
-
   return (
-    <footer id="contact" style={{ background: "var(--navy)", padding: "4rem 2rem 2rem" }}>
+    <footer id="contact" style={{ background: "var(--navy)", padding: "3rem 2rem 2rem" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: "3rem", marginBottom: "3rem" }} className="footer-grid">
-          <div style={{ background: "#ffffff", borderRadius: 20, padding: "1.75rem", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: "1rem" }}>
+
+        {/* Logo + tagline */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", marginBottom: "2.5rem" }}>
+          <div style={{ background: "#ffffff", borderRadius: 20, padding: "1.5rem 2rem", display: "inline-flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <img src="/tripguard1.png" alt={t.brand} style={{ height: 70, width: "auto", display: "block" }} />
               <span style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "1.35rem", color: "#0f2044", marginLeft: -5 }}>
-                <span style={{ color: "var(--orange)" }}>{t.brandPart1}</span><span style={{ color: "#0f2044" }}>{t.brandPart2}</span>{t.brandPart3 && <span style={{ color: "var(--orange)" }}>{t.brandPart3}</span>}<span style={{ color: t.brandPart3 ? "#0f2044" : "var(--orange)" }}>.</span>
+                <span style={{ color: "var(--orange)" }}>{t.brandPart1}</span>
+                <span style={{ color: "#0f2044" }}>{t.brandPart2}</span>
+                {t.brandPart3 && <span style={{ color: "var(--orange)" }}>{t.brandPart3}</span>}
+                <span style={{ color: t.brandPart3 ? "#0f2044" : "var(--orange)" }}>.</span>
               </span>
             </div>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.7, maxWidth: 240, textAlign: "center" }}>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.7, maxWidth: 320, margin: 0 }}>
               {t.footer.tagline}
             </p>
-            <div style={{ display: "flex", gap: 10, marginTop: "1.25rem" }}>
+            <div style={{ display: "flex", gap: 10 }}>
               {["𝕏", "📸", "▶"].map((icon, i) => (
                 <a key={i} href="#" style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(15,32,68,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", textDecoration: "none", transition: "background 0.2s" }}
                   onMouseEnter={e => (e.currentTarget.style.background = "var(--orange)")}
@@ -31,27 +30,12 @@ export default function Footer({ t }: { t: Translations }) {
               ))}
             </div>
           </div>
-
-          {cols.map(col => (
-            <div key={col.title}>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "0.9rem", color: "var(--white)", marginBottom: "1rem" }}>{col.title}</div>
-              <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-                {col.links.map(l => (
-                  <li key={l}>
-                    <a href="#" style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "rgba(255,255,255,0.5)", textDecoration: "none", transition: "color 0.15s" }}
-                      onMouseEnter={e => (e.currentTarget.style.color = "var(--orange)")}
-                      onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.5)")}
-                    >{l}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
         </div>
 
+        {/* Bottom bar */}
         <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
           <span style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)" }}>{t.footer.rights}</span>
-          <div style={{ display: "flex", gap: "1.5rem" }}>
+          <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
             <a href="/impressum" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{t.footer.imprint}</a>
             <a href="/datenschutz" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{t.footer.privacy}</a>
             <a href="/agb" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>{t.footer.terms}</a>
@@ -59,10 +43,6 @@ export default function Footer({ t }: { t: Translations }) {
           </div>
         </div>
       </div>
-      <style>{`
-        @media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr !important}}
-        @media(max-width:480px){.footer-grid{grid-template-columns:1fr !important}}
-      `}</style>
     </footer>
   );
 }
