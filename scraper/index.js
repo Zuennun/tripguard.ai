@@ -33,7 +33,8 @@ app.get("/debug", async (req, res) => {
     const page = await context.newPage();
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
     await acceptConsent(page);
-    await page.waitForTimeout(4000);
+    try { await page.waitForSelector("[data-testid='property-card'], .sr_item, [data-hotelid]", { timeout: 6000 }); } catch {}
+    await page.waitForTimeout(3000);
     const text = await page.innerText("body").catch(() => "");
     const title = await page.title().catch(() => "");
     const allHrefs = await page.evaluate(() =>
@@ -87,12 +88,17 @@ app.get("/scrape", async (req, res) => {
 
       await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
       await acceptConsent(page);
-      await page.waitForTimeout(5000);
 
-      // Get all hrefs via JS evaluation
+      // Wait for hotel cards to appear
+      try {
+        await page.waitForSelector("[data-testid='property-card'], .sr_item, [data-hotelid]", { timeout: 8000 });
+      } catch {}
+      await page.waitForTimeout(2000);
+
       const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
       const hotelKey = norm(hotel).substring(0, 8);
 
+      // Get all hrefs after cards loaded
       const hrefs = await page.evaluate(() =>
         Array.from(document.querySelectorAll("a[href]")).map(a => a.href)
       ).catch(() => []);
