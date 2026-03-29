@@ -14,7 +14,7 @@ app.use((req, res, next) => {
 
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 
-// ── Debug: see raw page text ────────────────────────────────────────────────
+// ── Debug endpoint ──────────────────────────────────────────────────────────
 app.get("/debug", async (req, res) => {
   const { url } = req.query;
   if (!url) return res.status(400).json({ error: "Missing url" });
@@ -32,22 +32,12 @@ app.get("/debug", async (req, res) => {
     });
     const page = await context.newPage();
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
-
-    // Try consent
-    try {
-      const btn = page.locator("button:has-text('Alle akzeptieren'), button:has-text('Accept all'), button:has-text('Akzeptieren')");
-      if (await btn.count() > 0) {
-        await btn.first().click();
-        await page.waitForTimeout(3000);
-      }
-    } catch {}
-
+    await acceptConsent(page);
     await page.waitForTimeout(4000);
     const text = await page.innerText("body").catch(() => "");
     const title = await page.title().catch(() => "");
     await browser.close();
-
-    res.json({ title, textSnippet: text.slice(0, 2000), prices: extractPrices(text) });
+    res.json({ title, textSnippet: text.slice(0, 3000), prices: extractPrices(text) });
   } catch (e) {
     if (browser) await browser.close().catch(() => {});
     res.status(500).json({ error: String(e) });
@@ -56,7 +46,6 @@ app.get("/debug", async (req, res) => {
 
 app.get("/scrape", async (req, res) => {
   const { hotel, city, checkin, checkout } = req.query;
-
   if (!hotel) return res.status(400).json({ error: "Missing hotel parameter" });
 
   let browser;
@@ -75,40 +64,135 @@ app.get("/scrape", async (req, res) => {
     const page = await context.newPage();
     const results = [];
 
-    // ── Google Hotels ────────────────────────────────────────────────────────
+    // ── Step 1: Find hotel on Booking.com search ────────────────────────────
+    let bookingHotelUrl = null;
+    try {
+      const ciParts = (checkin || "").split("-");
+      const coParts = (checkout || "").split("-");
+      const q = encodeURIComponent(`${hotel} ${city || ""}`);
+
+      let searchUrl = `https://www.booking.com/search.html?ss=${q}&lang=de&sb=1`;
+      if (ciParts.length === 3) {
+        searchUrl += `&checkin_year=${ciParts[0]}&checkin_month=${parseInt(ciParts[1])}&checkin_monthday=${parseInt(ciParts[2])}`;
+      }
+      if (coParts.length === 3) {
+        searchUrl += `&checkout_year=${coParts[0]}&checkout_month=${parseInt(coParts[1])}&checkout_monthday=${parseInt(coParts[2])}`;
+      }
+
+      await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+      await acceptConsent(page);
+      await page.waitForTimeout(3000);
+
+      // Find the first hotel result link that matches our hotel name
+      const hotelLinks = page.locator("[data-testid='property-card'] a[data-testid='title-link'], .sr_item a.hotel_name_link, [data-testid='property-card-container'] a");
+      const count = await hotelLinks.count();
+
+      for (let i = 0; i < Math.min(count, 5); i++) {
+        try {
+          const linkText = await hotelLinks.nth(i).innerText().catch(() => "");
+          const href = await hotelLinks.nth(i).getAttribute("href").catch(() => "");
+          const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+          // Check if link text contains hotel name keywords
+          const hotelWords = norm(hotel).substring(0, 10);
+          if (href && (norm(linkText).includes(hotelWords) || norm(linkText).includes("joerg") || norm(linkText).includes("jorg") || norm(linkText).includes("muller") || norm(linkText).includes("müller"))) {
+            bookingHotelUrl = href.startsWith("http") ? href : `https://www.booking.com${href}`;
+            break;
+          }
+        } catch {}
+      }
+
+      // Fallback: just take the first result
+      if (!bookingHotelUrl && count > 0) {
+        const href = await hotelLinks.first().getAttribute("href").catch(() => null);
+        if (href) bookingHotelUrl = href.startsWith("http") ? href : `https://www.booking.com${href}`;
+      }
+    } catch (e) {
+      results.push({ source: "Booking.com search", error: String(e) });
+    }
+
+    // ── Step 2: Open hotel page and get price ───────────────────────────────
+    let bookingPrice = null;
+    if (bookingHotelUrl) {
+      try {
+        // Add dates to hotel URL
+        const ciParts = (checkin || "").split("-");
+        const coParts = (checkout || "").split("-");
+        let hotelPageUrl = bookingHotelUrl;
+        if (ciParts.length === 3 && coParts.length === 3) {
+          const sep = hotelPageUrl.includes("?") ? "&" : "?";
+          hotelPageUrl += `${sep}checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0`;
+        }
+
+        await page.goto(hotelPageUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+        await acceptConsent(page);
+        await page.waitForTimeout(4000);
+
+        // Try price selectors on hotel detail page
+        const priceSelectors = [
+          "[data-testid='price-and-discounted-price']",
+          "[class*='prco-'] span[class*='price']",
+          "span[data-testid='price-and-discounted-price']",
+          ".hprt-price-price",
+          ".bui-price-display__value",
+          "[class*='Price'] span",
+          "td.hprt-table-cell-price span",
+          ".prco-inline-block-maker-helper",
+        ];
+
+        for (const sel of priceSelectors) {
+          try {
+            const els = page.locator(sel);
+            const c = await els.count();
+            for (let i = 0; i < Math.min(c, 10); i++) {
+              const text = await els.nth(i).innerText().catch(() => "");
+              const p = parsePrice(text);
+              if (p) { bookingPrice = p; break; }
+            }
+            if (bookingPrice) break;
+          } catch {}
+        }
+
+        // Fallback: page text
+        if (!bookingPrice) {
+          const pageText = await page.innerText("body").catch(() => "");
+          const prices = extractPrices(pageText);
+          bookingPrice = prices[0] || null;
+        }
+
+        results.push({
+          source: "Booking.com",
+          lowest: bookingPrice,
+          url: hotelPageUrl,
+        });
+      } catch (e) {
+        results.push({ source: "Booking.com", error: String(e) });
+      }
+    } else {
+      results.push({ source: "Booking.com", error: "Hotel not found in search results" });
+    }
+
+    // ── Step 3: Google Hotels for this specific hotel ───────────────────────
     try {
       const q = encodeURIComponent(`${hotel} ${city || ""}`);
       const url = `https://www.google.com/travel/hotels?q=${q}&checkin=${checkin || ""}&checkout=${checkout || ""}&hl=de&gl=de&curr=EUR`;
 
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
-
-      // Accept consent — try multiple selectors
-      try {
-        for (const txt of ["Alle akzeptieren", "Accept all", "Akzeptieren", "Ich stimme zu"]) {
-          const btn = page.locator(`button:has-text('${txt}')`);
-          if (await btn.count() > 0) {
-            await btn.first().click();
-            await page.waitForTimeout(3000);
-            break;
-          }
-        }
-      } catch {}
-
-      // Wait for prices to load
+      await acceptConsent(page);
       await page.waitForTimeout(5000);
 
       const pageText = await page.innerText("body").catch(() => "");
-      const prices = extractPrices(pageText);
 
-      // Try to find hotel-specific price from cards
+      // Try to find the specific hotel card
       let hotelPrice = null;
       try {
-        const cards = page.locator("[data-hveid], [jsname='hotel-card'], .hotel-card, [class*='hotel']");
+        const cards = page.locator("[data-hveid], [jscontroller], li[class*='hotel']");
         const count = await cards.count();
-        for (let i = 0; i < Math.min(count, 10); i++) {
+        const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+        const hotelKey = norm(hotel).substring(0, 8);
+
+        for (let i = 0; i < Math.min(count, 20); i++) {
           const cardText = await cards.nth(i).innerText().catch(() => "");
-          const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-          if (norm(cardText).includes(norm(hotel).substring(0, 6))) {
+          if (norm(cardText).includes(hotelKey) || norm(cardText).includes("jorg") || norm(cardText).includes("joerg") || norm(cardText).includes("muller")) {
             const p = extractPrices(cardText);
             if (p.length > 0) { hotelPrice = p[0]; break; }
           }
@@ -117,86 +201,11 @@ app.get("/scrape", async (req, res) => {
 
       results.push({
         source: "Google Hotels",
-        prices: prices.slice(0, 10),
         hotelSpecificPrice: hotelPrice,
-        lowest: hotelPrice || prices[0] || null,
+        lowest: hotelPrice,
       });
     } catch (e) {
       results.push({ source: "Google Hotels", error: String(e) });
-    }
-
-    // ── Booking.com ──────────────────────────────────────────────────────────
-    try {
-      const ciParts = (checkin || "").split("-");
-      const coParts = (checkout || "").split("-");
-      const q = encodeURIComponent(`${hotel} ${city || ""}`);
-
-      let bookingUrl = `https://www.booking.com/search.html?ss=${q}&lang=de&sb=1&src=index&src_elem=sb`;
-      if (ciParts.length === 3) {
-        bookingUrl += `&checkin_year=${ciParts[0]}&checkin_month=${parseInt(ciParts[1])}&checkin_monthday=${parseInt(ciParts[2])}`;
-      }
-      if (coParts.length === 3) {
-        bookingUrl += `&checkout_year=${coParts[0]}&checkout_month=${parseInt(coParts[1])}&checkout_monthday=${parseInt(coParts[2])}`;
-      }
-
-      await page.goto(bookingUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
-
-      // Accept consent
-      try {
-        for (const sel of [
-          "button#onetrust-accept-btn-handler",
-          "button[data-gdpr-consent='accept']",
-          "button:has-text('Alle akzeptieren')",
-          "button:has-text('Akzeptieren')",
-        ]) {
-          const btn = page.locator(sel);
-          if (await btn.count() > 0) {
-            await btn.first().click();
-            await page.waitForTimeout(2000);
-            break;
-          }
-        }
-      } catch {}
-
-      await page.waitForTimeout(3000);
-
-      // Try price selectors
-      const priceSelectors = [
-        "[data-testid='price-and-discounted-price']",
-        "[data-testid='recommended-units'] span[class*='price']",
-        ".prco-valign-middle-helper",
-        ".bui-price-display__value",
-        "span[class*='Price']",
-        "[class*='priceWrapper'] span",
-      ];
-
-      let bookingPrice = null;
-      for (const sel of priceSelectors) {
-        try {
-          const els = page.locator(sel);
-          const count = await els.count();
-          for (let i = 0; i < Math.min(count, 5); i++) {
-            const text = await els.nth(i).innerText().catch(() => "");
-            const match = text.match(/(\d[\d.,]+)/);
-            if (match) {
-              const price = parseFloat(match[1].replace(/[.,](?=\d{3})/g, "").replace(",", "."));
-              if (price >= 40 && price <= 9999) { bookingPrice = price; break; }
-            }
-          }
-          if (bookingPrice) break;
-        } catch {}
-      }
-
-      // Fallback: page text regex
-      if (!bookingPrice) {
-        const pageText = await page.innerText("body").catch(() => "");
-        const prices = extractPrices(pageText);
-        bookingPrice = prices[0] || null;
-      }
-
-      results.push({ source: "Booking.com", lowest: bookingPrice, url: bookingUrl });
-    } catch (e) {
-      results.push({ source: "Booking.com", error: String(e) });
     }
 
     await browser.close();
@@ -204,13 +213,48 @@ app.get("/scrape", async (req, res) => {
     const allPrices = results.map(r => r.lowest).filter(p => p !== null && p !== undefined);
     const lowestFound = allPrices.length ? Math.min(...allPrices) : null;
 
-    return res.json({ hotel, city: city || "", checkin: checkin || "", checkout: checkout || "", results, lowestFound, currency: "EUR" });
+    return res.json({
+      hotel,
+      city: city || "",
+      checkin: checkin || "",
+      checkout: checkout || "",
+      results,
+      lowestFound,
+      currency: "EUR",
+    });
 
   } catch (e) {
     if (browser) await browser.close().catch(() => {});
     return res.status(500).json({ error: String(e) });
   }
 });
+
+async function acceptConsent(page) {
+  try {
+    for (const txt of ["Alle akzeptieren", "Accept all", "Akzeptieren", "Ich stimme zu", "AGREE"]) {
+      const btn = page.locator(`button:has-text('${txt}')`);
+      if (await btn.count() > 0) {
+        await btn.first().click();
+        await page.waitForTimeout(2000);
+        return;
+      }
+    }
+    // Booking.com specific
+    const bc = page.locator("button#onetrust-accept-btn-handler");
+    if (await bc.count() > 0) {
+      await bc.first().click();
+      await page.waitForTimeout(2000);
+    }
+  } catch {}
+}
+
+function parsePrice(text) {
+  if (!text) return null;
+  const match = text.match(/(\d[\d.,]+)/);
+  if (!match) return null;
+  const price = parseFloat(match[1].replace(/[.,](?=\d{3})/g, "").replace(",", "."));
+  return price >= 40 && price <= 9999 ? price : null;
+}
 
 function extractPrices(text) {
   const prices = [];
@@ -220,7 +264,6 @@ function extractPrices(text) {
     /EUR\s*(\d{2,4})/g,
     /\$\s*(\d{2,4})/g,
     /(\d{2,4})\s*\$/g,
-    /USD\s*(\d{2,4})/g,
   ];
   for (const pattern of patterns) {
     let m;
