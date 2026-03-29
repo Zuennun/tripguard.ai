@@ -24,7 +24,7 @@ function extractPrices(text: string): number[] {
       if (p >= 40 && p <= 9999) prices.push(p);
     }
   }
-  return [...new Set(prices)].sort((a, b) => a - b);
+  return Array.from(new Set(prices)).sort((a, b) => a - b);
 }
 
 function stripHtml(html: string): string {
