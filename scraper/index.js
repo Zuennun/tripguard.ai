@@ -218,6 +218,9 @@ function extractPrices(text) {
     /(\d{2,4})\s*€/g,
     /€\s*(\d{2,4})/g,
     /EUR\s*(\d{2,4})/g,
+    /\$\s*(\d{2,4})/g,
+    /(\d{2,4})\s*\$/g,
+    /USD\s*(\d{2,4})/g,
   ];
   for (const pattern of patterns) {
     let m;
