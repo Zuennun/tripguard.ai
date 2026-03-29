@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import * as cheerio from "cheerio";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const cheerio = require("cheerio");
 
 export const maxDuration = 30;
 
