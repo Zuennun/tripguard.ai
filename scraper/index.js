@@ -82,29 +82,35 @@ app.get("/scrape", async (req, res) => {
       }
       searchUrl += `&group_adults=2&no_rooms=1&group_children=0`;
 
-      await page.goto(searchUrl, { waitUntil: "networkidle", timeout: 30000 });
+      await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
       await acceptConsent(page);
-      await page.waitForTimeout(4000);
+      await page.waitForTimeout(5000);
 
-      // Look for hotel links in results
-      const allLinks = page.locator("a[href*='/hotel/']");
-      const total = await allLinks.count();
+      // Find hotel card by name, then get its link
       const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-      const hotelNorm = norm(hotel);
+      const hotelKey = norm(hotel).substring(0, 8);
 
-      for (let i = 0; i < Math.min(total, 20); i++) {
-        const href = await allLinks.nth(i).getAttribute("href").catch(() => "");
-        const text = await allLinks.nth(i).innerText().catch(() => "");
-        if (href && href.includes("/hotel/")) {
-          // Prefer links whose text matches hotel name
-          if (norm(text).includes(norm(hotel).substring(0, 6)) || norm(href).includes(slug.substring(0, 8))) {
-            bookingHotelUrl = href.startsWith("http") ? href.split("?")[0] : `https://www.booking.com${href.split("?")[0]}`;
-            break;
+      // Try: find element containing hotel name, then find closest link
+      try {
+        const cards = page.locator("[data-testid='property-card'], .sr_item, [data-hotelid]");
+        const cardCount = await cards.count();
+        for (let i = 0; i < Math.min(cardCount, 10); i++) {
+          const cardText = await cards.nth(i).innerText().catch(() => "");
+          if (norm(cardText).includes(hotelKey)) {
+            const link = cards.nth(i).locator("a[href*='/hotel/']").first();
+            const href = await link.getAttribute("href").catch(() => "");
+            if (href) {
+              bookingHotelUrl = href.startsWith("http") ? href.split("?")[0] : `https://www.booking.com${href.split("?")[0]}`;
+              break;
+            }
           }
         }
-      }
-      // Fallback: first hotel link
+      } catch {}
+
+      // Fallback: first /hotel/ link on page
       if (!bookingHotelUrl) {
+        const allLinks = page.locator("a[href*='/hotel/']");
+        const total = await allLinks.count();
         for (let i = 0; i < Math.min(total, 5); i++) {
           const href = await allLinks.nth(i).getAttribute("href").catch(() => "");
           if (href && href.includes("/hotel/")) {
