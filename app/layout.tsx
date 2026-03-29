@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import "./globals.css";
 import { getTranslations, type Locale } from "@/lib/translations";
 import CookieBanner from "@/components/CookieBanner";
+import { Analytics } from "@vercel/analytics/next";
 
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = headers();
@@ -78,6 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <CookieBanner />
+        <Analytics />
       </body>
     </html>
   );
