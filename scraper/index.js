@@ -36,8 +36,11 @@ app.get("/debug", async (req, res) => {
     await page.waitForTimeout(4000);
     const text = await page.innerText("body").catch(() => "");
     const title = await page.title().catch(() => "");
+    const allHrefs = await page.evaluate(() =>
+      Array.from(document.querySelectorAll("a[href]")).map(a => a.href).filter(h => h.includes("booking.com") || h.includes("hotel"))
+    ).catch(() => []);
     await browser.close();
-    res.json({ title, textSnippet: text.slice(0, 3000), prices: extractPrices(text) });
+    res.json({ title, textSnippet: text.slice(0, 2000), prices: extractPrices(text), bookingHrefs: allHrefs.slice(0, 20) });
   } catch (e) {
     if (browser) await browser.close().catch(() => {});
     res.status(500).json({ error: String(e) });
