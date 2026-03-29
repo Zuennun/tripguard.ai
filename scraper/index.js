@@ -64,53 +64,52 @@ app.get("/scrape", async (req, res) => {
     const page = await context.newPage();
     const results = [];
 
-    // ── Step 1: Find hotel's Booking.com URL via DuckDuckGo ────────────────
+    // ── Step 1: Build Booking.com hotel URL from name ──────────────────────
     let bookingHotelUrl = null;
     try {
-      const q = encodeURIComponent(`${hotel} ${city || ""} site:booking.com`);
-      const ddgUrl = `https://html.duckduckgo.com/html/?q=${q}`;
+      const slug = hotelNameToSlug(hotel);
+      const countryCode = "de"; // default Germany
+      // Try Booking.com search with the hotel name directly
+      const q = encodeURIComponent(`${hotel} ${city || ""}`);
+      const ciParts = (checkin || "").split("-");
+      const coParts = (checkout || "").split("-");
+      let searchUrl = `https://www.booking.com/searchresults.html?ss=${q}&lang=de&sb=1&src=index`;
+      if (ciParts.length === 3) {
+        searchUrl += `&checkin=${checkin}`;
+      }
+      if (coParts.length === 3) {
+        searchUrl += `&checkout=${checkout}`;
+      }
+      searchUrl += `&group_adults=2&no_rooms=1&group_children=0`;
 
-      await page.goto(ddgUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
-      await page.waitForTimeout(2000);
+      await page.goto(searchUrl, { waitUntil: "networkidle", timeout: 30000 });
+      await acceptConsent(page);
+      await page.waitForTimeout(4000);
 
-      // Find first booking.com result link
-      const links = page.locator("a.result__url, a[href*='booking.com/hotel'], .result__a");
-      const count = await links.count();
+      // Look for hotel links in results
+      const allLinks = page.locator("a[href*='/hotel/']");
+      const total = await allLinks.count();
+      const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const hotelNorm = norm(hotel);
 
-      for (let i = 0; i < Math.min(count, 10); i++) {
-        const href = await links.nth(i).getAttribute("href").catch(() => "");
-        const text = await links.nth(i).innerText().catch(() => "");
-        if ((href && href.includes("booking.com/hotel")) || (text && text.includes("booking.com/hotel"))) {
-          // DDG wraps links in redirects - extract actual URL
-          const match = href.match(/uddg=([^&]+)/) || href.match(/(https?:\/\/www\.booking\.com\/hotel[^&"\s]+)/);
-          if (match) {
-            bookingHotelUrl = decodeURIComponent(match[1]);
-            break;
-          }
-          if (href.startsWith("https://www.booking.com/hotel")) {
-            bookingHotelUrl = href;
+      for (let i = 0; i < Math.min(total, 20); i++) {
+        const href = await allLinks.nth(i).getAttribute("href").catch(() => "");
+        const text = await allLinks.nth(i).innerText().catch(() => "");
+        if (href && href.includes("/hotel/")) {
+          // Prefer links whose text matches hotel name
+          if (norm(text).includes(norm(hotel).substring(0, 6)) || norm(href).includes(slug.substring(0, 8))) {
+            bookingHotelUrl = href.startsWith("http") ? href.split("?")[0] : `https://www.booking.com${href.split("?")[0]}`;
             break;
           }
         }
       }
-
-      // Also try getting URLs from result snippets
+      // Fallback: first hotel link
       if (!bookingHotelUrl) {
-        const allLinks = page.locator("a[href]");
-        const total = await allLinks.count();
-        for (let i = 0; i < Math.min(total, 30); i++) {
+        for (let i = 0; i < Math.min(total, 5); i++) {
           const href = await allLinks.nth(i).getAttribute("href").catch(() => "");
-          if (href && href.includes("booking.com/hotel")) {
-            bookingHotelUrl = href.startsWith("http") ? href : `https://www.booking.com${href}`;
+          if (href && href.includes("/hotel/")) {
+            bookingHotelUrl = href.startsWith("http") ? href.split("?")[0] : `https://www.booking.com${href.split("?")[0]}`;
             break;
-          }
-          // DDG redirect format
-          if (href && href.includes("uddg=")) {
-            const decoded = decodeURIComponent(href.split("uddg=")[1] || "");
-            if (decoded.includes("booking.com/hotel")) {
-              bookingHotelUrl = decoded.split("&")[0];
-              break;
-            }
           }
         }
       }
@@ -254,6 +253,14 @@ async function acceptConsent(page) {
       await page.waitForTimeout(2000);
     }
   } catch {}
+}
+
+function hotelNameToSlug(name) {
+  return name
+    .toLowerCase()
+    .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 function parsePrice(text) {
