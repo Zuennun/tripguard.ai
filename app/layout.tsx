@@ -4,6 +4,7 @@ import "./globals.css";
 import { getTranslations, type Locale } from "@/lib/translations";
 import CookieBanner from "@/components/CookieBanner";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = headers();
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <CookieBanner />
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
