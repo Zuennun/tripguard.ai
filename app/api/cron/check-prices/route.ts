@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
         await resend.emails.send({
           from: process.env.RESEND_FROM!,
           to: booking.email,
-          subject: `💰 Cheaper price found for ${booking.hotel_name} — TripGuard`,
+          subject: `💰 Günstigerer Preis für ${booking.hotel_name} — SaveMyHoliday`,
           html: priceAlertEmail({
             hotelName: booking.hotel_name,
             city: booking.city,

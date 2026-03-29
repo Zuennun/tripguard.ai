@@ -1,5 +1,3 @@
-import { scrapeBookingCom } from "./scrapers/booking";
-
 export interface PriceResult {
   found: boolean;
   price: number | null;
@@ -20,36 +18,55 @@ export async function checkCurrentPrice(params: {
   adults?: number;
   bookingComUrl?: string | null;
 }): Promise<PriceResult> {
-  const scrapingEnabled = process.env.SCRAPING_ENABLED === "true";
-  if (!scrapingEnabled) {
+  const SCRAPER_URL   = process.env.SCRAPER_URL;
+  const SCRAPER_TOKEN = process.env.SCRAPER_TOKEN ?? "savemyholiday-secret";
+
+  if (!SCRAPER_URL) {
     return { found: false, price: null, currency: params.currency, source: "", bookingUrl: "" };
   }
 
-  // Nur tracken wenn eine Property-URL bekannt ist
-  if (!params.bookingComUrl) {
-    return { found: false, price: null, currency: params.currency, source: "", bookingUrl: "" };
-  }
+  try {
+    const searchParams = new URLSearchParams({
+      hotel:    params.hotelName,
+      city:     params.city ?? "",
+      checkin:  params.checkinDate,
+      checkout: params.checkoutDate,
+    });
 
-  const result = await scrapeBookingCom({
-    propertyUrl: params.bookingComUrl,
-    checkinDate: params.checkinDate,
-    checkoutDate: params.checkoutDate,
-    rooms: params.rooms ?? 1,
-    adults: params.adults ?? 2,
-    currency: params.currency,
-  });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 55000);
 
-  if (result.found && result.price !== null) {
+    let res: Response;
+    try {
+      res = await fetch(`${SCRAPER_URL}/scrape?${searchParams}`, {
+        headers: { "x-scraper-token": SCRAPER_TOKEN },
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+
+    if (!res.ok) {
+      return { found: false, price: null, currency: params.currency, source: "", bookingUrl: "" };
+    }
+
+    const data = await res.json();
+    const price: number | null = data.lowestFound ?? null;
+
+    if (price === null) {
+      return { found: false, price: null, currency: params.currency, source: "", bookingUrl: "" };
+    }
+
+    const bookingResult = data.results?.find((r: any) => r.source === "Booking.com");
+
     return {
       found: true,
-      price: result.price,
-      currency: result.currency,
-      source: "Booking.com",
-      bookingUrl: result.bookingUrl,
+      price,
+      currency: "EUR",
+      source: bookingResult ? "Booking.com" : "Google Hotels",
+      bookingUrl: bookingResult?.url ?? "",
     };
+  } catch {
+    return { found: false, price: null, currency: params.currency, source: "", bookingUrl: "" };
   }
-
-  // Hier weitere Plattformen ergänzen (Hotels.com, Expedia …)
-
-  return { found: false, price: null, currency: params.currency, source: "", bookingUrl: "" };
 }
