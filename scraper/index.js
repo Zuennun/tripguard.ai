@@ -86,35 +86,26 @@ app.get("/scrape", async (req, res) => {
       await acceptConsent(page);
       await page.waitForTimeout(5000);
 
-      // Find hotel card by name, then get its link
+      // Get all hrefs via JS evaluation
       const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
       const hotelKey = norm(hotel).substring(0, 8);
 
-      // Try: find element containing hotel name, then find closest link
-      try {
-        const cards = page.locator("[data-testid='property-card'], .sr_item, [data-hotelid]");
-        const cardCount = await cards.count();
-        for (let i = 0; i < Math.min(cardCount, 10); i++) {
-          const cardText = await cards.nth(i).innerText().catch(() => "");
-          if (norm(cardText).includes(hotelKey)) {
-            const link = cards.nth(i).locator("a[href*='/hotel/']").first();
-            const href = await link.getAttribute("href").catch(() => "");
-            if (href) {
-              bookingHotelUrl = href.startsWith("http") ? href.split("?")[0] : `https://www.booking.com${href.split("?")[0]}`;
-              break;
-            }
-          }
-        }
-      } catch {}
+      const hrefs = await page.evaluate(() =>
+        Array.from(document.querySelectorAll("a[href]")).map(a => a.href)
+      ).catch(() => []);
 
-      // Fallback: first /hotel/ link on page
+      // Find hotel-specific link first
+      for (const href of hrefs) {
+        if (href.includes("/hotel/") && (norm(href).includes(hotelKey) || norm(href).includes("joerg") || norm(href).includes("jorg") || norm(href).includes("muller"))) {
+          bookingHotelUrl = href.split("?")[0];
+          break;
+        }
+      }
+      // Fallback: first /hotel/ link
       if (!bookingHotelUrl) {
-        const allLinks = page.locator("a[href*='/hotel/']");
-        const total = await allLinks.count();
-        for (let i = 0; i < Math.min(total, 5); i++) {
-          const href = await allLinks.nth(i).getAttribute("href").catch(() => "");
-          if (href && href.includes("/hotel/")) {
-            bookingHotelUrl = href.startsWith("http") ? href.split("?")[0] : `https://www.booking.com${href.split("?")[0]}`;
+        for (const href of hrefs) {
+          if (href.includes("booking.com/hotel/")) {
+            bookingHotelUrl = href.split("?")[0];
             break;
           }
         }
