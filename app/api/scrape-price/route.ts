@@ -20,10 +20,18 @@ export async function GET(req: NextRequest) {
   if (SCRAPER_URL) {
     try {
       const params = new URLSearchParams({ hotel: hotelName, city, checkin, checkout });
-      const res = await fetch(`${SCRAPER_URL}/scrape?${params}`, {
-        headers: { "x-scraper-token": SCRAPER_TOKEN },
-        signal: AbortSignal.timeout(55000),
-      });
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 55000);
+
+      let res: Response;
+      try {
+        res = await fetch(`${SCRAPER_URL}/scrape?${params}`, {
+          headers: { "x-scraper-token": SCRAPER_TOKEN },
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timer);
+      }
 
       if (!res.ok) {
         const err = await res.text();
