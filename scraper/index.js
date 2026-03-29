@@ -64,47 +64,34 @@ app.get("/scrape", async (req, res) => {
     const page = await context.newPage();
     const results = [];
 
-    // ── Step 1: Find hotel on Booking.com search ────────────────────────────
+    // ── Step 1: Find hotel's Booking.com URL via Google ────────────────────
     let bookingHotelUrl = null;
     try {
-      const ciParts = (checkin || "").split("-");
-      const coParts = (checkout || "").split("-");
-      const q = encodeURIComponent(`${hotel} ${city || ""}`);
+      const q = encodeURIComponent(`${hotel} ${city || ""} site:booking.com`);
+      const googleUrl = `https://www.google.com/search?q=${q}&hl=de&gl=de&num=5`;
 
-      let searchUrl = `https://www.booking.com/search.html?ss=${q}&lang=de&sb=1`;
-      if (ciParts.length === 3) {
-        searchUrl += `&checkin_year=${ciParts[0]}&checkin_month=${parseInt(ciParts[1])}&checkin_monthday=${parseInt(ciParts[2])}`;
-      }
-      if (coParts.length === 3) {
-        searchUrl += `&checkout_year=${coParts[0]}&checkout_month=${parseInt(coParts[1])}&checkout_monthday=${parseInt(coParts[2])}`;
-      }
-
-      await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+      await page.goto(googleUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
       await acceptConsent(page);
       await page.waitForTimeout(3000);
 
-      // Find the first hotel result link that matches our hotel name
-      const hotelLinks = page.locator("[data-testid='property-card'] a[data-testid='title-link'], .sr_item a.hotel_name_link, [data-testid='property-card-container'] a");
-      const count = await hotelLinks.count();
+      // Find first booking.com result link
+      const links = page.locator("a[href*='booking.com/hotel']");
+      const count = await links.count();
 
       for (let i = 0; i < Math.min(count, 5); i++) {
-        try {
-          const linkText = await hotelLinks.nth(i).innerText().catch(() => "");
-          const href = await hotelLinks.nth(i).getAttribute("href").catch(() => "");
-          const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-          // Check if link text contains hotel name keywords
-          const hotelWords = norm(hotel).substring(0, 10);
-          if (href && (norm(linkText).includes(hotelWords) || norm(linkText).includes("joerg") || norm(linkText).includes("jorg") || norm(linkText).includes("muller") || norm(linkText).includes("müller"))) {
-            bookingHotelUrl = href.startsWith("http") ? href : `https://www.booking.com${href}`;
+        const href = await links.nth(i).getAttribute("href").catch(() => "");
+        if (href && href.includes("booking.com/hotel")) {
+          // Extract clean URL from Google redirect
+          const match = href.match(/url\?q=([^&]+)/) || href.match(/(https?:\/\/www\.booking\.com\/hotel[^&"\s]+)/);
+          if (match) {
+            bookingHotelUrl = decodeURIComponent(match[1]);
             break;
           }
-        } catch {}
-      }
-
-      // Fallback: just take the first result
-      if (!bookingHotelUrl && count > 0) {
-        const href = await hotelLinks.first().getAttribute("href").catch(() => null);
-        if (href) bookingHotelUrl = href.startsWith("http") ? href : `https://www.booking.com${href}`;
+          if (href.startsWith("https://www.booking.com/hotel")) {
+            bookingHotelUrl = href;
+            break;
+          }
+        }
       }
     } catch (e) {
       results.push({ source: "Booking.com search", error: String(e) });
