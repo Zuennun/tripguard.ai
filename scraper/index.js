@@ -77,12 +77,12 @@ app.get("/scrape", async (req, res) => {
       const q = encodeURIComponent(`${hotel} ${city || ""}`);
       const ciParts = (checkin || "").split("-");
       const coParts = (checkout || "").split("-");
-      let searchUrl = `https://www.booking.com/searchresults.html?ss=${q}&lang=de&sb=1&src=index`;
+      let searchUrl = `https://www.booking.com/search.html?ss=${q}&lang=de&sb=1`;
       if (ciParts.length === 3) {
-        searchUrl += `&checkin=${checkin}`;
+        searchUrl += `&checkin_year=${ciParts[0]}&checkin_month=${parseInt(ciParts[1])}&checkin_monthday=${parseInt(ciParts[2])}`;
       }
       if (coParts.length === 3) {
-        searchUrl += `&checkout=${checkout}`;
+        searchUrl += `&checkout_year=${coParts[0]}&checkout_month=${parseInt(coParts[1])}&checkout_monthday=${parseInt(coParts[2])}`;
       }
       searchUrl += `&group_adults=2&no_rooms=1&group_children=0`;
 
