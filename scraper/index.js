@@ -133,7 +133,7 @@ app.get("/scrape", async (req, res) => {
         let hotelPageUrl = bookingHotelUrl;
         if (ciParts.length === 3 && coParts.length === 3) {
           const sep = hotelPageUrl.includes("?") ? "&" : "?";
-          hotelPageUrl += `${sep}checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0`;
+          hotelPageUrl += `${sep}checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0&selected_currency=EUR`;
         }
 
         await page.goto(hotelPageUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
