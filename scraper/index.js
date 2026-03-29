@@ -64,25 +64,25 @@ app.get("/scrape", async (req, res) => {
     const page = await context.newPage();
     const results = [];
 
-    // ── Step 1: Find hotel's Booking.com URL via Google ────────────────────
+    // ── Step 1: Find hotel's Booking.com URL via DuckDuckGo ────────────────
     let bookingHotelUrl = null;
     try {
       const q = encodeURIComponent(`${hotel} ${city || ""} site:booking.com`);
-      const googleUrl = `https://www.google.com/search?q=${q}&hl=de&gl=de&num=5`;
+      const ddgUrl = `https://html.duckduckgo.com/html/?q=${q}`;
 
-      await page.goto(googleUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
-      await acceptConsent(page);
-      await page.waitForTimeout(3000);
+      await page.goto(ddgUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+      await page.waitForTimeout(2000);
 
       // Find first booking.com result link
-      const links = page.locator("a[href*='booking.com/hotel']");
+      const links = page.locator("a.result__url, a[href*='booking.com/hotel'], .result__a");
       const count = await links.count();
 
-      for (let i = 0; i < Math.min(count, 5); i++) {
+      for (let i = 0; i < Math.min(count, 10); i++) {
         const href = await links.nth(i).getAttribute("href").catch(() => "");
-        if (href && href.includes("booking.com/hotel")) {
-          // Extract clean URL from Google redirect
-          const match = href.match(/url\?q=([^&]+)/) || href.match(/(https?:\/\/www\.booking\.com\/hotel[^&"\s]+)/);
+        const text = await links.nth(i).innerText().catch(() => "");
+        if ((href && href.includes("booking.com/hotel")) || (text && text.includes("booking.com/hotel"))) {
+          // DDG wraps links in redirects - extract actual URL
+          const match = href.match(/uddg=([^&]+)/) || href.match(/(https?:\/\/www\.booking\.com\/hotel[^&"\s]+)/);
           if (match) {
             bookingHotelUrl = decodeURIComponent(match[1]);
             break;
@@ -90,6 +90,27 @@ app.get("/scrape", async (req, res) => {
           if (href.startsWith("https://www.booking.com/hotel")) {
             bookingHotelUrl = href;
             break;
+          }
+        }
+      }
+
+      // Also try getting URLs from result snippets
+      if (!bookingHotelUrl) {
+        const allLinks = page.locator("a[href]");
+        const total = await allLinks.count();
+        for (let i = 0; i < Math.min(total, 30); i++) {
+          const href = await allLinks.nth(i).getAttribute("href").catch(() => "");
+          if (href && href.includes("booking.com/hotel")) {
+            bookingHotelUrl = href.startsWith("http") ? href : `https://www.booking.com${href}`;
+            break;
+          }
+          // DDG redirect format
+          if (href && href.includes("uddg=")) {
+            const decoded = decodeURIComponent(href.split("uddg=")[1] || "");
+            if (decoded.includes("booking.com/hotel")) {
+              bookingHotelUrl = decoded.split("&")[0];
+              break;
+            }
           }
         }
       }
