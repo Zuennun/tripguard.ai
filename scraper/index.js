@@ -77,7 +77,7 @@ app.get("/scrape", async (req, res) => {
       const q = encodeURIComponent(`${hotel} ${city || ""}`);
       const ciParts = (checkin || "").split("-");
       const coParts = (checkout || "").split("-");
-      let searchUrl = `https://www.booking.com/search.html?ss=${q}&lang=de&sb=1`;
+      let searchUrl = `https://www.booking.com/search.html?ss=${q}&lang=de&sb=1&selected_currency=EUR`;
       if (ciParts.length === 3) {
         searchUrl += `&checkin_year=${ciParts[0]}&checkin_month=${parseInt(ciParts[1])}&checkin_monthday=${parseInt(ciParts[2])}`;
       }
@@ -140,37 +140,10 @@ app.get("/scrape", async (req, res) => {
         await acceptConsent(page);
         await page.waitForTimeout(4000);
 
-        // Try price selectors on hotel detail page
-        const priceSelectors = [
-          "[data-testid='price-and-discounted-price']",
-          "[class*='prco-'] span[class*='price']",
-          "span[data-testid='price-and-discounted-price']",
-          ".hprt-price-price",
-          ".bui-price-display__value",
-          "[class*='Price'] span",
-          "td.hprt-table-cell-price span",
-          ".prco-inline-block-maker-helper",
-        ];
-
-        for (const sel of priceSelectors) {
-          try {
-            const els = page.locator(sel);
-            const c = await els.count();
-            for (let i = 0; i < Math.min(c, 10); i++) {
-              const text = await els.nth(i).innerText().catch(() => "");
-              const p = parsePrice(text);
-              if (p) { bookingPrice = p; break; }
-            }
-            if (bookingPrice) break;
-          } catch {}
-        }
-
-        // Fallback: page text
-        if (!bookingPrice) {
-          const pageText = await page.innerText("body").catch(() => "");
-          const prices = extractPrices(pageText);
-          bookingPrice = prices[0] || null;
-        }
+        // Extract EUR prices from page text (currency forced via selected_currency=EUR)
+        const pageText = await page.innerText("body").catch(() => "");
+        const prices = extractEurPrices(pageText);
+        bookingPrice = prices[0] || null;
 
         results.push({
           source: "Booking.com",
@@ -259,6 +232,24 @@ async function acceptConsent(page) {
       await page.waitForTimeout(2000);
     }
   } catch {}
+}
+
+function extractEurPrices(text) {
+  const prices = [];
+  const patterns = [
+    /(\d{2,4})\s*€/g,
+    /€\s*(\d{2,4})/g,
+    /EUR\s*(\d{2,4})/g,
+    /(\d{2,4})\s*EUR/g,
+  ];
+  for (const pattern of patterns) {
+    let m;
+    while ((m = pattern.exec(text)) !== null) {
+      const p = parseInt(m[1]);
+      if (p >= 40 && p <= 9999) prices.push(p);
+    }
+  }
+  return [...new Set(prices)].sort((a, b) => a - b);
 }
 
 function hotelNameToSlug(name) {
