@@ -2,85 +2,105 @@
 
 type EmailLocale = "de" | "en";
 
-function getLogo(locale: EmailLocale): string {
-  const imgSrc = locale === "de"
-    ? "https://savemyholiday.com/tripguard1.png"
-    : "https://savemyholiday.com/tripguard1.png";
-  const brandHtml = locale === "de"
-    ? `<span style="color:#f97316">Save</span><span style="color:#0f2044">My</span><span style="color:#f97316">Holiday</span>.`
-    : `<span style="color:#f97316">Save</span><span style="color:#0f2044">My</span><span style="color:#f97316">Holiday</span>.`;
-  return `
-  <table cellpadding="0" cellspacing="0" style="margin:0 auto">
-    <tr>
-      <td style="background:#ffffff;border-radius:10px;padding:6px 10px;vertical-align:middle">
-        <img src="${imgSrc}" alt="${locale === "de" ? "SaveMyHoliday" : "SaveMyHoliday"}" height="36"
-             style="display:block;height:36px;width:auto;border:0" />
-      </td>
-      <td style="padding-left:10px;vertical-align:middle">
-        <span style="font-size:22px;font-weight:900;color:#ffffff;font-family:Arial,sans-serif">
-          ${brandHtml}
-        </span>
-      </td>
-    </tr>
-  </table>`;
+function formatDate(dateStr: string | undefined | null, locale: EmailLocale): string {
+  if (!dateStr) return "—";
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString(locale === "de" ? "de-DE" : "en-GB", {
+      day: "numeric", month: "long", year: "numeric"
+    });
+  } catch {
+    return dateStr;
+  }
 }
 
 function wrap(content: string, locale: EmailLocale = "en"): string {
-  const brandName = locale === "de" ? "SaveMyHoliday" : "SaveMyHoliday";
-  const siteUrl = locale === "de" ? "https://savemyholiday.com" : "https://savemyholiday.com";
-  const siteDomain = locale === "de" ? "savemyholiday.com" : "savemyholiday.com";
+  const siteUrl = "https://savemyholiday.com";
   const footerNote = locale === "de"
     ? "Du erhältst diese E-Mail, weil du eine Buchung bei SaveMyHoliday eingereicht hast."
-    : "You receive this email because you submitted a booking to TripGuard.";
+    : "You receive this email because you submitted a booking to SaveMyHoliday.";
   return `<!DOCTYPE html>
 <html lang="${locale}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="color-scheme" content="light">
-  <title>TripGuard</title>
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light">
+  <title>SaveMyHoliday</title>
   <style>
+    :root { color-scheme: light only; }
     @media only screen and (max-width:600px){
-      .email-body { padding: 16px !important; }
+      .email-body { padding: 0 16px !important; }
       .card       { padding: 20px !important; }
       .hide-mobile{ display:none !important; }
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background:#f1f4f8;-webkit-text-size-adjust:100%">
+<body style="margin:0;padding:0;background:#f0f2f5;-webkit-text-size-adjust:100%">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-         style="background:#f1f4f8;padding:24px 0">
+         style="background:#f0f2f5;padding:32px 0">
     <tr><td align="center" style="padding:0 12px">
 
       <table role="presentation" cellpadding="0" cellspacing="0"
-             style="width:100%;max-width:580px;background:#ffffff;
-                    border-radius:16px;overflow:hidden;
-                    box-shadow:0 4px 24px rgba(15,32,68,0.10)">
+             style="width:100%;max-width:560px">
 
-        <!-- HEADER -->
+        <!-- LOGO BAR -->
         <tr>
-          <td style="background:#0f2044;padding:24px 32px;text-align:center">
-            ${getLogo(locale)}
+          <td style="padding:0 0 20px;text-align:center">
+            <table cellpadding="0" cellspacing="0" style="margin:0 auto">
+              <tr>
+                <td style="vertical-align:middle;padding-right:8px">
+                  <img src="https://savemyholiday.com/tripguard1.png" alt="SaveMyHoliday" height="32"
+                       style="display:block;height:32px;width:auto;border:0" />
+                </td>
+                <td style="vertical-align:middle">
+                  <span style="font-size:20px;font-weight:900;font-family:Arial,sans-serif;letter-spacing:-0.5px">
+                    <span style="color:#f97316">Save</span><span style="color:#ffffff">My</span><span style="color:#f97316">Holiday</span>
+                  </span>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
 
-        <!-- CONTENT -->
-        ${content}
-
-        <!-- FOOTER -->
+        <!-- CARD -->
         <tr>
-          <td style="background:#f8f9fb;padding:20px 32px;border-top:1px solid #eaeef4;
-                     text-align:center">
-            <p style="margin:0 0 4px;color:#9ba5b4;font-size:12px;
-                      font-family:Arial,sans-serif">
-              ${brandName} &nbsp;·&nbsp; Berlin &nbsp;·&nbsp;
-              <a href="${siteUrl}" style="color:#f97316;text-decoration:none">
-                ${siteDomain}
-              </a>
-            </p>
-            <p style="margin:0;color:#c8cdd6;font-size:11px;font-family:Arial,sans-serif">
-              ${footerNote}
-            </p>
+          <td style="background:#ffffff;border-radius:20px;overflow:hidden;
+                     box-shadow:0 2px 20px rgba(15,32,68,0.08)">
+
+            <!-- HEADER STRIPE -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="background:linear-gradient(135deg,#0f2044 0%,#1a3570 100%);
+                           padding:28px 36px;text-align:center">
+                  <span style="font-size:22px;font-weight:900;font-family:Arial,sans-serif;letter-spacing:-0.5px">
+                    <span style="color:#f97316">Save</span><span style="color:#e2e8f4">My</span><span style="color:#f97316">Holiday</span>
+                  </span>
+                  <p style="margin:6px 0 0;color:#94a7c8;font-size:12px;font-family:Arial,sans-serif;
+                             letter-spacing:2px;text-transform:uppercase">Preisüberwachung</p>
+                </td>
+              </tr>
+            </table>
+
+            <!-- CONTENT -->
+            ${content}
+
+            <!-- FOOTER -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="background:#f8fafc;padding:20px 36px;border-top:1px solid #e8edf5;
+                           text-align:center">
+                  <p style="margin:0 0 4px;color:#94a3b8;font-size:12px;font-family:Arial,sans-serif">
+                    <a href="${siteUrl}" style="color:#f97316;text-decoration:none;font-weight:600">savemyholiday.com</a>
+                    &nbsp;·&nbsp; Berlin, Deutschland
+                  </p>
+                  <p style="margin:0;color:#cbd5e1;font-size:11px;font-family:Arial,sans-serif">
+                    ${footerNote}
+                  </p>
+                </td>
+              </tr>
+            </table>
+
           </td>
         </tr>
 
@@ -94,10 +114,10 @@ function wrap(content: string, locale: EmailLocale = "en"): string {
 function row(label: string, value: string): string {
   return `
     <tr>
-      <td style="padding:8px 0;border-bottom:1px solid #eaeef4;
-                 color:#8892a4;font-size:13px;font-family:Arial,sans-serif;
+      <td style="padding:10px 0;border-bottom:1px solid #f0f4f8;
+                 color:#94a3b8;font-size:13px;font-family:Arial,sans-serif;
                  width:45%">${label}</td>
-      <td style="padding:8px 0;border-bottom:1px solid #eaeef4;
+      <td style="padding:10px 0;border-bottom:1px solid #f0f4f8;
                  text-align:right;color:#0f2044;font-weight:600;
                  font-size:13px;font-family:Arial,sans-serif">${value}</td>
     </tr>`;
@@ -144,15 +164,15 @@ export function customerConfirmationEmail(data: {
   return wrap(`
     <!-- HERO -->
     <tr>
-      <td class="card" style="padding:32px 32px 24px;text-align:center">
-        <div style="width:72px;height:72px;background:#fff3e8;border-radius:50%;
-                    margin:0 auto 20px;line-height:72px;font-size:36px">🛎️</div>
-        <h1 style="margin:0 0 10px;color:#0f2044;font-size:24px;font-weight:800;
-                   font-family:Arial,sans-serif;line-height:1.2">
+      <td class="card" style="padding:36px 36px 28px;text-align:center">
+        <div style="width:64px;height:64px;background:#fff3e8;border-radius:16px;
+                    margin:0 auto 20px;line-height:64px;font-size:32px">🛎️</div>
+        <h1 style="margin:0 0 12px;color:#0f2044;font-size:26px;font-weight:900;
+                   font-family:Arial,sans-serif;line-height:1.2;letter-spacing:-0.5px">
           ${heroTitle}
         </h1>
-        <p style="margin:0;color:#5a6478;font-size:15px;line-height:1.6;
-                  font-family:Arial,sans-serif">
+        <p style="margin:0;color:#64748b;font-size:15px;line-height:1.7;
+                  font-family:Arial,sans-serif;max-width:400px;margin:0 auto">
           ${heroBody}
         </p>
       </td>
@@ -160,20 +180,20 @@ export function customerConfirmationEmail(data: {
 
     <!-- BOOKING CARD -->
     <tr>
-      <td class="email-body" style="padding:0 32px 24px">
+      <td class="email-body" style="padding:0 36px 28px">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-               style="background:#f8f9fb;border-radius:10px">
-          <tr><td class="card" style="padding:20px 24px">
-            <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#9ba5b4;
-                      text-transform:uppercase;letter-spacing:1px;
+               style="background:#f8fafc;border-radius:14px;border:1px solid #e8edf5">
+          <tr><td class="card" style="padding:22px 24px">
+            <p style="margin:0 0 6px;font-size:10px;font-weight:700;color:#94a3b8;
+                      text-transform:uppercase;letter-spacing:1.5px;
                       font-family:Arial,sans-serif">${bookingLabel}</p>
-            <p style="margin:0 0 2px;font-size:18px;font-weight:800;color:#0f2044;
-                      font-family:Arial,sans-serif">${hotelName}</p>
-            ${location ? `<p style="margin:0 0 14px;color:#8892a4;font-size:13px;font-family:Arial,sans-serif">📍 ${location}</p>` : `<p style="margin:0 0 14px"></p>`}
+            <p style="margin:0 0 2px;font-size:19px;font-weight:800;color:#0f2044;
+                      font-family:Arial,sans-serif;letter-spacing:-0.3px">${hotelName}</p>
+            ${location ? `<p style="margin:0 0 16px;color:#94a3b8;font-size:13px;font-family:Arial,sans-serif">📍 ${location}</p>` : `<p style="margin:0 0 16px"></p>`}
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-              ${row(checkinLabel, checkin || "—")}
-              ${row(checkoutLabel, checkout || "—")}
-              ${row(priceLabel, parsedPrice ? `<span style="color:#f97316;font-size:15px">${parsedPrice} ${safeCurrency}</span>` : "—")}
+              ${row(checkinLabel, formatDate(checkin, locale))}
+              ${row(checkoutLabel, formatDate(checkout, locale))}
+              ${row(priceLabel, parsedPrice ? `<span style="color:#f97316;font-size:15px;font-weight:700">${parsedPrice} ${safeCurrency}</span>` : "—")}
             </table>
           </td></tr>
         </table>
@@ -182,49 +202,49 @@ export function customerConfirmationEmail(data: {
 
     <!-- STEPS -->
     <tr>
-      <td class="email-body" style="padding:0 32px 28px">
-        <p style="margin:0 0 14px;font-size:11px;font-weight:700;color:#9ba5b4;
-                  text-transform:uppercase;letter-spacing:1px;
+      <td class="email-body" style="padding:0 36px 28px">
+        <p style="margin:0 0 16px;font-size:10px;font-weight:700;color:#94a3b8;
+                  text-transform:uppercase;letter-spacing:1.5px;
                   font-family:Arial,sans-serif">${nextLabel}</p>
         <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
           <tr>
-            <td style="vertical-align:top;width:32px;padding-top:2px">
-              <div style="width:24px;height:24px;background:#f97316;border-radius:50%;
-                          text-align:center;line-height:24px;color:#fff;
-                          font-weight:700;font-size:13px;font-family:Arial,sans-serif">1</div>
+            <td style="vertical-align:top;width:36px;padding-top:1px">
+              <div style="width:26px;height:26px;background:#f97316;border-radius:8px;
+                          text-align:center;line-height:26px;color:#fff;
+                          font-weight:800;font-size:13px;font-family:Arial,sans-serif">1</div>
             </td>
-            <td style="padding:0 0 14px 10px;color:#444;font-size:14px;line-height:1.6;
+            <td style="padding:0 0 16px 10px;color:#374151;font-size:14px;line-height:1.65;
                        font-family:Arial,sans-serif">${step1}</td>
           </tr>
           <tr>
-            <td style="vertical-align:top;width:32px;padding-top:2px">
-              <div style="width:24px;height:24px;background:#f97316;border-radius:50%;
-                          text-align:center;line-height:24px;color:#fff;
-                          font-weight:700;font-size:13px;font-family:Arial,sans-serif">2</div>
+            <td style="vertical-align:top;width:36px;padding-top:1px">
+              <div style="width:26px;height:26px;background:#f97316;border-radius:8px;
+                          text-align:center;line-height:26px;color:#fff;
+                          font-weight:800;font-size:13px;font-family:Arial,sans-serif">2</div>
             </td>
-            <td style="padding:0 0 14px 10px;color:#444;font-size:14px;line-height:1.6;
+            <td style="padding:0 0 16px 10px;color:#374151;font-size:14px;line-height:1.65;
                        font-family:Arial,sans-serif">${step2}</td>
           </tr>
           <tr>
-            <td style="vertical-align:top;width:32px;padding-top:2px">
-              <div style="width:24px;height:24px;background:#f97316;border-radius:50%;
-                          text-align:center;line-height:24px;color:#fff;
-                          font-weight:700;font-size:13px;font-family:Arial,sans-serif">3</div>
+            <td style="vertical-align:top;width:36px;padding-top:1px">
+              <div style="width:26px;height:26px;background:#f97316;border-radius:8px;
+                          text-align:center;line-height:26px;color:#fff;
+                          font-weight:800;font-size:13px;font-family:Arial,sans-serif">3</div>
             </td>
-            <td style="padding:0 0 0 10px;color:#444;font-size:14px;line-height:1.6;
+            <td style="padding:0 0 0 10px;color:#374151;font-size:14px;line-height:1.65;
                        font-family:Arial,sans-serif">${step3}</td>
           </tr>
         </table>
       </td>
     </tr>
 
-    <!-- CTA NOTE -->
+    <!-- TIP BOX -->
     <tr>
-      <td class="email-body" style="padding:0 32px 32px">
+      <td class="email-body" style="padding:0 36px 36px">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-               style="background:#fff3e8;border-radius:10px;border-left:4px solid #f97316">
+               style="background:#fff7ed;border-radius:12px;border:1px solid #fed7aa">
           <tr><td style="padding:16px 20px">
-            <p style="margin:0;color:#7a3a00;font-size:14px;line-height:1.6;
+            <p style="margin:0;color:#92400e;font-size:13px;line-height:1.65;
                       font-family:Arial,sans-serif">
               ${tipText}
             </p>
@@ -344,42 +364,42 @@ export function priceAlertEmail(data: {
   const isDe = locale === "de";
 
   return wrap(`
-    <!-- HERO -->
+    <!-- SAVINGS BANNER -->
     <tr>
-      <td class="card" style="padding:32px 32px 24px;text-align:center">
-        <div style="width:72px;height:72px;background:#ecfdf5;border-radius:50%;
-                    margin:0 auto 20px;line-height:72px;font-size:36px">💰</div>
-        <h1 style="margin:0 0 10px;color:#0f2044;font-size:24px;font-weight:800;
-                   font-family:Arial,sans-serif;line-height:1.2">
-          ${isDe ? "Günstigerer Preis gefunden!" : "Cheaper price found!"}
-        </h1>
-        <p style="margin:0;color:#5a6478;font-size:15px;line-height:1.6;
-                  font-family:Arial,sans-serif">
-          ${isDe
-            ? `Wir haben einen günstigeren Preis für deine Buchung im<br><strong style="color:#0f2044">${hotelName}</strong> gefunden. Du kannst jetzt <strong style="color:#059669">${savings} ${currency}</strong> sparen.`
-            : `We found a lower price for your booking at<br><strong style="color:#0f2044">${hotelName}</strong>. You can save <strong style="color:#059669">${savings} ${currency}</strong> right now.`}
+      <td style="background:linear-gradient(135deg,#059669 0%,#047857 100%);
+                 padding:28px 36px;text-align:center">
+        <p style="margin:0 0 4px;color:#a7f3d0;font-size:11px;font-weight:700;
+                  letter-spacing:2px;text-transform:uppercase;font-family:Arial,sans-serif">
+          ${isDe ? "Preisalarm" : "Price Alert"}
+        </p>
+        <p style="margin:0 0 8px;color:#ffffff;font-size:28px;font-weight:900;
+                  font-family:Arial,sans-serif;letter-spacing:-1px">
+          ${isDe ? `Du sparst ${savings} ${currency}!` : `Save ${savings} ${currency}!`}
+        </p>
+        <p style="margin:0;color:#a7f3d0;font-size:14px;font-family:Arial,sans-serif">
+          ${isDe ? `Günstiger Preis für ${hotelName} gefunden` : `Lower price found for ${hotelName}`}
         </p>
       </td>
     </tr>
 
     <!-- PRICE COMPARISON -->
     <tr>
-      <td class="email-body" style="padding:0 32px 24px">
+      <td class="email-body" style="padding:28px 36px 24px">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-               style="background:#f8f9fb;border-radius:10px">
-          <tr><td class="card" style="padding:20px 24px">
-            <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#9ba5b4;
-                      text-transform:uppercase;letter-spacing:1px;
+               style="background:#f8fafc;border-radius:14px;border:1px solid #e8edf5">
+          <tr><td class="card" style="padding:22px 24px">
+            <p style="margin:0 0 6px;font-size:10px;font-weight:700;color:#94a3b8;
+                      text-transform:uppercase;letter-spacing:1.5px;
                       font-family:Arial,sans-serif">${isDe ? "Preisvergleich" : "Price Comparison"}</p>
-            <p style="margin:0 0 16px;font-size:18px;font-weight:800;color:#0f2044;
-                      font-family:Arial,sans-serif">${hotelName}</p>
-            ${location ? `<p style="margin:0 0 14px;color:#8892a4;font-size:13px;font-family:Arial,sans-serif">📍 ${location}</p>` : ""}
+            <p style="margin:0 0 2px;font-size:19px;font-weight:800;color:#0f2044;
+                      font-family:Arial,sans-serif;letter-spacing:-0.3px">${hotelName}</p>
+            ${location ? `<p style="margin:0 0 16px;color:#94a3b8;font-size:13px;font-family:Arial,sans-serif">📍 ${location}</p>` : `<p style="margin:0 0 16px"></p>`}
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-              ${row("Check-in", checkin || "—")}
-              ${row("Check-out", checkout || "—")}
-              ${row(isDe ? "Dein Preis" : "Your price", `<span style="text-decoration:line-through;color:#9ba5b4">${originalPrice} ${currency}</span>`)}
-              ${row((isDe ? "Neuer Preis bei " : "New price on ") + source, `<span style="color:#059669;font-size:15px;font-weight:700">${newPrice} ${currency}</span>`)}
-              ${row(isDe ? "Du sparst" : "You save", `<span style="color:#f97316;font-size:15px;font-weight:700">${savings} ${currency} (${pct}%)</span>`)}
+              ${row("Check-in", formatDate(checkin, locale))}
+              ${row("Check-out", formatDate(checkout, locale))}
+              ${row(isDe ? "Dein gebuchter Preis" : "Your booked price", `<span style="text-decoration:line-through;color:#94a3b8">${originalPrice} ${currency}</span>`)}
+              ${row(isDe ? `Neuer Preis (${source})` : `New price (${source})`, `<span style="color:#059669;font-size:16px;font-weight:800">${newPrice} ${currency}</span>`)}
+              ${row(isDe ? "Du sparst" : "You save", `<span style="color:#f97316;font-size:15px;font-weight:700">${savings} ${currency} &nbsp;(${pct}%)</span>`)}
             </table>
           </td></tr>
         </table>
@@ -388,16 +408,16 @@ export function priceAlertEmail(data: {
 
     <!-- CTA -->
     <tr>
-      <td class="email-body" style="padding:0 32px 32px;text-align:center">
+      <td class="email-body" style="padding:0 36px 36px;text-align:center">
         <a href="${bookingUrl}"
            style="display:inline-block;background:#f97316;color:#ffffff;
-                  text-decoration:none;padding:14px 32px;border-radius:12px;
-                  font-family:Arial,sans-serif;font-size:16px;font-weight:700;
-                  box-shadow:0 4px 16px rgba(249,115,22,0.35)">
-          ${isDe ? `Jetzt buchen für ${newPrice} ${currency} →` : `Book Now at ${newPrice} ${currency} →`}
+                  text-decoration:none;padding:16px 36px;border-radius:12px;
+                  font-family:Arial,sans-serif;font-size:16px;font-weight:800;
+                  letter-spacing:-0.3px">
+          ${isDe ? `Jetzt buchen — ${newPrice} ${currency} →` : `Book Now — ${newPrice} ${currency} →`}
         </a>
-        <p style="margin:16px 0 0;color:#9ba5b4;font-size:12px;font-family:Arial,sans-serif">
-          ${isDe ? "Storniere zuerst deine aktuelle Buchung — stelle sicher, dass sie kostenlos stornierbar ist." : "Cancel your current booking first — make sure it's free cancellation."}
+        <p style="margin:14px 0 0;color:#94a3b8;font-size:12px;font-family:Arial,sans-serif">
+          ${isDe ? "Storniere zuerst deine aktuelle Buchung — am besten nur bei kostenloser Stornierung." : "Cancel your current booking first — only if it's free cancellation."}
         </p>
       </td>
     </tr>
