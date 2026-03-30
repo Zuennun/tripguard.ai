@@ -251,13 +251,14 @@ async function scrapeViaOpenAI({ hotel, city, checkin, checkout, nights }) {
 
   const location = city ? ` in ${city}` : "";
   const prompt = `Search for the EXACT hotel "${hotel}"${location}. Do NOT return other hotels or hotels in other cities.
-Find the total price for a stay from ${checkin} to ${checkout} (${nights} nights, 2 adults) on multiple booking sites.
+Find the total price in EUR for a stay from ${checkin} to ${checkout} (${nights} nights, 2 adults) on multiple booking sites.
 Return a JSON array ONLY for this specific hotel:
 [{"source": "Booking.com", "price": 838, "url": "https://..."}, {"source": "Expedia", "price": 900, "url": "https://..."}, ...]
 Rules:
 - Only include results for the exact hotel "${hotel}"${location}
-- Price must be the TOTAL for all ${nights} nights (not per night)
-- Include sources: Booking.com, Expedia, Trip.com, Hotels.com, Agoda if found
+- Price must be in EUR (convert if needed) and must be the TOTAL for all ${nights} nights (not per night)
+- Typical total price range for this stay: €${nights * 70} – €${nights * 500}
+- Include sources: Booking.com, Expedia, Trip.com, Hotels.com, Agoda, HRS if found
 - Return ONLY the JSON array, no other text`;
 
   try {
@@ -290,9 +291,10 @@ Rules:
 
     const parsed = JSON.parse(match[0]);
     const minTotal = nights * 70;
+    const maxTotal = nights * 500;
 
     return parsed
-      .filter(r => r.price && r.price >= minTotal)
+      .filter(r => r.price && r.price >= minTotal && r.price <= maxTotal)
       .map(r => ({ source: r.source, lowest: Math.round(r.price), url: addDatesToUrl(r.url ?? "", r.source, checkin, checkout) }));
   } catch (e) {
     return [{ source: "OpenAI Search", error: String(e), lowest: null }];
