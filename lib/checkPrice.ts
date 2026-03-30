@@ -11,6 +11,7 @@ export async function checkCurrentPrice(params: {
   city: string | null;
   country: string | null;
   roomType: string | null;
+  mealPlan: string | null;
   checkinDate: string;
   checkoutDate: string;
   currency: string;
@@ -32,6 +33,8 @@ export async function checkCurrentPrice(params: {
       checkin:  params.checkinDate,
       checkout: params.checkoutDate,
     });
+    if (params.roomType) searchParams.set("roomType", params.roomType);
+    if (params.mealPlan) searchParams.set("mealPlan", params.mealPlan);
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 55000);

@@ -52,6 +52,7 @@ export async function GET(req: NextRequest) {
         city: booking.city,
         country: booking.country,
         roomType: booking.room_type,
+        mealPlan: booking.meal_plan,
         checkinDate: booking.checkin_date,
         checkoutDate: booking.checkout_date,
         currency: booking.currency,
