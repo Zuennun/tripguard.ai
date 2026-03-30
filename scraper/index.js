@@ -207,7 +207,7 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
     await page.waitForTimeout(3000);
 
     const pageText = await page.innerText("body").catch(() => "");
-    const minTotal = nights * 40;
+    const minTotal = nights * 70;
     let bookingPrice = null;
 
     if (roomType || mealPlan) {
