@@ -94,16 +94,16 @@ app.get("/scrape", async (req, res) => {
     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
     .split(/\s+/).filter(w => w.length > 3);
 
-  const [bookingResult, swoodooResult] = await Promise.allSettled([
+  const [bookingResult, ddgResult] = await Promise.allSettled([
     scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }),
-    scrapeSwoodoo({ hotel, city, checkin, checkout, nights, hotelWords, norm }),
+    scrapeDuckDuckGo({ hotel, city, checkin, checkout, nights, norm }),
   ]);
 
   const results = [];
   if (bookingResult.status === "fulfilled") results.push(bookingResult.value);
   else results.push({ source: "Booking.com", error: String(bookingResult.reason), lowest: null });
-  if (swoodooResult.status === "fulfilled") results.push(swoodooResult.value);
-  else results.push({ source: "Swoodoo", error: String(swoodooResult.reason), lowest: null });
+  if (ddgResult.status === "fulfilled") results.push(...ddgResult.value);
+  else results.push({ source: "DuckDuckGo", error: String(ddgResult.reason), lowest: null });
 
   const allPrices = results.map(r => r.lowest).filter(p => p !== null && p !== undefined);
   const lowestFound = allPrices.length ? Math.min(...allPrices) : null;
@@ -246,47 +246,51 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
   }
 }
 
-// ── Swoodoo scraper ───────────────────────────────────────────────────────────
-async function scrapeSwoodoo({ hotel, city, checkin, checkout, nights, hotelWords, norm }) {
+// ── DuckDuckGo Hotel Prices scraper ──────────────────────────────────────────
+// DuckDuckGo zeigt Preise von Booking.com, Expedia, Trip.com, Hotels.com etc.
+async function scrapeDuckDuckGo({ hotel, city, checkin, checkout, nights, norm }) {
   const { page, context } = await newPage();
   try {
     const query = encodeURIComponent(`${hotel}${city ? " " + city : ""}`);
-    const swoodooUrl = `https://www.swoodoo.com/hotels/${query}/${checkin || ""}/${checkout || ""}/2adults`;
+    // Include dates in query so DDG shows prices for the right period
+    const ciFormatted = checkin ? checkin.split("-").reverse().join(".") : "";
+    const coFormatted = checkout ? checkout.split("-").reverse().join(".") : "";
+    const dateQuery = (ciFormatted && coFormatted) ? `+${encodeURIComponent(ciFormatted + " " + coFormatted)}` : "";
+    const ddgUrl = `https://duckduckgo.com/?q=${query}${dateQuery}&kl=de-de`;
 
-    await page.goto(swoodooUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+    await page.goto(ddgUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
     await acceptConsent(page);
-    try { await page.waitForSelector("[class*='price'], [class*='Price']", { timeout: 6000 }); } catch {}
+    // Wait for the hotel price panel to appear on the right
+    try { await page.waitForSelector("[data-source], .zci__result, .price", { timeout: 8000 }); } catch {}
     await page.waitForTimeout(3000);
-
-    const title = await page.title().catch(() => "");
-    if (title.toLowerCase().includes("bot") || title.toLowerCase().includes("captcha")) {
-      await context.close();
-      return { source: "Swoodoo", error: "Bot detection", lowest: null };
-    }
 
     const pageText = await page.innerText("body").catch(() => "");
     const minTotal = nights * 70;
-    let swoodooPrice = null;
 
-    // Try to find price near hotel name first
+    // Extract prices per source from the panel
+    const sources = ["Booking.com", "Expedia", "Trip.com", "Hotels.com", "Agoda", "HRS"];
+    const foundResults = [];
+
     const lines = pageText.split("\n");
     for (let i = 0; i < lines.length; i++) {
-      const ln = norm(lines[i]);
-      if (hotelWords.some(w => ln.includes(norm(w)))) {
-        const p = extractEurPrices(lines.slice(i, i + 15).join(" ")).filter(p => p >= minTotal);
-        if (p.length > 0) { swoodooPrice = p[0]; break; }
+      const ln = lines[i].trim();
+      for (const src of sources) {
+        if (ln.toLowerCase().includes(src.toLowerCase())) {
+          // Look for a price in nearby lines
+          const nearby = lines.slice(i, i + 5).join(" ");
+          const prices = extractEurPrices(nearby).filter(p => p >= minTotal);
+          if (prices.length > 0) {
+            foundResults.push({ source: src, lowest: prices[0], url: ddgUrl });
+          }
+        }
       }
-    }
-    if (!swoodooPrice) {
-      const allPrices = extractEurPrices(pageText).filter(p => p >= minTotal);
-      swoodooPrice = allPrices[0] || null;
     }
 
     await context.close();
-    return { source: "Swoodoo", lowest: swoodooPrice, url: swoodooUrl };
+    return foundResults.length > 0 ? foundResults : [{ source: "DuckDuckGo", lowest: null, url: ddgUrl }];
   } catch (e) {
     await context.close().catch(() => {});
-    return { source: "Swoodoo", error: String(e), lowest: null };
+    return [{ source: "DuckDuckGo", error: String(e), lowest: null }];
   }
 }
 
