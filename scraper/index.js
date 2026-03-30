@@ -107,7 +107,6 @@ app.get("/scrape", async (req, res) => {
       try { await page.waitForSelector("[data-testid='property-card'], .sr_item, [data-hotelid]", { timeout: 8000 }); } catch {}
       await page.waitForTimeout(2000);
 
-      const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
       const hotelWords = hotel.toLowerCase()
         .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss")
         .split(/\s+/).filter(w => w.length > 3);
