@@ -95,6 +95,36 @@ app.get("/scrape", async (req, res) => {
     let bookingHotelUrl = null;
     try {
       const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+      // Try direct URL first (Booking.com slugs follow hotel name pattern)
+      const countryCode = city ? null : "de";
+      const directSlug = hotel.toLowerCase()
+        .replace(/[àáâãäå]/g, "a").replace(/[èéêë]/g, "e").replace(/[ìíîï]/g, "i")
+        .replace(/[òóôõöø]/g, "o").replace(/[ùúûü]/g, "u").replace(/[ñ]/g, "n")
+        .replace(/[ä]/g, "ae").replace(/[ö]/g, "oe").replace(/[ü]/g, "ue").replace(/[ß]/g, "ss")
+        .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      // Guess country code from city
+      const cityNorm = (city || "").toLowerCase();
+      const cc = cityNorm.includes("paris") || cityNorm.includes("france") ? "fr"
+               : cityNorm.includes("london") ? "gb"
+               : cityNorm.includes("budapest") ? "hu"
+               : cityNorm.includes("wien") || cityNorm.includes("vienna") ? "at"
+               : cityNorm.includes("amsterdam") ? "nl"
+               : cityNorm.includes("rome") || cityNorm.includes("roma") || cityNorm.includes("milan") ? "it"
+               : cityNorm.includes("barcelona") || cityNorm.includes("madrid") ? "es"
+               : "de";
+      const candidateUrl = `https://www.booking.com/hotel/${cc}/${directSlug}.de.html`;
+      const testRes = await page.goto(candidateUrl, { waitUntil: "domcontentloaded", timeout: 10000 }).catch(() => null);
+      if (testRes && testRes.status() === 200) {
+        const pageTitle = await page.title().catch(() => "");
+        if (!pageTitle.toLowerCase().includes("404") && !pageTitle.toLowerCase().includes("not found")) {
+          bookingHotelUrl = candidateUrl;
+        }
+      }
+      // Fallback: search if direct URL didn't work
+      if (bookingHotelUrl) {
+        // Already found via direct URL — skip search
+      } else {
       const q = encodeURIComponent(`${hotel} ${city || ""}`);
       const ciParts = (checkin || "").split("-");
       const coParts = (checkout || "").split("-");
@@ -109,10 +139,8 @@ app.get("/scrape", async (req, res) => {
 
       await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
       await acceptConsent(page);
-      try { await page.waitForSelector("[data-testid='property-card'], .sr_item, [data-hotelid]", { timeout: 10000 }); } catch {}
-      // Scroll to trigger lazy loading of more results
-      await page.evaluate(() => window.scrollTo(0, 600)).catch(() => {});
-      await page.waitForTimeout(3000);
+      try { await page.waitForSelector("[data-testid='property-card'], .sr_item, [data-hotelid]", { timeout: 8000 }); } catch {}
+      await page.waitForTimeout(2000);
 
       const hotelWords = hotel.toLowerCase()
         .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss")
@@ -153,6 +181,7 @@ app.get("/scrape", async (req, res) => {
           }
         }
       }
+      } // end if(!bookingHotelUrl) search block
     } catch (e) {
       results.push({ source: "Booking.com", error: String(e) });
     }
