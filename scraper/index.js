@@ -94,17 +94,14 @@ app.get("/scrape", async (req, res) => {
     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
     .split(/\s+/).filter(w => w.length > 3);
 
-  const [bookingResult, openaiResult] = await Promise.allSettled([
-    scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }),
-    scrapeViaOpenAI({ hotel, city, checkin, checkout, nights }),
-  ]);
+  // Run sequentially to avoid browser crash from parallel load
+  const bookingResult = await scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm })
+    .catch(e => ({ source: "Booking.com", error: String(e), lowest: null }));
 
-  const results = [];
-  if (bookingResult.status === "fulfilled") results.push(bookingResult.value);
-  else results.push({ source: "Booking.com", error: String(bookingResult.reason), lowest: null });
-  if (openaiResult.status === "fulfilled") results.push(...openaiResult.value);
-  else results.push({ source: "OpenAI Search", error: String(openaiResult.reason), lowest: null });
+  const openaiResults = await scrapeViaOpenAI({ hotel, city, checkin, checkout, nights })
+    .catch(e => [{ source: "OpenAI Search", error: String(e), lowest: null }]);
 
+  const results = [bookingResult, ...openaiResults];
   const allPrices = results.map(r => r.lowest).filter(p => p !== null && p !== undefined);
   const lowestFound = allPrices.length ? Math.min(...allPrices) : null;
 
@@ -260,22 +257,28 @@ Include all sources you find (Booking.com, Expedia, Trip.com, Hotels.com, Agoda,
 Return ONLY the JSON array, no other text.`;
 
   try {
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    const res = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-search-preview",
-        messages: [{ role: "user", content: prompt }],
+        model: "gpt-4o",
+        tools: [{ type: "web_search_preview" }],
+        input: prompt,
       }),
     });
 
     if (!res.ok) return [{ source: "OpenAI Search", error: `HTTP ${res.status}`, lowest: null }];
 
     const data = await res.json();
-    const text = data?.choices?.[0]?.message?.content ?? "";
+    const text = data?.output
+      ?.filter(o => o.type === "message")
+      ?.flatMap(o => o.content)
+      ?.filter(c => c.type === "output_text")
+      ?.map(c => c.text)
+      ?.join("") ?? "";
 
     // Extract JSON array from response
     const match = text.match(/\[[\s\S]*\]/);
