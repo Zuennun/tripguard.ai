@@ -61,17 +61,14 @@ export async function checkCurrentPrice(params: {
       return { found: false, price: null, currency: params.currency, source: "", bookingUrl: "" };
     }
 
-    // Find the result that has the lowest price
-    const cheapestResult = data.results
-      ?.filter((r: any) => r.lowest !== null && r.lowest !== undefined)
-      ?.sort((a: any, b: any) => a.lowest - b.lowest)[0];
+    const bookingResult = data.results?.find((r: any) => r.source === "Booking.com");
 
     return {
       found: true,
       price,
       currency: "EUR",
-      source: cheapestResult?.source ?? "",
-      bookingUrl: cheapestResult?.url ?? "",
+      source: bookingResult ? "Booking.com" : "",
+      bookingUrl: bookingResult?.url ?? "",
     };
   } catch {
     return { found: false, price: null, currency: params.currency, source: "", bookingUrl: "" };
