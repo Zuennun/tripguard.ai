@@ -44,25 +44,6 @@ function wrap(content: string, locale: EmailLocale = "en"): string {
       <table role="presentation" cellpadding="0" cellspacing="0"
              style="width:100%;max-width:560px">
 
-        <!-- LOGO BAR -->
-        <tr>
-          <td style="padding:0 0 20px;text-align:center">
-            <table cellpadding="0" cellspacing="0" style="margin:0 auto">
-              <tr>
-                <td style="vertical-align:middle;padding-right:8px">
-                  <img src="https://savemyholiday.com/tripguard1.png" alt="SaveMyHoliday" height="32"
-                       style="display:block;height:32px;width:auto;border:0" />
-                </td>
-                <td style="vertical-align:middle">
-                  <span style="font-size:20px;font-weight:900;font-family:Arial,sans-serif;letter-spacing:-0.5px">
-                    <span style="color:#f97316">Save</span><span style="color:#ffffff">My</span><span style="color:#f97316">Holiday</span>
-                  </span>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-
         <!-- CARD -->
         <tr>
           <td style="background:#ffffff;border-radius:20px;overflow:hidden;
@@ -71,13 +52,20 @@ function wrap(content: string, locale: EmailLocale = "en"): string {
             <!-- HEADER STRIPE -->
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
               <tr>
-                <td style="background:linear-gradient(135deg,#0f2044 0%,#1a3570 100%);
-                           padding:28px 36px;text-align:center">
-                  <span style="font-size:22px;font-weight:900;font-family:Arial,sans-serif;letter-spacing:-0.5px">
-                    <span style="color:#f97316">Save</span><span style="color:#e2e8f4">My</span><span style="color:#f97316">Holiday</span>
-                  </span>
-                  <p style="margin:6px 0 0;color:#94a7c8;font-size:12px;font-family:Arial,sans-serif;
-                             letter-spacing:2px;text-transform:uppercase">Preisüberwachung</p>
+                <td style="background:#0f2044;padding:28px 36px;text-align:center">
+                  <table cellpadding="0" cellspacing="0" style="margin:0 auto 12px">
+                    <tr>
+                      <td style="background:#ffffff;border-radius:12px;padding:8px 12px;vertical-align:middle">
+                        <img src="https://savemyholiday.com/tripguard1.png" alt="" height="40"
+                             style="display:block;height:40px;width:auto;border:0" />
+                      </td>
+                    </tr>
+                  </table>
+                  <div style="font-size:24px;font-weight:900;font-family:Arial,sans-serif;letter-spacing:-0.5px;line-height:1">
+                    <span style="color:#f97316">Save</span><span style="color:#ffffff">My</span><span style="color:#f97316">Holiday</span>
+                  </div>
+                  <p style="margin:6px 0 0;color:#6b82a8;font-size:11px;font-family:Arial,sans-serif;
+                             letter-spacing:2px;text-transform:uppercase">${locale === "de" ? "Preisüberwachung" : "Price Monitoring"}</p>
                 </td>
               </tr>
             </table>
