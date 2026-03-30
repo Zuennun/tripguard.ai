@@ -94,20 +94,11 @@ app.get("/scrape", async (req, res) => {
     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
     .split(/\s+/).filter(w => w.length > 3);
 
-  // ── Improvement 2: Run Booking.com and Kayak in parallel ─────────────────
-  const [bookingResult, kayakResult] = await Promise.allSettled([
-    scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }),
-    scrapeKayak({ hotel, city, checkin, checkout, nights, hotelWords, norm }),
-  ]);
+  const bookingResult = await scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm })
+    .catch(e => ({ source: "Booking.com", error: String(e), lowest: null }));
 
-  const results = [];
-  if (bookingResult.status === "fulfilled") results.push(bookingResult.value);
-  else results.push({ source: "Booking.com", error: String(bookingResult.reason), lowest: null });
-  if (kayakResult.status === "fulfilled") results.push(kayakResult.value);
-  else results.push({ source: "Kayak", error: String(kayakResult.reason), lowest: null });
-
-  const allPrices = results.map(r => r.lowest).filter(p => p !== null && p !== undefined);
-  const lowestFound = allPrices.length ? Math.min(...allPrices) : null;
+  const results = [bookingResult];
+  const lowestFound = bookingResult.lowest ?? null;
 
   return res.json({
     hotel, city: city || "", checkin: checkin || "", checkout: checkout || "",
