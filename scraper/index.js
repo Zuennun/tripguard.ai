@@ -94,16 +94,16 @@ app.get("/scrape", async (req, res) => {
     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
     .split(/\s+/).filter(w => w.length > 3);
 
-  const [bookingResult, ddgResult] = await Promise.allSettled([
+  const [bookingResult, openaiResult] = await Promise.allSettled([
     scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }),
-    scrapeDuckDuckGo({ hotel, city, checkin, checkout, nights, norm }),
+    scrapeViaOpenAI({ hotel, city, checkin, checkout, nights }),
   ]);
 
   const results = [];
   if (bookingResult.status === "fulfilled") results.push(bookingResult.value);
   else results.push({ source: "Booking.com", error: String(bookingResult.reason), lowest: null });
-  if (ddgResult.status === "fulfilled") results.push(...ddgResult.value);
-  else results.push({ source: "DuckDuckGo", error: String(ddgResult.reason), lowest: null });
+  if (openaiResult.status === "fulfilled") results.push(...openaiResult.value);
+  else results.push({ source: "OpenAI Search", error: String(openaiResult.reason), lowest: null });
 
   const allPrices = results.map(r => r.lowest).filter(p => p !== null && p !== undefined);
   const lowestFound = allPrices.length ? Math.min(...allPrices) : null;
@@ -246,51 +246,55 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
   }
 }
 
-// ── DuckDuckGo Hotel Prices scraper ──────────────────────────────────────────
-// DuckDuckGo zeigt Preise von Booking.com, Expedia, Trip.com, Hotels.com etc.
-async function scrapeDuckDuckGo({ hotel, city, checkin, checkout, nights, norm }) {
-  const { page, context } = await newPage();
+// ── OpenAI Web Search scraper ─────────────────────────────────────────────────
+// Nutzt gpt-4o-search-preview um Preise von Booking.com, Expedia, Trip.com etc. zu finden
+async function scrapeViaOpenAI({ hotel, city, checkin, checkout, nights }) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return [{ source: "OpenAI Search", error: "No API key", lowest: null }];
+
+  const location = city ? ` in ${city}` : "";
+  const prompt = `Find current hotel prices for "${hotel}"${location} for check-in ${checkin} and check-out ${checkout} (${nights} nights, 2 adults).
+Search booking sites and return a JSON array of results like:
+[{"source": "Booking.com", "price": 838, "url": "https://..."}, {"source": "Expedia", "price": 900, "url": "https://..."}, ...]
+Include all sources you find (Booking.com, Expedia, Trip.com, Hotels.com, Agoda, HRS etc.).
+Return ONLY the JSON array, no other text.`;
+
   try {
-    const query = encodeURIComponent(`${hotel}${city ? " " + city : ""}`);
-    // Include dates in query so DDG shows prices for the right period
-    const ciFormatted = checkin ? checkin.split("-").reverse().join(".") : "";
-    const coFormatted = checkout ? checkout.split("-").reverse().join(".") : "";
-    const dateQuery = (ciFormatted && coFormatted) ? `+${encodeURIComponent(ciFormatted + " " + coFormatted)}` : "";
-    const ddgUrl = `https://duckduckgo.com/?q=${query}${dateQuery}&kl=de-de`;
+    const res = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-search-preview",
+        tools: [{ type: "web_search_preview" }],
+        input: prompt,
+      }),
+    });
 
-    await page.goto(ddgUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
-    await acceptConsent(page);
-    // Wait for the hotel price panel to appear on the right
-    try { await page.waitForSelector("[data-source], .zci__result, .price", { timeout: 8000 }); } catch {}
-    await page.waitForTimeout(3000);
+    if (!res.ok) return [{ source: "OpenAI Search", error: `HTTP ${res.status}`, lowest: null }];
 
-    const pageText = await page.innerText("body").catch(() => "");
+    const data = await res.json();
+    const text = data?.output
+      ?.filter(o => o.type === "message")
+      ?.flatMap(o => o.content)
+      ?.filter(c => c.type === "output_text")
+      ?.map(c => c.text)
+      ?.join("") ?? "";
+
+    // Extract JSON array from response
+    const match = text.match(/\[[\s\S]*\]/);
+    if (!match) return [{ source: "OpenAI Search", error: "No JSON in response", lowest: null }];
+
+    const parsed = JSON.parse(match[0]);
     const minTotal = nights * 70;
 
-    // Extract prices per source from the panel
-    const sources = ["Booking.com", "Expedia", "Trip.com", "Hotels.com", "Agoda", "HRS"];
-    const foundResults = [];
-
-    const lines = pageText.split("\n");
-    for (let i = 0; i < lines.length; i++) {
-      const ln = lines[i].trim();
-      for (const src of sources) {
-        if (ln.toLowerCase().includes(src.toLowerCase())) {
-          // Look for a price in nearby lines
-          const nearby = lines.slice(i, i + 5).join(" ");
-          const prices = extractEurPrices(nearby).filter(p => p >= minTotal);
-          if (prices.length > 0) {
-            foundResults.push({ source: src, lowest: prices[0], url: ddgUrl });
-          }
-        }
-      }
-    }
-
-    await context.close();
-    return foundResults.length > 0 ? foundResults : [{ source: "DuckDuckGo", lowest: null, url: ddgUrl }];
+    return parsed
+      .filter(r => r.price && r.price >= minTotal)
+      .map(r => ({ source: r.source, lowest: Math.round(r.price), url: r.url ?? "" }));
   } catch (e) {
-    await context.close().catch(() => {});
-    return [{ source: "DuckDuckGo", error: String(e), lowest: null }];
+    return [{ source: "OpenAI Search", error: String(e), lowest: null }];
   }
 }
 
