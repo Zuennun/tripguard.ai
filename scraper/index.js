@@ -86,7 +86,8 @@ app.get("/scrape", async (req, res) => {
     const page = await context.newPage();
     const results = [];
 
-    // ── Step 1 & 2: Booking.com search → extract price from hotel card ──────
+    // ── Step 1: Find hotel URL on Booking.com ───────────────────────────────
+    let bookingHotelUrl = null;
     try {
       const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
       const q = encodeURIComponent(`${hotel} ${city || ""}`);
@@ -103,48 +104,61 @@ app.get("/scrape", async (req, res) => {
 
       await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
       await acceptConsent(page);
-      try { await page.waitForSelector("[data-testid='property-card']", { timeout: 8000 }); } catch {}
+      try { await page.waitForSelector("[data-testid='property-card'], .sr_item, [data-hotelid]", { timeout: 8000 }); } catch {}
       await page.waitForTimeout(2000);
 
-      // Extract price directly from the matching hotel card in search results
+      const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
       const hotelWords = hotel.toLowerCase()
         .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss")
         .split(/\s+/).filter(w => w.length > 3);
 
-      let bookingPrice = null;
-      let bookingUrl = searchUrl;
+      const hrefs = await page.evaluate(() =>
+        Array.from(document.querySelectorAll("a[href]")).map(a => a.href)
+      ).catch(() => []);
 
-      const cards = page.locator("[data-testid='property-card']");
-      const cardCount = await cards.count().catch(() => 0);
-
-      for (let i = 0; i < Math.min(cardCount, 15); i++) {
-        const cardText = await cards.nth(i).innerText().catch(() => "");
-        const normCard = norm(cardText);
-        const matched = hotelWords.some(w => normCard.includes(norm(w)));
-        if (matched) {
-          const prices = extractEurPrices(cardText);
-          if (prices.length > 0) {
-            bookingPrice = prices[0];
-            // Also grab the hotel URL
-            const cardHref = await cards.nth(i).locator("a[href*='/hotel/']").first().getAttribute("href").catch(() => null);
-            if (cardHref) bookingUrl = cardHref.split("?")[0];
+      for (const href of hrefs) {
+        if (href.includes("booking.com/hotel/")) {
+          const normHref = norm(href);
+          if (hotelWords.some(w => normHref.includes(norm(w)))) {
+            bookingHotelUrl = href.split("?")[0];
             break;
           }
         }
       }
-
-      // Fallback: first card with any price
-      if (!bookingPrice) {
-        for (let i = 0; i < Math.min(cardCount, 5); i++) {
-          const cardText = await cards.nth(i).innerText().catch(() => "");
-          const prices = extractEurPrices(cardText);
-          if (prices.length > 0) { bookingPrice = prices[0]; break; }
+      if (!bookingHotelUrl) {
+        for (const href of hrefs) {
+          if (href.includes("booking.com/hotel/")) {
+            bookingHotelUrl = href.split("?")[0];
+            break;
+          }
         }
       }
-
-      results.push({ source: "Booking.com", lowest: bookingPrice, url: bookingUrl });
     } catch (e) {
       results.push({ source: "Booking.com", error: String(e) });
+    }
+
+    // ── Step 2: Hotel page → extract total price for stay ───────────────────
+    if (bookingHotelUrl) {
+      try {
+        let hotelPageUrl = bookingHotelUrl + `?checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0&selected_currency=EUR`;
+
+        await page.goto(hotelPageUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+        await acceptConsent(page);
+        await page.waitForTimeout(4000);
+
+        // Booking.com hotel page with dates shows TOTAL prices for the stay
+        // Use a minimum of nights*40 to filter out stray small numbers
+        const pageText = await page.innerText("body").catch(() => "");
+        const minTotal = nights * 40;
+        const allPrices = extractEurPrices(pageText).filter(p => p >= minTotal);
+        const bookingPrice = allPrices[0] || null;
+
+        results.push({ source: "Booking.com", lowest: bookingPrice, url: hotelPageUrl });
+      } catch (e) {
+        results.push({ source: "Booking.com", error: String(e) });
+      }
+    } else {
+      results.push({ source: "Booking.com", error: "Hotel not found" });
     }
 
     // ── Step 3: Kayak Hotels ─────────────────────────────────────────────────
@@ -201,11 +215,14 @@ app.get("/scrape", async (req, res) => {
       ? Math.max(1, Math.round((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)))
       : 1;
 
-    // All sources return per-night prices → multiply by nights to get total
+    // Booking.com hotel page shows total stay price already — don't multiply
+    // Kayak shows per-night price → multiply by nights
     for (const r of results) {
       if (r.lowest !== null && r.lowest !== undefined) {
-        r.lowestPerNight = r.lowest;
-        r.lowest = Math.round(r.lowest * nights);
+        if (r.source === "Kayak") {
+          r.lowestPerNight = r.lowest;
+          r.lowest = Math.round(r.lowest * nights);
+        }
       }
     }
 
