@@ -1,6 +1,7 @@
 /**
- * Findet die Booking.com Property-URL über das interne Autocomplete-JSON-Endpoint.
- * Kein JS-Rendering nötig — gibt direkt strukturierte Daten zurück.
+ * Findet die Booking.com Property-URL.
+ * 1. Versuch: Booking.com Autocomplete JSON
+ * 2. Fallback: OpenAI Web Search
  */
 export async function discoverHotelUrl(params: {
   hotelName: string;
@@ -13,8 +14,24 @@ export async function discoverHotelUrl(params: {
 }): Promise<string | null> {
   const { hotelName, city, country } = params;
 
-  const query = [hotelName, city, country].filter(Boolean).join(" ");
+  // ── 1. Booking.com Autocomplete ───────────────────────────────────────────
+  const autocompleteUrl = await discoverViaAutocomplete(hotelName, city, country);
+  if (autocompleteUrl) return autocompleteUrl;
 
+  // ── 2. OpenAI Web Search Fallback ─────────────────────────────────────────
+  if (process.env.OPENAI_API_KEY) {
+    return discoverViaOpenAI(hotelName, city, country);
+  }
+
+  return null;
+}
+
+async function discoverViaAutocomplete(
+  hotelName: string,
+  city: string | null,
+  country: string | null
+): Promise<string | null> {
+  const query = [hotelName, city, country].filter(Boolean).join(" ");
   const url = `https://accommodations.booking.com/autocomplete.json` +
     `?query=${encodeURIComponent(query)}&language=en-gb`;
 
@@ -30,26 +47,18 @@ export async function discoverHotelUrl(params: {
 
     if (!res.ok) return null;
     const data = await res.json();
-
-    // Erstes Hotel-Ergebnis finden
     const results: any[] = Array.isArray(data) ? data : (data?.results ?? []);
 
     for (const item of results) {
-      // Nur Hotel-Typen (kein Stadtnamen, keine Regionen)
       const type = item?.type ?? item?.result_type ?? "";
       if (type && !["hotel", "property", "accommodation"].some(t => type.toLowerCase().includes(t))) {
         continue;
       }
-
-      // URL aus verschiedenen Feldern extrahieren
-      const urlSlug =
-        item?.url ?? item?.slug ?? item?.hotel_url ?? item?.deep_link ?? null;
-
+      const urlSlug = item?.url ?? item?.slug ?? item?.hotel_url ?? item?.deep_link ?? null;
       if (urlSlug) {
         const full = urlSlug.startsWith("http")
           ? urlSlug
           : `https://www.booking.com${urlSlug.startsWith("/") ? "" : "/hotel/"}${urlSlug}`;
-        // Nur den Pfad ohne Query-Parameter zurückgeben
         try {
           const parsed = new URL(full);
           return `${parsed.origin}${parsed.pathname}`;
@@ -58,10 +67,51 @@ export async function discoverHotelUrl(params: {
         }
       }
     }
-
     return null;
+  } catch {
+    return null;
+  }
+}
+
+async function discoverViaOpenAI(
+  hotelName: string,
+  city: string | null,
+  country: string | null
+): Promise<string | null> {
+  const location = [city, country].filter(Boolean).join(", ");
+  const query = `Find the exact Booking.com hotel page URL for "${hotelName}"${location ? ` in ${location}` : ""}. Return only the URL in the format https://www.booking.com/hotel/XX/hotel-name.html — nothing else.`;
+
+  try {
+    const res = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-search-preview",
+        tools: [{ type: "web_search_preview" }],
+        input: query,
+      }),
+      signal: AbortSignal.timeout(30000),
+    });
+
+    if (!res.ok) return null;
+    const data = await res.json();
+
+    // Extract text from response
+    const text: string = data?.output
+      ?.filter((o: any) => o.type === "message")
+      ?.flatMap((o: any) => o.content)
+      ?.filter((c: any) => c.type === "output_text")
+      ?.map((c: any) => c.text)
+      ?.join("") ?? "";
+
+    // Extract booking.com URL from text
+    const match = text.match(/https:\/\/www\.booking\.com\/hotel\/[a-z]{2}\/[^\s"'<>]+\.html/);
+    return match ? match[0].split("?")[0] : null;
   } catch (err: any) {
-    console.error("Discovery error:", err.message);
+    console.error("OpenAI discovery error:", err.message);
     return null;
   }
 }
