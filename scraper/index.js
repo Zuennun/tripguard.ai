@@ -109,8 +109,10 @@ app.get("/scrape", async (req, res) => {
 
       await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
       await acceptConsent(page);
-      try { await page.waitForSelector("[data-testid='property-card'], .sr_item, [data-hotelid]", { timeout: 8000 }); } catch {}
-      await page.waitForTimeout(2000);
+      try { await page.waitForSelector("[data-testid='property-card'], .sr_item, [data-hotelid]", { timeout: 10000 }); } catch {}
+      // Scroll to trigger lazy loading of more results
+      await page.evaluate(() => window.scrollTo(0, 600)).catch(() => {});
+      await page.waitForTimeout(3000);
 
       const hotelWords = hotel.toLowerCase()
         .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss")
