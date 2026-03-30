@@ -145,20 +145,34 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
         Array.from(document.querySelectorAll("a[href]")).map(a => a.href)
       ).catch(() => []);
 
+      // Determine expected country code from city
+      const cityLow = (city || "").toLowerCase();
+      const expectedCc = cityLow.includes("budapest") ? "hu"
+        : cityLow.includes("paris") ? "fr"
+        : cityLow.includes("london") ? "gb"
+        : cityLow.includes("wien") || cityLow.includes("vienna") ? "at"
+        : cityLow.includes("amsterdam") ? "nl"
+        : cityLow.includes("rome") || cityLow.includes("roma") || cityLow.includes("milan") ? "it"
+        : cityLow.includes("barcelona") || cityLow.includes("madrid") ? "es"
+        : cityLow.includes("zurich") || cityLow.includes("zürich") || cityLow.includes("geneva") ? "ch"
+        : null;
+
+      const isRightCountry = (href) => !expectedCc || href.includes(`/hotel/${expectedCc}/`);
+
       let foundUrl = null;
-      // Best match: ALL words in URL
+      // Best match: ALL words in URL + correct country
       for (const href of hrefs) {
-        if (href.includes("booking.com/hotel/")) {
+        if (href.includes("booking.com/hotel/") && isRightCountry(href)) {
           const h = norm(href);
           if (hotelWords.length > 1 && hotelWords.every(w => h.includes(norm(w)))) {
             foundUrl = href.split("?")[0]; break;
           }
         }
       }
-      // Fallback: ANY word
+      // Fallback: ANY word + correct country
       if (!foundUrl) {
         for (const href of hrefs) {
-          if (href.includes("booking.com/hotel/")) {
+          if (href.includes("booking.com/hotel/") && isRightCountry(href)) {
             const h = norm(href);
             if (hotelWords.some(w => h.includes(norm(w)))) {
               foundUrl = href.split("?")[0]; break;
@@ -166,7 +180,15 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
           }
         }
       }
-      // Last resort: first hotel link
+      // Fallback: correct country, first link
+      if (!foundUrl) {
+        for (const href of hrefs) {
+          if (href.includes("booking.com/hotel/") && isRightCountry(href)) {
+            foundUrl = href.split("?")[0]; break;
+          }
+        }
+      }
+      // Last resort: any hotel link
       if (!foundUrl) {
         for (const href of hrefs) {
           if (href.includes("booking.com/hotel/")) { foundUrl = href.split("?")[0]; break; }
