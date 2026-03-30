@@ -3,7 +3,8 @@ const { chromium } = require("playwright");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const AUTH_TOKEN = process.env.SCRAPER_TOKEN || "savemyholiday-secret";
+const AUTH_TOKEN = process.env.SCRAPER_TOKEN;
+if (!AUTH_TOKEN) { console.error("FATAL: SCRAPER_TOKEN env var not set"); process.exit(1); }
 
 // ── Improvement 1: Shared browser singleton ──────────────────────────────────
 let sharedBrowser = null;
@@ -56,6 +57,10 @@ app.get("/health", (req, res) => res.json({ status: "ok" }));
 app.get("/debug", async (req, res) => {
   const { url } = req.query;
   if (!url) return res.status(400).json({ error: "Missing url" });
+  // SSRF protection: only allow booking.com URLs
+  if (!url.startsWith("https://www.booking.com/")) {
+    return res.status(400).json({ error: "Only booking.com URLs allowed" });
+  }
   let ctx;
   try {
     const { page, context } = await newPage();
