@@ -194,6 +194,70 @@ app.get("/scrape", async (req, res) => {
       results.push({ source: "Google Hotels", error: String(e) });
     }
 
+    // ── Step 4: Expedia ──────────────────────────────────────────────────────
+    try {
+      const q = encodeURIComponent(`${hotel} ${city || ""}`);
+      const searchUrl = `https://www.expedia.de/Hotel-Search?destination=${q}&startDate=${checkin || ""}&endDate=${checkout || ""}&rooms=1&adults=2&lang=de_DE&currency=EUR`;
+
+      await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+      await acceptConsent(page);
+
+      try {
+        await page.waitForSelector("[data-stid='property-listing'], [class*='uitk-card'], [data-element-name='property-listing']", { timeout: 8000 });
+      } catch {}
+      await page.waitForTimeout(3000);
+
+      const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const hotelKey = norm(hotel).substring(0, 8);
+
+      // Get all hrefs and find hotel page link
+      const hrefs = await page.evaluate(() =>
+        Array.from(document.querySelectorAll("a[href]")).map(a => a.href)
+      ).catch(() => []);
+
+      let expediaHotelUrl = null;
+      for (const href of hrefs) {
+        if ((href.includes("/h") && href.includes(".Hotel-Information")) ||
+            href.includes("/hotels/info/") ||
+            (href.includes("expedia") && norm(href).includes(hotelKey))) {
+          expediaHotelUrl = href.split("?")[0];
+          break;
+        }
+      }
+
+      if (expediaHotelUrl) {
+        const hotelPageUrl = `${expediaHotelUrl}?chkin=${checkin || ""}&chkout=${checkout || ""}&rooms=1&adults=2&currency=EUR`;
+        await page.goto(hotelPageUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+        await acceptConsent(page);
+        await page.waitForTimeout(4000);
+
+        const pageText = await page.innerText("body").catch(() => "");
+        const prices = extractEurPrices(pageText);
+        const expediaPrice = prices[0] || null;
+
+        results.push({ source: "Expedia", lowest: expediaPrice, url: hotelPageUrl });
+      } else {
+        // Fallback: extract from search results page
+        const pageText = await page.innerText("body").catch(() => "");
+        const allPrices = extractEurPrices(pageText);
+
+        // Try to find price near hotel name
+        let expediaPrice = null;
+        const lines = pageText.split("\n");
+        for (let i = 0; i < lines.length; i++) {
+          if (norm(lines[i]).includes(hotelKey)) {
+            const nearby = lines.slice(i, i + 10).join(" ");
+            const p = extractEurPrices(nearby);
+            if (p.length > 0) { expediaPrice = p[0]; break; }
+          }
+        }
+
+        results.push({ source: "Expedia", lowest: expediaPrice, url: searchUrl });
+      }
+    } catch (e) {
+      results.push({ source: "Expedia", error: String(e) });
+    }
+
     await browser.close();
 
     const allPrices = results.map(r => r.lowest).filter(p => p !== null && p !== undefined);
