@@ -220,11 +220,10 @@ app.get("/scrape", async (req, res) => {
       const q = encodeURIComponent(`${hotel} ${city || ""}`);
       const hrsUrl = `https://www.hrs.de/web3/search/list?searchValue=${q}&arrivalDate=${checkin || ""}&departureDate=${checkout || ""}&adultsCount=2&roomCount=1&curr=EUR`;
 
-      await page.goto(hrsUrl, { waitUntil: "networkidle", timeout: 30000 });
+      await page.goto(hrsUrl, { waitUntil: "domcontentloaded", timeout: 20000 });
       await acceptConsent(page);
-      // Wait for price elements to load
-      try { await page.waitForSelector("[class*='price'], [class*='Price'], [data-testid*='price']", { timeout: 8000 }); } catch {}
-      await page.waitForTimeout(3000);
+      try { await page.waitForSelector("[class*='price'], [class*='Price'], [data-testid*='price']", { timeout: 5000 }); } catch {}
+      await page.waitForTimeout(2000);
 
       const title = await page.title().catch(() => "");
       if (title.toLowerCase().includes("bot") || title.toLowerCase().includes("captcha")) {
@@ -261,10 +260,10 @@ app.get("/scrape", async (req, res) => {
       const q = encodeURIComponent(`${hotel} ${city || ""}`);
       const check24Url = `https://hotels.check24.de/hotels?search=${q}&checkin=${checkin || ""}&checkout=${checkout || ""}&rooms=1&adults=2&currency=EUR`;
 
-      await page.goto(check24Url, { waitUntil: "networkidle", timeout: 30000 });
+      await page.goto(check24Url, { waitUntil: "domcontentloaded", timeout: 20000 });
       await acceptConsent(page);
-      try { await page.waitForSelector("[class*='price'], [class*='Price'], [data-price]", { timeout: 8000 }); } catch {}
-      await page.waitForTimeout(4000);
+      try { await page.waitForSelector("[class*='price'], [class*='Price'], [data-price]", { timeout: 5000 }); } catch {}
+      await page.waitForTimeout(2000);
 
       const title = await page.title().catch(() => "");
       if (title.toLowerCase().includes("bot") || title.toLowerCase().includes("captcha")) {
@@ -301,10 +300,10 @@ app.get("/scrape", async (req, res) => {
       const q = encodeURIComponent(`${hotel} ${city || ""}`);
       const searchUrl = `https://www.trivago.de/?search[ridotto]=1&search[queryType]=0&search[query]=${q}&search[ci]=${checkin || ""}&search[co]=${checkout || ""}&search[rc]=2&tfc[currency]=EUR`;
 
-      await page.goto(searchUrl, { waitUntil: "networkidle", timeout: 30000 });
+      await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 20000 });
       await acceptConsent(page);
-      try { await page.waitForSelector("[class*='price'], [data-testid*='price'], [class*='rate']", { timeout: 8000 }); } catch {}
-      await page.waitForTimeout(4000);
+      try { await page.waitForSelector("[class*='price'], [data-testid*='price'], [class*='rate']", { timeout: 5000 }); } catch {}
+      await page.waitForTimeout(3000);
 
       const title = await page.title().catch(() => "");
       if (title.toLowerCase().includes("bot") || title.toLowerCase().includes("captcha")) {
