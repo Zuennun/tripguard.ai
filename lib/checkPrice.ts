@@ -35,6 +35,7 @@ export async function checkCurrentPrice(params: {
     });
     if (params.roomType) searchParams.set("roomType", params.roomType);
     if (params.mealPlan) searchParams.set("mealPlan", params.mealPlan);
+    if (params.bookingComUrl) searchParams.set("bookingUrl", params.bookingComUrl);
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 55000);
