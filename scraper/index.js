@@ -212,7 +212,48 @@ app.get("/scrape", async (req, res) => {
       results.push({ source: "Google Hotels", error: String(e) });
     }
 
-    // ── Step 4: Trivago (aggregates Expedia, Hotels.com, Booking etc.) ───────
+    // ── Step 4: HRS.de ───────────────────────────────────────────────────────
+    try {
+      const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const hotelKey = norm(hotel).substring(0, 8);
+
+      const q = encodeURIComponent(`${hotel} ${city || ""}`);
+      const hrsUrl = `https://www.hrs.de/web3/search/list?searchValue=${q}&arrivalDate=${checkin || ""}&departureDate=${checkout || ""}&adultsCount=2&roomCount=1&curr=EUR`;
+
+      await page.goto(hrsUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+      await acceptConsent(page);
+      await page.waitForTimeout(4000);
+
+      const title = await page.title().catch(() => "");
+      if (title.toLowerCase().includes("bot") || title.toLowerCase().includes("captcha")) {
+        results.push({ source: "HRS", error: "Bot detection triggered", lowest: null });
+      } else {
+        const pageText = await page.innerText("body").catch(() => "");
+        let hrsPrice = null;
+
+        // Find price near hotel name
+        const lines = pageText.split("\n");
+        for (let i = 0; i < lines.length; i++) {
+          if (norm(lines[i]).includes(hotelKey)) {
+            const nearby = lines.slice(i, i + 15).join(" ");
+            const p = extractEurPrices(nearby);
+            if (p.length > 0) { hrsPrice = p[0]; break; }
+          }
+        }
+
+        // Fallback: lowest price on page
+        if (!hrsPrice) {
+          const allPrices = extractEurPrices(pageText);
+          hrsPrice = allPrices[0] || null;
+        }
+
+        results.push({ source: "HRS", lowest: hrsPrice, url: hrsUrl });
+      }
+    } catch (e) {
+      results.push({ source: "HRS", error: String(e) });
+    }
+
+    // ── Step 5: Trivago (aggregates Expedia, Hotels.com, Booking etc.) ───────
     try {
       const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
       const hotelKey = norm(hotel).substring(0, 8);
@@ -234,7 +275,7 @@ app.get("/scrape", async (req, res) => {
         // Find price near hotel name
         const lines = pageText.split("\n");
         for (let i = 0; i < lines.length; i++) {
-          if (norm(lines[i]).includes(hotelKey) || norm(lines[i]).includes("joerg") || norm(lines[i]).includes("muller")) {
+          if (norm(lines[i]).includes(hotelKey)) {
             const nearby = lines.slice(i, i + 15).join(" ");
             const p = extractEurPrices(nearby);
             if (p.length > 0) { trivagoPrice = p[0]; break; }
