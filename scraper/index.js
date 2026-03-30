@@ -260,7 +260,7 @@ Include all sources you find (Booking.com, Expedia, Trip.com, Hotels.com, Agoda,
 Return ONLY the JSON array, no other text.`;
 
   try {
-    const res = await fetch("https://api.openai.com/v1/responses", {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -268,20 +268,14 @@ Return ONLY the JSON array, no other text.`;
       },
       body: JSON.stringify({
         model: "gpt-4o-search-preview",
-        tools: [{ type: "web_search_preview" }],
-        input: prompt,
+        messages: [{ role: "user", content: prompt }],
       }),
     });
 
     if (!res.ok) return [{ source: "OpenAI Search", error: `HTTP ${res.status}`, lowest: null }];
 
     const data = await res.json();
-    const text = data?.output
-      ?.filter(o => o.type === "message")
-      ?.flatMap(o => o.content)
-      ?.filter(c => c.type === "output_text")
-      ?.map(c => c.text)
-      ?.join("") ?? "";
+    const text = data?.choices?.[0]?.message?.content ?? "";
 
     // Extract JSON array from response
     const match = text.match(/\[[\s\S]*\]/);
