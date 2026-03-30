@@ -175,44 +175,7 @@ app.get("/scrape", async (req, res) => {
       results.push({ source: "Booking.com", error: "Hotel not found in search results" });
     }
 
-    // ── Step 3: Google Hotels for this specific hotel ───────────────────────
-    try {
-      const q = encodeURIComponent(`${hotel} ${city || ""}`);
-      const url = `https://www.google.com/travel/hotels?q=${q}&checkin=${checkin || ""}&checkout=${checkout || ""}&hl=de&gl=de&curr=EUR`;
-
-      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
-      await acceptConsent(page);
-      await page.waitForTimeout(5000);
-
-      const pageText = await page.innerText("body").catch(() => "");
-
-      // Try to find the specific hotel card
-      let hotelPrice = null;
-      try {
-        const cards = page.locator("[data-hveid], [jscontroller], li[class*='hotel']");
-        const count = await cards.count();
-        const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-        const hotelKey = norm(hotel).substring(0, 8);
-
-        for (let i = 0; i < Math.min(count, 20); i++) {
-          const cardText = await cards.nth(i).innerText().catch(() => "");
-          if (norm(cardText).includes(hotelKey) || norm(cardText).includes("jorg") || norm(cardText).includes("joerg") || norm(cardText).includes("muller")) {
-            const p = extractPrices(cardText);
-            if (p.length > 0) { hotelPrice = p[0]; break; }
-          }
-        }
-      } catch {}
-
-      results.push({
-        source: "Google Hotels",
-        hotelSpecificPrice: hotelPrice,
-        lowest: hotelPrice,
-      });
-    } catch (e) {
-      results.push({ source: "Google Hotels", error: String(e) });
-    }
-
-    // ── Step 4: Kayak Hotels ─────────────────────────────────────────────────
+    // ── Step 3: Kayak Hotels ─────────────────────────────────────────────────
     try {
       const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
       const hotelKey = norm(hotel).substring(0, 8);
@@ -245,6 +208,12 @@ app.get("/scrape", async (req, res) => {
             const p = extractEurPrices(nearby);
             if (p.length > 0) { kayakPrice = p[0]; break; }
           }
+        }
+
+        // Fallback: lowest price on page if hotel not found by name
+        if (!kayakPrice) {
+          const allPrices = extractEurPrices(pageText);
+          kayakPrice = allPrices[0] || null;
         }
 
         results.push({ source: "Kayak", lowest: kayakPrice, url: kayakUrl });
