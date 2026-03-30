@@ -250,11 +250,15 @@ async function scrapeViaOpenAI({ hotel, city, checkin, checkout, nights }) {
   if (!apiKey) return [{ source: "OpenAI Search", error: "No API key", lowest: null }];
 
   const location = city ? ` in ${city}` : "";
-  const prompt = `Find current hotel prices for "${hotel}"${location} for check-in ${checkin} and check-out ${checkout} (${nights} nights, 2 adults).
-Search booking sites and return a JSON array of results like:
+  const prompt = `Search for the EXACT hotel "${hotel}"${location}. Do NOT return other hotels or hotels in other cities.
+Find the total price for a stay from ${checkin} to ${checkout} (${nights} nights, 2 adults) on multiple booking sites.
+Return a JSON array ONLY for this specific hotel:
 [{"source": "Booking.com", "price": 838, "url": "https://..."}, {"source": "Expedia", "price": 900, "url": "https://..."}, ...]
-Include all sources you find (Booking.com, Expedia, Trip.com, Hotels.com, Agoda, HRS etc.).
-Return ONLY the JSON array, no other text.`;
+Rules:
+- Only include results for the exact hotel "${hotel}"${location}
+- Price must be the TOTAL for all ${nights} nights (not per night)
+- Include sources: Booking.com, Expedia, Trip.com, Hotels.com, Agoda if found
+- Return ONLY the JSON array, no other text`;
 
   try {
     const res = await fetch("https://api.openai.com/v1/responses", {
