@@ -188,8 +188,8 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
           }
         }
       }
-      // Last resort: any hotel link
-      if (!foundUrl) {
+      // Last resort: any hotel link (only if no country expected)
+      if (!foundUrl && !expectedCc) {
         for (const href of hrefs) {
           if (href.includes("booking.com/hotel/")) { foundUrl = href.split("?")[0]; break; }
         }
