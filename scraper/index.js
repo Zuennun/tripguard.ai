@@ -255,6 +255,19 @@ app.get("/scrape", async (req, res) => {
 
     await browser.close();
 
+    // Calculate number of nights
+    const nights = (checkin && checkout)
+      ? Math.max(1, Math.round((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)))
+      : 1;
+
+    // Multiply per-night prices by nights to get total price
+    for (const r of results) {
+      if (r.lowest !== null && r.lowest !== undefined) {
+        r.lowestPerNight = r.lowest;
+        r.lowest = Math.round(r.lowest * nights);
+      }
+    }
+
     const allPrices = results.map(r => r.lowest).filter(p => p !== null && p !== undefined);
     const lowestFound = allPrices.length ? Math.min(...allPrices) : null;
 
@@ -263,6 +276,7 @@ app.get("/scrape", async (req, res) => {
       city: city || "",
       checkin: checkin || "",
       checkout: checkout || "",
+      nights,
       results,
       lowestFound,
       currency: "EUR",
