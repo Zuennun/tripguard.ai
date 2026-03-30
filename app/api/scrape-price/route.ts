@@ -5,9 +5,14 @@ export const maxDuration = 60;
 // If SCRAPER_URL is set, use the Railway Playwright scraper.
 // Otherwise fall back to a simple fetch (limited by bot detection).
 const SCRAPER_URL   = process.env.SCRAPER_URL;
-const SCRAPER_TOKEN = process.env.SCRAPER_TOKEN ?? "savemyholiday-secret";
+const SCRAPER_TOKEN = process.env.SCRAPER_TOKEN ?? "";
 
 export async function GET(req: NextRequest) {
+  const authHeader = req.headers.get("authorization");
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const hotelName = searchParams.get("hotel") ?? "";
   const city      = searchParams.get("city") ?? "";

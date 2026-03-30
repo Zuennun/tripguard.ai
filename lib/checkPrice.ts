@@ -20,7 +20,7 @@ export async function checkCurrentPrice(params: {
   bookingComUrl?: string | null;
 }): Promise<PriceResult> {
   const SCRAPER_URL   = process.env.SCRAPER_URL;
-  const SCRAPER_TOKEN = process.env.SCRAPER_TOKEN ?? "savemyholiday-secret";
+  const SCRAPER_TOKEN = process.env.SCRAPER_TOKEN ?? "";
 
   if (!SCRAPER_URL) {
     return { found: false, price: null, currency: params.currency, source: "", bookingUrl: "" };
