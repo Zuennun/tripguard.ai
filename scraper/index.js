@@ -94,11 +94,19 @@ app.get("/scrape", async (req, res) => {
     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
     .split(/\s+/).filter(w => w.length > 3);
 
-  const bookingResult = await scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm })
-    .catch(e => ({ source: "Booking.com", error: String(e), lowest: null }));
+  const [bookingResult, swoodooResult] = await Promise.allSettled([
+    scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }),
+    scrapeSwoodoo({ hotel, city, checkin, checkout, nights, hotelWords, norm }),
+  ]);
 
-  const results = [bookingResult];
-  const lowestFound = bookingResult.lowest ?? null;
+  const results = [];
+  if (bookingResult.status === "fulfilled") results.push(bookingResult.value);
+  else results.push({ source: "Booking.com", error: String(bookingResult.reason), lowest: null });
+  if (swoodooResult.status === "fulfilled") results.push(swoodooResult.value);
+  else results.push({ source: "Swoodoo", error: String(swoodooResult.reason), lowest: null });
+
+  const allPrices = results.map(r => r.lowest).filter(p => p !== null && p !== undefined);
+  const lowestFound = allPrices.length ? Math.min(...allPrices) : null;
 
   return res.json({
     hotel, city: city || "", checkin: checkin || "", checkout: checkout || "",
@@ -238,14 +246,14 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
   }
 }
 
-// ── Kayak scraper ────────────────────────────────────────────────────────────
-async function scrapeKayak({ hotel, city, checkin, checkout, nights, hotelWords, norm }) {
+// ── Swoodoo scraper ───────────────────────────────────────────────────────────
+async function scrapeSwoodoo({ hotel, city, checkin, checkout, nights, hotelWords, norm }) {
   const { page, context } = await newPage();
   try {
-    const kayakQuery = encodeURIComponent(`${hotel}${city ? " " + city : ""}`);
-    const kayakUrl = `https://www.kayak.de/hotels/${kayakQuery}/${checkin || ""}/${checkout || ""}/2adults`;
+    const query = encodeURIComponent(`${hotel}${city ? " " + city : ""}`);
+    const swoodooUrl = `https://www.swoodoo.com/hotels/${query}/${checkin || ""}/${checkout || ""}/2adults`;
 
-    await page.goto(kayakUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+    await page.goto(swoodooUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
     await acceptConsent(page);
     try { await page.waitForSelector("[class*='price'], [class*='Price']", { timeout: 6000 }); } catch {}
     await page.waitForTimeout(3000);
@@ -253,33 +261,32 @@ async function scrapeKayak({ hotel, city, checkin, checkout, nights, hotelWords,
     const title = await page.title().catch(() => "");
     if (title.toLowerCase().includes("bot") || title.toLowerCase().includes("captcha")) {
       await context.close();
-      return { source: "Kayak", error: "Bot detection", lowest: null };
+      return { source: "Swoodoo", error: "Bot detection", lowest: null };
     }
 
     const pageText = await page.innerText("body").catch(() => "");
-    let kayakPrice = null;
+    const minTotal = nights * 70;
+    let swoodooPrice = null;
 
+    // Try to find price near hotel name first
     const lines = pageText.split("\n");
     for (let i = 0; i < lines.length; i++) {
       const ln = norm(lines[i]);
       if (hotelWords.some(w => ln.includes(norm(w)))) {
-        const p = extractEurPrices(lines.slice(i, i + 15).join(" "));
-        if (p.length > 0) { kayakPrice = p[0]; break; }
+        const p = extractEurPrices(lines.slice(i, i + 15).join(" ")).filter(p => p >= minTotal);
+        if (p.length > 0) { swoodooPrice = p[0]; break; }
       }
     }
-    if (!kayakPrice) {
-      const allPrices = extractEurPrices(pageText);
-      kayakPrice = allPrices[0] || null;
-    }
-    if (kayakPrice) {
-      kayakPrice = Math.round(kayakPrice * nights);
+    if (!swoodooPrice) {
+      const allPrices = extractEurPrices(pageText).filter(p => p >= minTotal);
+      swoodooPrice = allPrices[0] || null;
     }
 
     await context.close();
-    return { source: "Kayak", lowest: kayakPrice, url: kayakUrl };
+    return { source: "Swoodoo", lowest: swoodooPrice, url: swoodooUrl };
   } catch (e) {
     await context.close().catch(() => {});
-    return { source: "Kayak", error: String(e), lowest: null };
+    return { source: "Swoodoo", error: String(e), lowest: null };
   }
 }
 
