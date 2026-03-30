@@ -94,16 +94,11 @@ app.get("/scrape", async (req, res) => {
     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
     .split(/\s+/).filter(w => w.length > 3);
 
-  // Run sequentially to avoid browser crash from parallel load
   const bookingResult = await scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm })
     .catch(e => ({ source: "Booking.com", error: String(e), lowest: null }));
 
-  const openaiResults = await scrapeViaOpenAI({ hotel, city, checkin, checkout, nights })
-    .catch(e => [{ source: "OpenAI Search", error: String(e), lowest: null }]);
-
-  const results = [bookingResult, ...openaiResults];
-  const allPrices = results.map(r => r.lowest).filter(p => p !== null && p !== undefined);
-  const lowestFound = allPrices.length ? Math.min(...allPrices) : null;
+  const results = [bookingResult];
+  const lowestFound = bookingResult.lowest ?? null;
 
   return res.json({
     hotel, city: city || "", checkin: checkin || "", checkout: checkout || "",
