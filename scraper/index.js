@@ -86,6 +86,11 @@ app.get("/scrape", async (req, res) => {
     const page = await context.newPage();
     const results = [];
 
+    // Calculate nights upfront so all steps can use it
+    const nights = (checkin && checkout)
+      ? Math.max(1, Math.round((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)))
+      : 1;
+
     // ── Step 1: Find hotel URL on Booking.com ───────────────────────────────
     let bookingHotelUrl = null;
     try {
@@ -208,11 +213,6 @@ app.get("/scrape", async (req, res) => {
     }
 
     await browser.close();
-
-    // Calculate number of nights
-    const nights = (checkin && checkout)
-      ? Math.max(1, Math.round((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)))
-      : 1;
 
     // Booking.com hotel page shows total stay price already — don't multiply
     // Kayak shows per-night price → multiply by nights
