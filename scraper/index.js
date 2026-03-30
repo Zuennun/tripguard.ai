@@ -3,9 +3,47 @@ const { chromium } = require("playwright");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-
 const AUTH_TOKEN = process.env.SCRAPER_TOKEN || "savemyholiday-secret";
 
+// ── Improvement 1: Shared browser singleton ──────────────────────────────────
+let sharedBrowser = null;
+
+async function getBrowser() {
+  if (sharedBrowser && sharedBrowser.isConnected()) return sharedBrowser;
+  sharedBrowser = await chromium.launch({
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--disable-blink-features=AutomationControlled",
+      "--disable-features=IsolateOrigins,site-per-process",
+    ],
+  });
+  sharedBrowser.on("disconnected", () => { sharedBrowser = null; });
+  return sharedBrowser;
+}
+
+async function newPage() {
+  const browser = await getBrowser();
+  const context = await browser.newContext({
+    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    locale: "de-DE",
+    viewport: { width: 1366, height: 768 },
+    extraHTTPHeaders: { "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7" },
+  });
+  await context.addInitScript(() => {
+    Object.defineProperty(navigator, "webdriver", { get: () => false });
+    Object.defineProperty(navigator, "plugins", { get: () => [1, 2, 3] });
+    Object.defineProperty(navigator, "languages", { get: () => ["de-DE", "de", "en-US"] });
+    window.chrome = { runtime: {} };
+  });
+  const page = await context.newPage();
+  return { page, context };
+}
+
+// ── Auth middleware ──────────────────────────────────────────────────────────
 app.use((req, res, next) => {
   const token = req.headers["x-scraper-token"] || req.query.token;
   if (token !== AUTH_TOKEN) return res.status(401).json({ error: "Unauthorized" });
@@ -14,23 +52,14 @@ app.use((req, res, next) => {
 
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 
-// ── Debug endpoint ──────────────────────────────────────────────────────────
+// ── Debug endpoint ───────────────────────────────────────────────────────────
 app.get("/debug", async (req, res) => {
   const { url } = req.query;
   if (!url) return res.status(400).json({ error: "Missing url" });
-
-  let browser;
+  let ctx;
   try {
-    browser = await chromium.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
-    });
-    const context = await browser.newContext({
-      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-      locale: "de-DE",
-      viewport: { width: 1280, height: 800 },
-    });
-    const page = await context.newPage();
+    const { page, context } = await newPage();
+    ctx = context;
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
     await acceptConsent(page);
     try { await page.waitForSelector("[data-testid='property-card'], .sr_item, [data-hotelid]", { timeout: 6000 }); } catch {}
@@ -40,289 +69,234 @@ app.get("/debug", async (req, res) => {
     const allHrefs = await page.evaluate(() =>
       Array.from(document.querySelectorAll("a[href]")).map(a => a.href).filter(h => h.includes("booking.com") || h.includes("hotel"))
     ).catch(() => []);
-    await browser.close();
+    await ctx.close();
     res.json({ title, textSnippet: text.slice(0, 2000), prices: extractPrices(text), bookingHrefs: allHrefs.slice(0, 20) });
   } catch (e) {
-    if (browser) await browser.close().catch(() => {});
+    if (ctx) await ctx.close().catch(() => {});
     res.status(500).json({ error: String(e) });
   }
 });
 
+// ── Scrape endpoint ──────────────────────────────────────────────────────────
 app.get("/scrape", async (req, res) => {
-  const { hotel, city, checkin, checkout, roomType, mealPlan } = req.query;
+  const { hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl } = req.query;
   if (!hotel) return res.status(400).json({ error: "Missing hotel parameter" });
 
-  let browser;
+  const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+  const nights = (checkin && checkout)
+    ? Math.max(1, Math.round((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)))
+    : 1;
+
+  const hotelWords = hotel.toLowerCase()
+    .replace(/[àáâãäå]/g, "a").replace(/[èéêë]/g, "e").replace(/[ìíîï]/g, "i")
+    .replace(/[òóôõöø]/g, "o").replace(/[ùúûü]/g, "u")
+    .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
+    .split(/\s+/).filter(w => w.length > 3);
+
+  // ── Improvement 2: Run Booking.com and Kayak in parallel ─────────────────
+  const [bookingResult, kayakResult] = await Promise.allSettled([
+    scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }),
+    scrapeKayak({ hotel, city, checkin, checkout, nights, hotelWords, norm }),
+  ]);
+
+  const results = [];
+  if (bookingResult.status === "fulfilled") results.push(bookingResult.value);
+  else results.push({ source: "Booking.com", error: String(bookingResult.reason), lowest: null });
+  if (kayakResult.status === "fulfilled") results.push(kayakResult.value);
+  else results.push({ source: "Kayak", error: String(kayakResult.reason), lowest: null });
+
+  const allPrices = results.map(r => r.lowest).filter(p => p !== null && p !== undefined);
+  const lowestFound = allPrices.length ? Math.min(...allPrices) : null;
+
+  return res.json({
+    hotel, city: city || "", checkin: checkin || "", checkout: checkout || "",
+    roomType: roomType || null, mealPlan: mealPlan || null,
+    nights, results, lowestFound, currency: "EUR",
+  });
+});
+
+// ── Booking.com scraper ──────────────────────────────────────────────────────
+async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }) {
+  const { page, context } = await newPage();
   try {
-    browser = await chromium.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--disable-blink-features=AutomationControlled",
-        "--disable-features=IsolateOrigins,site-per-process",
-      ],
-    });
+    let hotelPageUrl = null;
 
-    const context = await browser.newContext({
-      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-      locale: "de-DE",
-      viewport: { width: 1366, height: 768 },
-      extraHTTPHeaders: {
-        "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
-      },
-    });
-
-    // Hide webdriver flag
-    await context.addInitScript(() => {
-      Object.defineProperty(navigator, "webdriver", { get: () => false });
-      Object.defineProperty(navigator, "plugins", { get: () => [1, 2, 3] });
-      Object.defineProperty(navigator, "languages", { get: () => ["de-DE", "de", "en-US"] });
-      window.chrome = { runtime: {} };
-    });
-
-    const page = await context.newPage();
-    const results = [];
-
-    // Calculate nights upfront so all steps can use it
-    const nights = (checkin && checkout)
-      ? Math.max(1, Math.round((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)))
-      : 1;
-
-    // ── Step 1: Find hotel URL on Booking.com ───────────────────────────────
-    let bookingHotelUrl = null;
-    try {
-      const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+    // ── Improvement 3: Use stored URL if provided (skip search entirely) ────
+    if (bookingUrl) {
+      const sep = bookingUrl.includes("?") ? "&" : "?";
+      hotelPageUrl = `${bookingUrl.split("?")[0]}${sep}checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0&selected_currency=EUR`;
+    } else {
+      // Search for hotel URL
       const q = encodeURIComponent(`${hotel} ${city || ""}`);
       const ciParts = (checkin || "").split("-");
       const coParts = (checkout || "").split("-");
       let searchUrl = `https://www.booking.com/search.html?ss=${q}&lang=de&sb=1&selected_currency=EUR`;
-      if (ciParts.length === 3) {
-        searchUrl += `&checkin_year=${ciParts[0]}&checkin_month=${parseInt(ciParts[1])}&checkin_monthday=${parseInt(ciParts[2])}`;
-      }
-      if (coParts.length === 3) {
-        searchUrl += `&checkout_year=${coParts[0]}&checkout_month=${parseInt(coParts[1])}&checkout_monthday=${parseInt(coParts[2])}`;
-      }
+      if (ciParts.length === 3) searchUrl += `&checkin_year=${ciParts[0]}&checkin_month=${parseInt(ciParts[1])}&checkin_monthday=${parseInt(ciParts[2])}`;
+      if (coParts.length === 3) searchUrl += `&checkout_year=${coParts[0]}&checkout_month=${parseInt(coParts[1])}&checkout_monthday=${parseInt(coParts[2])}`;
       searchUrl += `&group_adults=2&no_rooms=1&group_children=0`;
 
-      await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
+      await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
       await acceptConsent(page);
       try { await page.waitForSelector("[data-testid='property-card'], .sr_item, [data-hotelid]", { timeout: 8000 }); } catch {}
       await page.waitForTimeout(2000);
-
-      const hotelWords = hotel.toLowerCase()
-        .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss")
-        .split(/\s+/).filter(w => w.length > 3);
 
       const hrefs = await page.evaluate(() =>
         Array.from(document.querySelectorAll("a[href]")).map(a => a.href)
       ).catch(() => []);
 
-      // Try to match ALL significant hotel name words in the URL
+      let foundUrl = null;
+      // Best match: ALL words in URL
       for (const href of hrefs) {
         if (href.includes("booking.com/hotel/")) {
-          const normHref = norm(href);
-          if (hotelWords.length > 1 && hotelWords.every(w => normHref.includes(norm(w)))) {
-            bookingHotelUrl = href.split("?")[0];
-            break;
+          const h = norm(href);
+          if (hotelWords.length > 1 && hotelWords.every(w => h.includes(norm(w)))) {
+            foundUrl = href.split("?")[0]; break;
           }
         }
       }
-      // Fallback: match ANY word
-      if (!bookingHotelUrl) {
+      // Fallback: ANY word
+      if (!foundUrl) {
         for (const href of hrefs) {
           if (href.includes("booking.com/hotel/")) {
-            const normHref = norm(href);
-            if (hotelWords.some(w => normHref.includes(norm(w)))) {
-              bookingHotelUrl = href.split("?")[0];
-              break;
+            const h = norm(href);
+            if (hotelWords.some(w => h.includes(norm(w)))) {
+              foundUrl = href.split("?")[0]; break;
             }
           }
         }
       }
       // Last resort: first hotel link
-      if (!bookingHotelUrl) {
+      if (!foundUrl) {
         for (const href of hrefs) {
-          if (href.includes("booking.com/hotel/")) {
-            bookingHotelUrl = href.split("?")[0];
-            break;
-          }
+          if (href.includes("booking.com/hotel/")) { foundUrl = href.split("?")[0]; break; }
         }
       }
-    } catch (e) {
-      results.push({ source: "Booking.com", error: String(e) });
-    }
 
-    // ── Step 2: Hotel page → find price for specific room type & meal plan ───
-    if (bookingHotelUrl) {
-      try {
-        let hotelPageUrl = bookingHotelUrl + `?checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0&selected_currency=EUR`;
-
-        await page.goto(hotelPageUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
-        await acceptConsent(page);
-        await page.waitForTimeout(4000);
-
-        const pageText = await page.innerText("body").catch(() => "");
-        const minTotal = nights * 40;
-        let bookingPrice = null;
-
-        // If roomType or mealPlan specified, find matching room section
-        if (roomType || mealPlan) {
-          const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-
-          // Keywords to match room type (handle German/English/French)
-          const roomWords = (roomType || "").toLowerCase()
-            .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue")
-            .split(/\s+/).filter(w => w.length > 2);
-
-          // Meal plan keywords
-          const mealKeywords = {
-            "room_only":    ["ohne frühstück", "ohne verpflegung", "room only", "sans petit", "senza colazione", "no breakfast"],
-            "breakfast":    ["frühstück", "breakfast", "petit-déjeuner", "colazione"],
-            "half_board":   ["halbpension", "half board", "demi-pension"],
-            "full_board":   ["vollpension", "full board", "pension complète"],
-            "all_inclusive":["all inclusive", "alles inklusive"],
-          };
-          const mealWords = mealPlan ? (mealKeywords[mealPlan] || []) : [];
-
-          const lines = pageText.split("\n");
-          for (let i = 0; i < lines.length; i++) {
-            const lineNorm = norm(lines[i]);
-            const roomMatch = roomWords.length === 0 || roomWords.some(w => lineNorm.includes(norm(w)));
-            const mealMatch = mealWords.length === 0 || mealWords.some(w => lineNorm.includes(norm(w)));
-            if (roomMatch && mealMatch) {
-              const nearby = lines.slice(i, i + 10).join(" ");
-              const prices = extractEurPrices(nearby).filter(p => p >= minTotal);
-              if (prices.length > 0) { bookingPrice = prices[0]; break; }
-            }
-          }
-        }
-
-        // Fallback: lowest price on page above minimum
-        if (!bookingPrice) {
-          const allPrices = extractEurPrices(pageText).filter(p => p >= minTotal);
-          bookingPrice = allPrices[0] || null;
-        }
-
-        results.push({ source: "Booking.com", lowest: bookingPrice, url: hotelPageUrl });
-      } catch (e) {
-        results.push({ source: "Booking.com", error: String(e) });
+      if (!foundUrl) {
+        await context.close();
+        return { source: "Booking.com", error: "Hotel not found", lowest: null };
       }
-    } else {
-      results.push({ source: "Booking.com", error: "Hotel not found" });
+      hotelPageUrl = `${foundUrl}?checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0&selected_currency=EUR`;
     }
 
-    // ── Step 3: Kayak Hotels ─────────────────────────────────────────────────
-    try {
-      const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-      const hotelKey = norm(hotel).substring(0, 8);
-      const kayakQuery = encodeURIComponent(`${hotel}${city ? " " + city : ""}`);
-      const kayakUrl = `https://www.kayak.de/hotels/${kayakQuery}/${checkin || ""}/${checkout || ""}/2adults`;
+    await page.goto(hotelPageUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+    await acceptConsent(page);
+    await page.waitForTimeout(3000);
 
-      await page.goto(kayakUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
-      await acceptConsent(page);
-      try { await page.waitForSelector("[class*='price'], [class*='Price']", { timeout: 6000 }); } catch {}
-      await page.waitForTimeout(3000);
+    const pageText = await page.innerText("body").catch(() => "");
+    const minTotal = nights * 40;
+    let bookingPrice = null;
 
-      const title = await page.title().catch(() => "");
-      if (title.toLowerCase().includes("bot") || title.toLowerCase().includes("captcha")) {
-        results.push({ source: "Kayak", error: "Bot detection triggered", lowest: null });
-      } else {
-        const pageText = await page.innerText("body").catch(() => "");
-        let kayakPrice = null;
-
-        // Build multiple search keys from hotel name words (handles umlauts)
-        const hotelWords = hotel.toLowerCase()
-          .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss")
-          .split(/\s+/).filter(w => w.length > 3);
-
-        const lines = pageText.split("\n");
-        for (let i = 0; i < lines.length; i++) {
-          const normLine = norm(lines[i]);
-          const matched = hotelWords.some(w => normLine.includes(norm(w)));
-          if (matched) {
-            const nearby = lines.slice(i, i + 15).join(" ");
-            const p = extractEurPrices(nearby);
-            if (p.length > 0) { kayakPrice = p[0]; break; }
-          }
-        }
-
-        // Fallback: lowest price on page if hotel not found by name
-        if (!kayakPrice) {
-          const allPrices = extractEurPrices(pageText);
-          kayakPrice = allPrices[0] || null;
-        }
-
-        results.push({ source: "Kayak", lowest: kayakPrice, url: kayakUrl });
-      }
-    } catch (e) {
-      results.push({ source: "Kayak", error: String(e) });
-    }
-
-    await browser.close();
-
-    // Booking.com hotel page shows total stay price already — don't multiply
-    // Kayak shows per-night price → multiply by nights
-    for (const r of results) {
-      if (r.lowest !== null && r.lowest !== undefined) {
-        if (r.source === "Kayak") {
-          r.lowestPerNight = r.lowest;
-          r.lowest = Math.round(r.lowest * nights);
+    if (roomType || mealPlan) {
+      const roomWords = (roomType || "").toLowerCase()
+        .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue")
+        .split(/\s+/).filter(w => w.length > 2);
+      const mealKeywords = {
+        "room_only":    ["ohne frühstück", "ohne verpflegung", "room only", "sans petit", "senza colazione"],
+        "breakfast":    ["frühstück", "breakfast", "petit-déjeuner", "colazione"],
+        "half_board":   ["halbpension", "half board", "demi-pension"],
+        "full_board":   ["vollpension", "full board", "pension complète"],
+        "all_inclusive":["all inclusive", "alles inklusive"],
+      };
+      const mealWords = mealPlan ? (mealKeywords[mealPlan] || []) : [];
+      const lines = pageText.split("\n");
+      for (let i = 0; i < lines.length; i++) {
+        const ln = norm(lines[i]);
+        const roomMatch = roomWords.length === 0 || roomWords.some(w => ln.includes(norm(w)));
+        const mealMatch = mealWords.length === 0 || mealWords.some(w => ln.includes(norm(w)));
+        if (roomMatch && mealMatch) {
+          const prices = extractEurPrices(lines.slice(i, i + 10).join(" ")).filter(p => p >= minTotal);
+          if (prices.length > 0) { bookingPrice = prices[0]; break; }
         }
       }
     }
 
-    const allPrices = results.map(r => r.lowest).filter(p => p !== null && p !== undefined);
-    const lowestFound = allPrices.length ? Math.min(...allPrices) : null;
+    if (!bookingPrice) {
+      const allPrices = extractEurPrices(pageText).filter(p => p >= minTotal);
+      bookingPrice = allPrices[0] || null;
+    }
 
-    return res.json({
-      hotel,
-      city: city || "",
-      checkin: checkin || "",
-      checkout: checkout || "",
-      roomType: roomType || null,
-      mealPlan: mealPlan || null,
-      nights,
-      results,
-      lowestFound,
-      currency: "EUR",
-    });
-
+    await context.close();
+    return { source: "Booking.com", lowest: bookingPrice, url: hotelPageUrl };
   } catch (e) {
-    if (browser) await browser.close().catch(() => {});
-    return res.status(500).json({ error: String(e) });
+    await context.close().catch(() => {});
+    return { source: "Booking.com", error: String(e), lowest: null };
   }
-});
+}
+
+// ── Kayak scraper ────────────────────────────────────────────────────────────
+async function scrapeKayak({ hotel, city, checkin, checkout, nights, hotelWords, norm }) {
+  const { page, context } = await newPage();
+  try {
+    const kayakQuery = encodeURIComponent(`${hotel}${city ? " " + city : ""}`);
+    const kayakUrl = `https://www.kayak.de/hotels/${kayakQuery}/${checkin || ""}/${checkout || ""}/2adults`;
+
+    await page.goto(kayakUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+    await acceptConsent(page);
+    try { await page.waitForSelector("[class*='price'], [class*='Price']", { timeout: 6000 }); } catch {}
+    await page.waitForTimeout(3000);
+
+    const title = await page.title().catch(() => "");
+    if (title.toLowerCase().includes("bot") || title.toLowerCase().includes("captcha")) {
+      await context.close();
+      return { source: "Kayak", error: "Bot detection", lowest: null };
+    }
+
+    const pageText = await page.innerText("body").catch(() => "");
+    let kayakPrice = null;
+
+    const lines = pageText.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const ln = norm(lines[i]);
+      if (hotelWords.some(w => ln.includes(norm(w)))) {
+        const p = extractEurPrices(lines.slice(i, i + 15).join(" "));
+        if (p.length > 0) { kayakPrice = p[0]; break; }
+      }
+    }
+    if (!kayakPrice) {
+      const allPrices = extractEurPrices(pageText);
+      kayakPrice = allPrices[0] || null;
+    }
+    if (kayakPrice) {
+      kayakPrice = Math.round(kayakPrice * nights);
+    }
+
+    await context.close();
+    return { source: "Kayak", lowest: kayakPrice, url: kayakUrl };
+  } catch (e) {
+    await context.close().catch(() => {});
+    return { source: "Kayak", error: String(e), lowest: null };
+  }
+}
 
 async function acceptConsent(page) {
   try {
     for (const txt of ["Alle akzeptieren", "Accept all", "Akzeptieren", "Ich stimme zu", "AGREE"]) {
       const btn = page.locator(`button:has-text('${txt}')`);
-      if (await btn.count() > 0) {
-        await btn.first().click();
-        await page.waitForTimeout(2000);
-        return;
-      }
+      if (await btn.count() > 0) { await btn.first().click(); await page.waitForTimeout(1500); return; }
     }
-    // Booking.com specific
     const bc = page.locator("button#onetrust-accept-btn-handler");
-    if (await bc.count() > 0) {
-      await bc.first().click();
-      await page.waitForTimeout(2000);
-    }
+    if (await bc.count() > 0) { await bc.first().click(); await page.waitForTimeout(1500); }
   } catch {}
 }
 
 function extractEurPrices(text) {
   const prices = [];
-  const patterns = [
-    /(\d{2,4})\s*€/g,
-    /€\s*(\d{2,4})/g,
-    /EUR\s*(\d{2,4})/g,
-    /(\d{2,4})\s*EUR/g,
-  ];
+  const patterns = [/(\d{2,4})\s*€/g, /€\s*(\d{2,4})/g, /EUR\s*(\d{2,4})/g, /(\d{2,4})\s*EUR/g];
+  for (const pattern of patterns) {
+    let m;
+    while ((m = pattern.exec(text)) !== null) {
+      const p = parseInt(m[1]);
+      if (p >= 40 && p <= 9999) prices.push(p);
+    }
+  }
+  return [...new Set(prices)].sort((a, b) => a - b);
+}
+
+function extractPrices(text) {
+  const prices = [];
+  const patterns = [/(\d{2,4})\s*€/g, /€\s*(\d{2,4})/g, /EUR\s*(\d{2,4})/g, /\$\s*(\d{2,4})/g, /(\d{2,4})\s*\$/g];
   for (const pattern of patterns) {
     let m;
     while ((m = pattern.exec(text)) !== null) {
@@ -334,40 +308,9 @@ function extractEurPrices(text) {
 }
 
 function hotelNameToSlug(name) {
-  return name
-    .toLowerCase()
+  return name.toLowerCase()
     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
-function parsePrice(text) {
-  if (!text) return null;
-  const match = text.match(/(\d[\d.,]+)/);
-  if (!match) return null;
-  const price = parseFloat(match[1].replace(/[.,](?=\d{3})/g, "").replace(",", "."));
-  return price >= 40 && price <= 9999 ? price : null;
-}
-
-function extractPrices(text) {
-  const prices = [];
-  const patterns = [
-    /(\d{2,4})\s*€/g,
-    /€\s*(\d{2,4})/g,
-    /EUR\s*(\d{2,4})/g,
-    /\$\s*(\d{2,4})/g,
-    /(\d{2,4})\s*\$/g,
-  ];
-  for (const pattern of patterns) {
-    let m;
-    while ((m = pattern.exec(text)) !== null) {
-      const p = parseInt(m[1]);
-      if (p >= 40 && p <= 9999) prices.push(p);
-    }
-  }
-  return [...new Set(prices)].sort((a, b) => a - b);
-}
-
-app.listen(PORT, () => {
-  console.log(`SaveMyHoliday Scraper running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`SaveMyHoliday Scraper running on port ${PORT}`));
