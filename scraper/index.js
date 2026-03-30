@@ -220,9 +220,11 @@ app.get("/scrape", async (req, res) => {
       const q = encodeURIComponent(`${hotel} ${city || ""}`);
       const hrsUrl = `https://www.hrs.de/web3/search/list?searchValue=${q}&arrivalDate=${checkin || ""}&departureDate=${checkout || ""}&adultsCount=2&roomCount=1&curr=EUR`;
 
-      await page.goto(hrsUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+      await page.goto(hrsUrl, { waitUntil: "networkidle", timeout: 30000 });
       await acceptConsent(page);
-      await page.waitForTimeout(4000);
+      // Wait for price elements to load
+      try { await page.waitForSelector("[class*='price'], [class*='Price'], [data-testid*='price']", { timeout: 8000 }); } catch {}
+      await page.waitForTimeout(3000);
 
       const title = await page.title().catch(() => "");
       if (title.toLowerCase().includes("bot") || title.toLowerCase().includes("captcha")) {
@@ -231,7 +233,6 @@ app.get("/scrape", async (req, res) => {
         const pageText = await page.innerText("body").catch(() => "");
         let hrsPrice = null;
 
-        // Find price near hotel name
         const lines = pageText.split("\n");
         for (let i = 0; i < lines.length; i++) {
           if (norm(lines[i]).includes(hotelKey)) {
@@ -241,7 +242,6 @@ app.get("/scrape", async (req, res) => {
           }
         }
 
-        // Fallback: lowest price on page
         if (!hrsPrice) {
           const allPrices = extractEurPrices(pageText);
           hrsPrice = allPrices[0] || null;
@@ -253,7 +253,47 @@ app.get("/scrape", async (req, res) => {
       results.push({ source: "HRS", error: String(e) });
     }
 
-    // ── Step 5: Trivago (aggregates Expedia, Hotels.com, Booking etc.) ───────
+    // ── Step 5: Check24 Hotels ────────────────────────────────────────────────
+    try {
+      const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const hotelKey = norm(hotel).substring(0, 8);
+
+      const q = encodeURIComponent(`${hotel} ${city || ""}`);
+      const check24Url = `https://hotels.check24.de/hotels?search=${q}&checkin=${checkin || ""}&checkout=${checkout || ""}&rooms=1&adults=2&currency=EUR`;
+
+      await page.goto(check24Url, { waitUntil: "networkidle", timeout: 30000 });
+      await acceptConsent(page);
+      try { await page.waitForSelector("[class*='price'], [class*='Price'], [data-price]", { timeout: 8000 }); } catch {}
+      await page.waitForTimeout(4000);
+
+      const title = await page.title().catch(() => "");
+      if (title.toLowerCase().includes("bot") || title.toLowerCase().includes("captcha")) {
+        results.push({ source: "Check24", error: "Bot detection triggered", lowest: null });
+      } else {
+        const pageText = await page.innerText("body").catch(() => "");
+        let check24Price = null;
+
+        const lines = pageText.split("\n");
+        for (let i = 0; i < lines.length; i++) {
+          if (norm(lines[i]).includes(hotelKey)) {
+            const nearby = lines.slice(i, i + 15).join(" ");
+            const p = extractEurPrices(nearby);
+            if (p.length > 0) { check24Price = p[0]; break; }
+          }
+        }
+
+        if (!check24Price) {
+          const allPrices = extractEurPrices(pageText);
+          check24Price = allPrices[0] || null;
+        }
+
+        results.push({ source: "Check24", lowest: check24Price, url: check24Url });
+      }
+    } catch (e) {
+      results.push({ source: "Check24", error: String(e) });
+    }
+
+    // ── Step 6: Trivago (aggregates Expedia, Hotels.com, Booking etc.) ────────
     try {
       const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
       const hotelKey = norm(hotel).substring(0, 8);
@@ -261,9 +301,10 @@ app.get("/scrape", async (req, res) => {
       const q = encodeURIComponent(`${hotel} ${city || ""}`);
       const searchUrl = `https://www.trivago.de/?search[ridotto]=1&search[queryType]=0&search[query]=${q}&search[ci]=${checkin || ""}&search[co]=${checkout || ""}&search[rc]=2&tfc[currency]=EUR`;
 
-      await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+      await page.goto(searchUrl, { waitUntil: "networkidle", timeout: 30000 });
       await acceptConsent(page);
-      await page.waitForTimeout(5000);
+      try { await page.waitForSelector("[class*='price'], [data-testid*='price'], [class*='rate']", { timeout: 8000 }); } catch {}
+      await page.waitForTimeout(4000);
 
       const title = await page.title().catch(() => "");
       if (title.toLowerCase().includes("bot") || title.toLowerCase().includes("captcha")) {
@@ -272,7 +313,6 @@ app.get("/scrape", async (req, res) => {
         const pageText = await page.innerText("body").catch(() => "");
         let trivagoPrice = null;
 
-        // Find price near hotel name
         const lines = pageText.split("\n");
         for (let i = 0; i < lines.length; i++) {
           if (norm(lines[i]).includes(hotelKey)) {
@@ -282,7 +322,6 @@ app.get("/scrape", async (req, res) => {
           }
         }
 
-        // Fallback: lowest price on page
         if (!trivagoPrice) {
           const allPrices = extractEurPrices(pageText);
           trivagoPrice = allPrices[0] || null;
