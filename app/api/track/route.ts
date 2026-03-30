@@ -187,7 +187,10 @@ export async function POST(req: NextRequest) {
 
     const from = process.env.RESEND_FROM!;
     const notifyEmail = process.env.NOTIFY_EMAIL!;
-    const locale = (req.headers.get("x-locale") === "de" ? "de" : "en") as "de" | "en";
+    const xLocale = req.headers.get("x-locale") ?? "";
+    const acceptLang = req.headers.get("accept-language") ?? "";
+    const isDE = xLocale === "de" || (!xLocale && acceptLang.toLowerCase().startsWith("de"));
+    const locale = (isDE ? "de" : "en") as "de" | "en";
 
     const emailData = {
       hotelName, city, country, roomType, checkin, checkout,
