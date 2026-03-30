@@ -216,8 +216,8 @@ app.get("/scrape", async (req, res) => {
     try {
       const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
       const hotelKey = norm(hotel).substring(0, 8);
-      const searchCity = encodeURIComponent(city || hotel);
-      const kayakUrl = `https://www.kayak.de/hotels/${searchCity}/${checkin || ""}/${checkout || ""}/2adults`;
+      const kayakQuery = encodeURIComponent(`${hotel}${city ? " " + city : ""}`);
+      const kayakUrl = `https://www.kayak.de/hotels/${kayakQuery}/${checkin || ""}/${checkout || ""}/2adults`;
 
       await page.goto(kayakUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
       await acceptConsent(page);
@@ -239,12 +239,6 @@ app.get("/scrape", async (req, res) => {
             const p = extractEurPrices(nearby);
             if (p.length > 0) { kayakPrice = p[0]; break; }
           }
-        }
-
-        // Fallback: lowest price on page
-        if (!kayakPrice) {
-          const allPrices = extractEurPrices(pageText);
-          kayakPrice = allPrices[0] || null;
         }
 
         results.push({ source: "Kayak", lowest: kayakPrice, url: kayakUrl });
