@@ -120,15 +120,29 @@ app.get("/scrape", async (req, res) => {
         Array.from(document.querySelectorAll("a[href]")).map(a => a.href)
       ).catch(() => []);
 
+      // Try to match ALL significant hotel name words in the URL
       for (const href of hrefs) {
         if (href.includes("booking.com/hotel/")) {
           const normHref = norm(href);
-          if (hotelWords.some(w => normHref.includes(norm(w)))) {
+          if (hotelWords.length > 1 && hotelWords.every(w => normHref.includes(norm(w)))) {
             bookingHotelUrl = href.split("?")[0];
             break;
           }
         }
       }
+      // Fallback: match ANY word
+      if (!bookingHotelUrl) {
+        for (const href of hrefs) {
+          if (href.includes("booking.com/hotel/")) {
+            const normHref = norm(href);
+            if (hotelWords.some(w => normHref.includes(norm(w)))) {
+              bookingHotelUrl = href.split("?")[0];
+              break;
+            }
+          }
+        }
+      }
+      // Last resort: first hotel link
       if (!bookingHotelUrl) {
         for (const href of hrefs) {
           if (href.includes("booking.com/hotel/")) {
