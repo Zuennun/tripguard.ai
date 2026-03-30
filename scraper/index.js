@@ -86,12 +86,9 @@ app.get("/scrape", async (req, res) => {
     const page = await context.newPage();
     const results = [];
 
-    // ── Step 1: Build Booking.com hotel URL from name ──────────────────────
-    let bookingHotelUrl = null;
+    // ── Step 1 & 2: Booking.com search → extract price from hotel card ──────
     try {
-      const slug = hotelNameToSlug(hotel);
-      const countryCode = "de"; // default Germany
-      // Try Booking.com search with the hotel name directly
+      const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
       const q = encodeURIComponent(`${hotel} ${city || ""}`);
       const ciParts = (checkin || "").split("-");
       const coParts = (checkout || "").split("-");
@@ -106,73 +103,48 @@ app.get("/scrape", async (req, res) => {
 
       await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
       await acceptConsent(page);
-
-      // Wait for hotel cards to appear
-      try {
-        await page.waitForSelector("[data-testid='property-card'], .sr_item, [data-hotelid]", { timeout: 8000 });
-      } catch {}
+      try { await page.waitForSelector("[data-testid='property-card']", { timeout: 8000 }); } catch {}
       await page.waitForTimeout(2000);
 
-      const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-      const hotelKey = norm(hotel).substring(0, 8);
+      // Extract price directly from the matching hotel card in search results
+      const hotelWords = hotel.toLowerCase()
+        .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss")
+        .split(/\s+/).filter(w => w.length > 3);
 
-      // Get all hrefs after cards loaded
-      const hrefs = await page.evaluate(() =>
-        Array.from(document.querySelectorAll("a[href]")).map(a => a.href)
-      ).catch(() => []);
+      let bookingPrice = null;
+      let bookingUrl = searchUrl;
 
-      // Find hotel-specific link first
-      for (const href of hrefs) {
-        if (href.includes("/hotel/") && (norm(href).includes(hotelKey) || norm(href).includes("joerg") || norm(href).includes("jorg") || norm(href).includes("muller"))) {
-          bookingHotelUrl = href.split("?")[0];
-          break;
-        }
-      }
-      // Fallback: first /hotel/ link
-      if (!bookingHotelUrl) {
-        for (const href of hrefs) {
-          if (href.includes("booking.com/hotel/")) {
-            bookingHotelUrl = href.split("?")[0];
+      const cards = page.locator("[data-testid='property-card']");
+      const cardCount = await cards.count().catch(() => 0);
+
+      for (let i = 0; i < Math.min(cardCount, 15); i++) {
+        const cardText = await cards.nth(i).innerText().catch(() => "");
+        const normCard = norm(cardText);
+        const matched = hotelWords.some(w => normCard.includes(norm(w)));
+        if (matched) {
+          const prices = extractEurPrices(cardText);
+          if (prices.length > 0) {
+            bookingPrice = prices[0];
+            // Also grab the hotel URL
+            const cardHref = await cards.nth(i).locator("a[href*='/hotel/']").first().getAttribute("href").catch(() => null);
+            if (cardHref) bookingUrl = cardHref.split("?")[0];
             break;
           }
         }
       }
-    } catch (e) {
-      results.push({ source: "Booking.com search", error: String(e) });
-    }
 
-    // ── Step 2: Open hotel page and get price ───────────────────────────────
-    let bookingPrice = null;
-    if (bookingHotelUrl) {
-      try {
-        // Add dates to hotel URL
-        const ciParts = (checkin || "").split("-");
-        const coParts = (checkout || "").split("-");
-        let hotelPageUrl = bookingHotelUrl;
-        if (ciParts.length === 3 && coParts.length === 3) {
-          const sep = hotelPageUrl.includes("?") ? "&" : "?";
-          hotelPageUrl += `${sep}checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0&selected_currency=EUR`;
+      // Fallback: first card with any price
+      if (!bookingPrice) {
+        for (let i = 0; i < Math.min(cardCount, 5); i++) {
+          const cardText = await cards.nth(i).innerText().catch(() => "");
+          const prices = extractEurPrices(cardText);
+          if (prices.length > 0) { bookingPrice = prices[0]; break; }
         }
-
-        await page.goto(hotelPageUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
-        await acceptConsent(page);
-        await page.waitForTimeout(4000);
-
-        // Extract EUR prices from page text (currency forced via selected_currency=EUR)
-        const pageText = await page.innerText("body").catch(() => "");
-        const prices = extractEurPrices(pageText);
-        bookingPrice = prices[0] || null;
-
-        results.push({
-          source: "Booking.com",
-          lowest: bookingPrice,
-          url: hotelPageUrl,
-        });
-      } catch (e) {
-        results.push({ source: "Booking.com", error: String(e) });
       }
-    } else {
-      results.push({ source: "Booking.com", error: "Hotel not found in search results" });
+
+      results.push({ source: "Booking.com", lowest: bookingPrice, url: bookingUrl });
+    } catch (e) {
+      results.push({ source: "Booking.com", error: String(e) });
     }
 
     // ── Step 3: Kayak Hotels ─────────────────────────────────────────────────
