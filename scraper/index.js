@@ -229,15 +229,11 @@ app.get("/scrape", async (req, res) => {
       ? Math.max(1, Math.round((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24)))
       : 1;
 
-    // Booking.com with dates shows total price already.
-    // Kayak and Google Hotels show per-night → multiply by nights.
+    // All sources return per-night prices → multiply by nights to get total
     for (const r of results) {
       if (r.lowest !== null && r.lowest !== undefined) {
-        if (r.source === "Kayak" || r.source === "Google Hotels") {
-          r.lowestPerNight = r.lowest;
-          r.lowest = Math.round(r.lowest * nights);
-        }
-        // Booking.com already returns total when dates are set
+        r.lowestPerNight = r.lowest;
+        r.lowest = Math.round(r.lowest * nights);
       }
     }
 
