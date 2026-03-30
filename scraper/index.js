@@ -212,67 +212,45 @@ app.get("/scrape", async (req, res) => {
       results.push({ source: "Google Hotels", error: String(e) });
     }
 
-    // ── Step 4: Expedia (via homepage warm-up) ──────────────────────────────
+    // ── Step 4: Trivago (aggregates Expedia, Hotels.com, Booking etc.) ───────
     try {
       const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
       const hotelKey = norm(hotel).substring(0, 8);
 
-      // Warm up: visit homepage first to get cookies
-      await page.goto("https://www.expedia.de/", { waitUntil: "domcontentloaded", timeout: 20000 });
-      await acceptConsent(page);
-      await page.waitForTimeout(2000);
-
-      // Now search
       const q = encodeURIComponent(`${hotel} ${city || ""}`);
-      const searchUrl = `https://www.expedia.de/Hotel-Search?destination=${q}&startDate=${checkin || ""}&endDate=${checkout || ""}&rooms=1&adults=2&currency=EUR`;
+      const searchUrl = `https://www.trivago.de/?search[ridotto]=1&search[queryType]=0&search[query]=${q}&search[ci]=${checkin || ""}&search[co]=${checkout || ""}&search[rc]=2&tfc[currency]=EUR`;
 
       await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
-      await page.waitForTimeout(4000);
+      await acceptConsent(page);
+      await page.waitForTimeout(5000);
 
       const title = await page.title().catch(() => "");
-      // Check if blocked
       if (title.toLowerCase().includes("bot") || title.toLowerCase().includes("captcha")) {
-        results.push({ source: "Expedia", error: "Bot detection triggered", lowest: null });
+        results.push({ source: "Trivago", error: "Bot detection triggered", lowest: null });
       } else {
-        // Get all hrefs and find hotel page link
-        const hrefs = await page.evaluate(() =>
-          Array.from(document.querySelectorAll("a[href]")).map(a => a.href)
-        ).catch(() => []);
+        const pageText = await page.innerText("body").catch(() => "");
+        let trivagoPrice = null;
 
-        let expediaHotelUrl = null;
-        for (const href of hrefs) {
-          if (href.includes("expedia.de/") && (href.includes(".Hotel-Information") || href.includes("/hotels/info/"))) {
-            if (norm(href).includes(hotelKey) || norm(href).includes("joerg") || norm(href).includes("jorg") || norm(href).includes("muller")) {
-              expediaHotelUrl = href.split("?")[0];
-              break;
-            }
+        // Find price near hotel name
+        const lines = pageText.split("\n");
+        for (let i = 0; i < lines.length; i++) {
+          if (norm(lines[i]).includes(hotelKey) || norm(lines[i]).includes("joerg") || norm(lines[i]).includes("muller")) {
+            const nearby = lines.slice(i, i + 15).join(" ");
+            const p = extractEurPrices(nearby);
+            if (p.length > 0) { trivagoPrice = p[0]; break; }
           }
         }
 
-        if (expediaHotelUrl) {
-          const hotelPageUrl = `${expediaHotelUrl}?chkin=${checkin || ""}&chkout=${checkout || ""}&rooms=1&adults=2&currency=EUR`;
-          await page.goto(hotelPageUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
-          await page.waitForTimeout(4000);
-          const pageText = await page.innerText("body").catch(() => "");
-          const prices = extractEurPrices(pageText);
-          results.push({ source: "Expedia", lowest: prices[0] || null, url: hotelPageUrl });
-        } else {
-          // Fallback: price from search results near hotel name
-          const pageText = await page.innerText("body").catch(() => "");
-          let expediaPrice = null;
-          const lines = pageText.split("\n");
-          for (let i = 0; i < lines.length; i++) {
-            if (norm(lines[i]).includes(hotelKey)) {
-              const nearby = lines.slice(i, i + 10).join(" ");
-              const p = extractEurPrices(nearby);
-              if (p.length > 0) { expediaPrice = p[0]; break; }
-            }
-          }
-          results.push({ source: "Expedia", lowest: expediaPrice, url: searchUrl });
+        // Fallback: lowest price on page
+        if (!trivagoPrice) {
+          const allPrices = extractEurPrices(pageText);
+          trivagoPrice = allPrices[0] || null;
         }
+
+        results.push({ source: "Trivago", lowest: trivagoPrice, url: searchUrl });
       }
     } catch (e) {
-      results.push({ source: "Expedia", error: String(e) });
+      results.push({ source: "Trivago", error: String(e) });
     }
 
     await browser.close();
