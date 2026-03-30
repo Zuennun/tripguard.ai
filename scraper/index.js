@@ -231,13 +231,32 @@ app.get("/scrape", async (req, res) => {
         const pageText = await page.innerText("body").catch(() => "");
         let kayakPrice = null;
 
-        // Find price near hotel name
+        // Build multiple search keys from hotel name words (handles umlauts)
+        const hotelWords = hotel.toLowerCase()
+          .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss")
+          .split(/\s+/).filter(w => w.length > 3);
+
         const lines = pageText.split("\n");
         for (let i = 0; i < lines.length; i++) {
-          if (norm(lines[i]).includes(hotelKey)) {
+          const normLine = norm(lines[i]);
+          const matched = hotelWords.some(w => normLine.includes(norm(w)));
+          if (matched) {
             const nearby = lines.slice(i, i + 15).join(" ");
             const p = extractEurPrices(nearby);
             if (p.length > 0) { kayakPrice = p[0]; break; }
+          }
+        }
+
+        // Also try to find price via href anchor — hotel appears in URLs
+        if (!kayakPrice) {
+          const allHrefs = await page.evaluate(() =>
+            Array.from(document.querySelectorAll("a[href]")).map(a => ({ href: a.href, text: a.innerText }))
+          ).catch(() => []);
+          for (const { href, text } of allHrefs) {
+            if (norm(href).includes(norm(hotel.split(" ").slice(0, 2).join("")))) {
+              const p = extractEurPrices(text);
+              if (p.length > 0) { kayakPrice = p[0]; break; }
+            }
           }
         }
 
