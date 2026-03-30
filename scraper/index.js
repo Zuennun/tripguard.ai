@@ -49,7 +49,7 @@ app.get("/debug", async (req, res) => {
 });
 
 app.get("/scrape", async (req, res) => {
-  const { hotel, city, checkin, checkout } = req.query;
+  const { hotel, city, checkin, checkout, roomType, mealPlan } = req.query;
   if (!hotel) return res.status(400).json({ error: "Missing hotel parameter" });
 
   let browser;
@@ -141,7 +141,7 @@ app.get("/scrape", async (req, res) => {
       results.push({ source: "Booking.com", error: String(e) });
     }
 
-    // ── Step 2: Hotel page → extract total price for stay ───────────────────
+    // ── Step 2: Hotel page → find price for specific room type & meal plan ───
     if (bookingHotelUrl) {
       try {
         let hotelPageUrl = bookingHotelUrl + `?checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0&selected_currency=EUR`;
@@ -150,12 +150,47 @@ app.get("/scrape", async (req, res) => {
         await acceptConsent(page);
         await page.waitForTimeout(4000);
 
-        // Booking.com hotel page with dates shows TOTAL prices for the stay
-        // Use a minimum of nights*40 to filter out stray small numbers
         const pageText = await page.innerText("body").catch(() => "");
         const minTotal = nights * 40;
-        const allPrices = extractEurPrices(pageText).filter(p => p >= minTotal);
-        const bookingPrice = allPrices[0] || null;
+        let bookingPrice = null;
+
+        // If roomType or mealPlan specified, find matching room section
+        if (roomType || mealPlan) {
+          const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+          // Keywords to match room type (handle German/English/French)
+          const roomWords = (roomType || "").toLowerCase()
+            .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue")
+            .split(/\s+/).filter(w => w.length > 2);
+
+          // Meal plan keywords
+          const mealKeywords = {
+            "room_only":    ["ohne frühstück", "ohne verpflegung", "room only", "sans petit", "senza colazione", "no breakfast"],
+            "breakfast":    ["frühstück", "breakfast", "petit-déjeuner", "colazione"],
+            "half_board":   ["halbpension", "half board", "demi-pension"],
+            "full_board":   ["vollpension", "full board", "pension complète"],
+            "all_inclusive":["all inclusive", "alles inklusive"],
+          };
+          const mealWords = mealPlan ? (mealKeywords[mealPlan] || []) : [];
+
+          const lines = pageText.split("\n");
+          for (let i = 0; i < lines.length; i++) {
+            const lineNorm = norm(lines[i]);
+            const roomMatch = roomWords.length === 0 || roomWords.some(w => lineNorm.includes(norm(w)));
+            const mealMatch = mealWords.length === 0 || mealWords.some(w => lineNorm.includes(norm(w)));
+            if (roomMatch && mealMatch) {
+              const nearby = lines.slice(i, i + 10).join(" ");
+              const prices = extractEurPrices(nearby).filter(p => p >= minTotal);
+              if (prices.length > 0) { bookingPrice = prices[0]; break; }
+            }
+          }
+        }
+
+        // Fallback: lowest price on page above minimum
+        if (!bookingPrice) {
+          const allPrices = extractEurPrices(pageText).filter(p => p >= minTotal);
+          bookingPrice = allPrices[0] || null;
+        }
 
         results.push({ source: "Booking.com", lowest: bookingPrice, url: hotelPageUrl });
       } catch (e) {
@@ -233,6 +268,8 @@ app.get("/scrape", async (req, res) => {
       city: city || "",
       checkin: checkin || "",
       checkout: checkout || "",
+      roomType: roomType || null,
+      mealPlan: mealPlan || null,
       nights,
       results,
       lowestFound,
