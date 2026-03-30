@@ -194,65 +194,64 @@ app.get("/scrape", async (req, res) => {
       results.push({ source: "Google Hotels", error: String(e) });
     }
 
-    // ── Step 4: Expedia ──────────────────────────────────────────────────────
+    // ── Step 4: Expedia (via homepage warm-up) ──────────────────────────────
     try {
-      const q = encodeURIComponent(`${hotel} ${city || ""}`);
-      const searchUrl = `https://www.expedia.de/Hotel-Search?destination=${q}&startDate=${checkin || ""}&endDate=${checkout || ""}&rooms=1&adults=2&lang=de_DE&currency=EUR`;
-
-      await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
-      await acceptConsent(page);
-
-      try {
-        await page.waitForSelector("[data-stid='property-listing'], [class*='uitk-card'], [data-element-name='property-listing']", { timeout: 8000 });
-      } catch {}
-      await page.waitForTimeout(3000);
-
       const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
       const hotelKey = norm(hotel).substring(0, 8);
 
-      // Get all hrefs and find hotel page link
-      const hrefs = await page.evaluate(() =>
-        Array.from(document.querySelectorAll("a[href]")).map(a => a.href)
-      ).catch(() => []);
+      // Warm up: visit homepage first to get cookies
+      await page.goto("https://www.expedia.de/", { waitUntil: "domcontentloaded", timeout: 20000 });
+      await acceptConsent(page);
+      await page.waitForTimeout(2000);
 
-      let expediaHotelUrl = null;
-      for (const href of hrefs) {
-        if ((href.includes("/h") && href.includes(".Hotel-Information")) ||
-            href.includes("/hotels/info/") ||
-            (href.includes("expedia") && norm(href).includes(hotelKey))) {
-          expediaHotelUrl = href.split("?")[0];
-          break;
-        }
-      }
+      // Now search
+      const q = encodeURIComponent(`${hotel} ${city || ""}`);
+      const searchUrl = `https://www.expedia.de/Hotel-Search?destination=${q}&startDate=${checkin || ""}&endDate=${checkout || ""}&rooms=1&adults=2&currency=EUR`;
 
-      if (expediaHotelUrl) {
-        const hotelPageUrl = `${expediaHotelUrl}?chkin=${checkin || ""}&chkout=${checkout || ""}&rooms=1&adults=2&currency=EUR`;
-        await page.goto(hotelPageUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
-        await acceptConsent(page);
-        await page.waitForTimeout(4000);
+      await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+      await page.waitForTimeout(4000);
 
-        const pageText = await page.innerText("body").catch(() => "");
-        const prices = extractEurPrices(pageText);
-        const expediaPrice = prices[0] || null;
-
-        results.push({ source: "Expedia", lowest: expediaPrice, url: hotelPageUrl });
+      const title = await page.title().catch(() => "");
+      // Check if blocked
+      if (title.toLowerCase().includes("bot") || title.toLowerCase().includes("captcha")) {
+        results.push({ source: "Expedia", error: "Bot detection triggered", lowest: null });
       } else {
-        // Fallback: extract from search results page
-        const pageText = await page.innerText("body").catch(() => "");
-        const allPrices = extractEurPrices(pageText);
+        // Get all hrefs and find hotel page link
+        const hrefs = await page.evaluate(() =>
+          Array.from(document.querySelectorAll("a[href]")).map(a => a.href)
+        ).catch(() => []);
 
-        // Try to find price near hotel name
-        let expediaPrice = null;
-        const lines = pageText.split("\n");
-        for (let i = 0; i < lines.length; i++) {
-          if (norm(lines[i]).includes(hotelKey)) {
-            const nearby = lines.slice(i, i + 10).join(" ");
-            const p = extractEurPrices(nearby);
-            if (p.length > 0) { expediaPrice = p[0]; break; }
+        let expediaHotelUrl = null;
+        for (const href of hrefs) {
+          if (href.includes("expedia.de/") && (href.includes(".Hotel-Information") || href.includes("/hotels/info/"))) {
+            if (norm(href).includes(hotelKey) || norm(href).includes("joerg") || norm(href).includes("jorg") || norm(href).includes("muller")) {
+              expediaHotelUrl = href.split("?")[0];
+              break;
+            }
           }
         }
 
-        results.push({ source: "Expedia", lowest: expediaPrice, url: searchUrl });
+        if (expediaHotelUrl) {
+          const hotelPageUrl = `${expediaHotelUrl}?chkin=${checkin || ""}&chkout=${checkout || ""}&rooms=1&adults=2&currency=EUR`;
+          await page.goto(hotelPageUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+          await page.waitForTimeout(4000);
+          const pageText = await page.innerText("body").catch(() => "");
+          const prices = extractEurPrices(pageText);
+          results.push({ source: "Expedia", lowest: prices[0] || null, url: hotelPageUrl });
+        } else {
+          // Fallback: price from search results near hotel name
+          const pageText = await page.innerText("body").catch(() => "");
+          let expediaPrice = null;
+          const lines = pageText.split("\n");
+          for (let i = 0; i < lines.length; i++) {
+            if (norm(lines[i]).includes(hotelKey)) {
+              const nearby = lines.slice(i, i + 10).join(" ");
+              const p = extractEurPrices(nearby);
+              if (p.length > 0) { expediaPrice = p[0]; break; }
+            }
+          }
+          results.push({ source: "Expedia", lowest: expediaPrice, url: searchUrl });
+        }
       }
     } catch (e) {
       results.push({ source: "Expedia", error: String(e) });
