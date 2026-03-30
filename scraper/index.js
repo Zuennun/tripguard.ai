@@ -293,9 +293,41 @@ Rules:
 
     return parsed
       .filter(r => r.price && r.price >= minTotal)
-      .map(r => ({ source: r.source, lowest: Math.round(r.price), url: r.url ?? "" }));
+      .map(r => ({ source: r.source, lowest: Math.round(r.price), url: addDatesToUrl(r.url ?? "", r.source, checkin, checkout) }));
   } catch (e) {
     return [{ source: "OpenAI Search", error: String(e), lowest: null }];
+  }
+}
+
+function addDatesToUrl(url, source, checkin, checkout) {
+  if (!url || !checkin || !checkout) return url;
+  try {
+    const u = new URL(url);
+    const src = source.toLowerCase();
+    if (src.includes("expedia") || src.includes("hotels.com") || src.includes("orbitz") || src.includes("ebookers")) {
+      u.searchParams.set("chkin", checkin);
+      u.searchParams.set("chkout", checkout);
+    } else if (src.includes("hrs")) {
+      u.searchParams.set("arrivalDate", checkin);
+      u.searchParams.set("departureDate", checkout);
+      u.searchParams.set("roomQuantity", "1");
+      u.searchParams.set("adults", "2");
+    } else if (src.includes("trip.com")) {
+      u.searchParams.set("checkin", checkin);
+      u.searchParams.set("checkout", checkout);
+    } else if (src.includes("agoda")) {
+      u.searchParams.set("checkIn", checkin);
+      u.searchParams.set("checkOut", checkout);
+      u.searchParams.set("adults", "2");
+    } else if (src.includes("booking.com")) {
+      u.searchParams.set("checkin", checkin);
+      u.searchParams.set("checkout", checkout);
+      u.searchParams.set("group_adults", "2");
+      u.searchParams.set("no_rooms", "1");
+    }
+    return u.toString();
+  } catch {
+    return url;
   }
 }
 
