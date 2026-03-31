@@ -220,14 +220,18 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
       };
       const mealWords = mealPlan ? (mealKeywords[mealPlan] || []) : [];
       const lines = pageText.split("\n");
+      const candidatePrices = [];
       for (let i = 0; i < lines.length; i++) {
         const ln = norm(lines[i]);
         const roomMatch = roomWords.length === 0 || roomWords.some(w => ln.includes(norm(w)));
         const mealMatch = mealWords.length === 0 || mealWords.some(w => ln.includes(norm(w)));
         if (roomMatch && mealMatch) {
           const prices = extractEurPrices(lines.slice(i, i + 30).join(" ")).filter(p => p >= minTotal);
-          if (prices.length > 0) { bookingPrice = prices[0]; break; }
+          candidatePrices.push(...prices);
         }
+      }
+      if (candidatePrices.length > 0) {
+        bookingPrice = Math.min(...candidatePrices);
       }
     }
 
