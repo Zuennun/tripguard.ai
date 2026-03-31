@@ -225,7 +225,7 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
         const roomMatch = roomWords.length === 0 || roomWords.some(w => ln.includes(norm(w)));
         const mealMatch = mealWords.length === 0 || mealWords.some(w => ln.includes(norm(w)));
         if (roomMatch && mealMatch) {
-          const prices = extractEurPrices(lines.slice(i, i + 10).join(" ")).filter(p => p >= minTotal);
+          const prices = extractEurPrices(lines.slice(i, i + 30).join(" ")).filter(p => p >= minTotal);
           if (prices.length > 0) { bookingPrice = prices[0]; break; }
         }
       }
@@ -347,12 +347,20 @@ async function acceptConsent(page) {
 
 function extractEurPrices(text) {
   const prices = [];
-  const patterns = [/(\d{2,4})\s*€/g, /€\s*(\d{2,4})/g, /EUR\s*(\d{2,4})/g, /(\d{2,4})\s*EUR/g];
+  // Match "1.178 €", "1,178 €", "1178 €", "€ 1.178", etc.
+  const patterns = [
+    /(\d{1,2}[.,]\d{3}|\d{2,4})\s*€/g,
+    /€\s*(\d{1,2}[.,]\d{3}|\d{2,4})/g,
+    /EUR\s*(\d{1,2}[.,]\d{3}|\d{2,4})/g,
+    /(\d{1,2}[.,]\d{3}|\d{2,4})\s*EUR/g,
+  ];
   for (const pattern of patterns) {
     let m;
     while ((m = pattern.exec(text)) !== null) {
-      const p = parseInt(m[1]);
-      if (p >= 40 && p <= 9999) prices.push(p);
+      // Normalize: remove thousands separator
+      const raw = m[1].replace(/[.,](\d{3})$/, "$1").replace(/[.,]/g, "");
+      const p = parseInt(raw);
+      if (p >= 40 && p <= 99999) prices.push(p);
     }
   }
   return [...new Set(prices)].sort((a, b) => a - b);

@@ -18,13 +18,15 @@ export async function GET(req: NextRequest) {
   const city      = searchParams.get("city") ?? "";
   const checkin   = searchParams.get("checkin") ?? "";
   const checkout  = searchParams.get("checkout") ?? "";
+  const roomType  = searchParams.get("roomType") ?? "";
+  const mealPlan  = searchParams.get("mealPlan") ?? "";
 
   if (!hotelName) return NextResponse.json({ error: "Missing hotel" }, { status: 400 });
 
   // ── Use Railway Playwright scraper ─────────────────────────────────────────
   if (SCRAPER_URL) {
     try {
-      const params = new URLSearchParams({ hotel: hotelName, city, checkin, checkout });
+      const params = new URLSearchParams({ hotel: hotelName, city, checkin, checkout, roomType, mealPlan });
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 55000);
 
