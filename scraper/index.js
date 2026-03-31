@@ -201,9 +201,10 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
 
     await page.goto(hotelPageUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
     await acceptConsent(page);
-    await page.waitForTimeout(3000);
+    // Wait for room table to render
+    try { await page.waitForSelector(".hprt-table, [data-block='property_room_type_row'], .js-rt-block-row", { timeout: 8000 }); } catch {}
+    await page.waitForTimeout(2000);
 
-    const pageText = await page.innerText("body").catch(() => "");
     const minTotal = nights * 70;
     let bookingPrice = null;
 
@@ -219,23 +220,66 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
         "all_inclusive":["all inclusive", "alles inklusive"],
       };
       const mealWords = mealPlan ? (mealKeywords[mealPlan] || []) : [];
-      const lines = pageText.split("\n");
-      const candidatePrices = [];
-      for (let i = 0; i < lines.length; i++) {
-        const ln = norm(lines[i]);
-        const roomMatch = roomWords.length === 0 || roomWords.some(w => ln.includes(norm(w)));
-        const mealMatch = mealWords.length === 0 || mealWords.some(w => ln.includes(norm(w)));
-        if (roomMatch && mealMatch) {
-          const prices = extractEurPrices(lines.slice(i, i + 30).join(" ")).filter(p => p >= minTotal);
-          candidatePrices.push(...prices);
+
+      // Try DOM-based extraction: find room rows and their prices
+      const domPrices = await page.evaluate(({ roomWords, mealWords, minTotal }) => {
+        const normalize = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+        const parsePrice = txt => {
+          // Match "1.178,00" "1.178" "1178" etc.
+          const m = txt.match(/(\d{1,2}[.,]\d{3}|\d{3,4})(?:[.,]\d{1,2})?/);
+          if (!m) return null;
+          const raw = parseInt(m[1].replace(/[.,](\d{3})$/, "$1").replace(/[.,]/g, ""));
+          return raw >= minTotal && raw <= 99999 ? raw : null;
+        };
+
+        const results = [];
+        // Try room table rows
+        const rows = document.querySelectorAll("tr.js-rt-block-row, tr[data-block-id], .hprt-table tbody tr");
+        for (const row of rows) {
+          const nameEl = row.querySelector(".hprt-roomtype-name, .room-info .js-rt-room-title, [class*='roomtype']");
+          if (!nameEl) continue;
+          const rowName = normalize(nameEl.textContent || "");
+          const roomMatch = roomWords.length === 0 || roomWords.some(w => rowName.includes(normalize(w)));
+          if (!roomMatch) continue;
+          // Find price in this row
+          const priceEls = row.querySelectorAll(".bui-price-display__value, .prco-inline-block-maker-helper, [class*='price']");
+          for (const el of priceEls) {
+            const p = parsePrice(el.textContent || "");
+            if (p) results.push(p);
+          }
+          // Also check full row text
+          const rowText = row.textContent || "";
+          const allMatches = [...rowText.matchAll(/(\d{1,2}[.,]\d{3}|\d{3,4})(?:[.,]\d{1,2})?\s*€/g)];
+          for (const m of allMatches) {
+            const raw = parseInt(m[1].replace(/[.,](\d{3})$/, "$1").replace(/[.,]/g, ""));
+            if (raw >= minTotal && raw <= 99999) results.push(raw);
+          }
         }
-      }
-      if (candidatePrices.length > 0) {
-        bookingPrice = Math.min(...candidatePrices);
+        return results;
+      }, { roomWords, mealWords, minTotal }).catch(() => []);
+
+      if (domPrices.length > 0) {
+        bookingPrice = Math.min(...domPrices);
+      } else {
+        // Fallback: text-based search
+        const pageText = await page.innerText("body").catch(() => "");
+        const lines = pageText.split("\n");
+        const candidatePrices = [];
+        for (let i = 0; i < lines.length; i++) {
+          const ln = norm(lines[i]);
+          const roomMatch = roomWords.length === 0 || roomWords.some(w => ln.includes(norm(w)));
+          const mealMatch = mealWords.length === 0 || mealWords.some(w => ln.includes(norm(w)));
+          if (roomMatch && mealMatch) {
+            const prices = extractEurPrices(lines.slice(i, i + 30).join(" ")).filter(p => p >= minTotal);
+            candidatePrices.push(...prices);
+          }
+        }
+        if (candidatePrices.length > 0) bookingPrice = Math.min(...candidatePrices);
       }
     }
 
     if (!bookingPrice) {
+      const pageText = await page.innerText("body").catch(() => "");
       const allPrices = extractEurPrices(pageText).filter(p => p >= minTotal);
       bookingPrice = allPrices[0] || null;
     }
