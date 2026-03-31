@@ -244,12 +244,17 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
           const roomMatch = roomWords.length === 0 || roomWords.every(w => rowName.includes(normalize(w)));
           if (rowName) debug.push("row_name:" + rowName + " match:" + roomMatch);
           if (!roomMatch) continue;
-          // Also check full row text
+          // Also check full row text — both "1.178 €" and "€ 1.178" formats
           const rowText = row.textContent || "";
-          const allMatches = [...rowText.matchAll(/(\d{1,2}[.,]\d{3}|\d{3,4})(?:[.,]\d{1,2})?\s*€/g)];
-          for (const m of allMatches) {
-            const raw = parseInt(m[1].replace(/[.,](\d{3})$/, "$1").replace(/[.,]/g, ""));
-            if (raw >= minTotal && raw <= 99999) { results.push(raw); debug.push("price:" + raw); }
+          const pricePatterns = [
+            /(\d{1,2}[.,]\d{3}|\d{3,4})(?:[.,]\d{1,2})?\s*€/g,
+            /€\s*(\d{1,2}[.,]\d{3}|\d{3,4})(?:[.,]\d{1,2})?/g,
+          ];
+          for (const pattern of pricePatterns) {
+            for (const m of [...rowText.matchAll(pattern)]) {
+              const raw = parseInt(m[1].replace(/[.,](\d{3})$/, "$1").replace(/[.,]/g, ""));
+              if (raw >= minTotal && raw <= 99999) { results.push(raw); debug.push("price:" + raw); }
+            }
           }
         }
         return { results, debug };
