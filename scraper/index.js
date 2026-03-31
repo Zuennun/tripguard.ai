@@ -100,15 +100,19 @@ app.get("/scrape", async (req, res) => {
     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
     .split(/\s+/).filter(w => w.length > 3);
 
-  const [bookingResult, hotelsResult] = await Promise.allSettled([
+  const [bookingResult, openaiResult] = await Promise.allSettled([
     scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }),
-    scrapeHotels({ hotel, city, checkin, checkout, nights, hotelWords, norm }),
+    scrapeViaOpenAI({ hotel, city, checkin, checkout, nights, roomType }),
   ]);
 
-  const results = [
-    bookingResult.status === "fulfilled" ? bookingResult.value : { source: "Booking.com", error: String(bookingResult.reason), lowest: null },
-    hotelsResult.status === "fulfilled" ? hotelsResult.value : { source: "Trivago", error: String(hotelsResult.reason), lowest: null },
-  ];
+  const bookingRes = bookingResult.status === "fulfilled"
+    ? bookingResult.value
+    : { source: "Booking.com", error: String(bookingResult.reason), lowest: null };
+  const openaiRes = openaiResult.status === "fulfilled"
+    ? openaiResult.value
+    : [{ source: "OpenAI Search", error: String(openaiResult.reason), lowest: null }];
+
+  const results = [bookingRes, ...openaiRes];
 
   const validPrices = results.map(r => r.lowest).filter(p => p != null);
   const lowestFound = validPrices.length > 0 ? Math.min(...validPrices) : null;
@@ -343,11 +347,12 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
 
 // ── OpenAI Web Search scraper ─────────────────────────────────────────────────
 // Nutzt gpt-4o-search-preview um Preise von Booking.com, Expedia, Trip.com etc. zu finden
-async function scrapeViaOpenAI({ hotel, city, checkin, checkout, nights }) {
+async function scrapeViaOpenAI({ hotel, city, checkin, checkout, nights, roomType }) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return [{ source: "OpenAI Search", error: "No API key", lowest: null }];
 
   const location = city ? ` in ${city}` : "";
+  const roomLine = roomType ? `\n- Room type: "${roomType}" (find price for this specific room type if possible)` : "";
   const prompt = `Search for the EXACT hotel "${hotel}"${location}. Do NOT return other hotels or hotels in other cities.
 Find the total price in EUR for a stay from ${checkin} to ${checkout} (${nights} nights, 2 adults) on multiple booking sites.
 Return a JSON array ONLY for this specific hotel:
@@ -355,7 +360,7 @@ Return a JSON array ONLY for this specific hotel:
 Rules:
 - Only include results for the exact hotel "${hotel}"${location}
 - Price must be in EUR (convert if needed) and must be the TOTAL for all ${nights} nights (not per night)
-- Typical total price range for this stay: €${nights * 70} – €${nights * 500}
+- Typical total price range for this stay: €${nights * 70} – €${nights * 500}${roomLine}
 - Include sources: Booking.com, Expedia, Trip.com, Hotels.com, Agoda, HRS if found
 - Return ONLY the JSON array, no other text`;
 
