@@ -130,49 +130,44 @@ async function scrapeHotels({ hotel, city, checkin, checkout, nights, hotelWords
     await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
     await acceptConsent(page);
     try { await page.waitForSelector("[data-stid='property-listing'], [class*='uitk-card'], [data-testid='property-card']", { timeout: 8000 }); } catch {}
-    await page.waitForTimeout(2000);
-
-    const hrefs = await page.evaluate(() =>
-      Array.from(document.querySelectorAll("a[href]")).map(a => a.href)
-    ).catch(() => []);
-
-    let foundUrl = null;
-    for (const href of hrefs) {
-      if (href.includes("expedia.de/") && (href.includes("/h") || href.includes("Hotel"))) {
-        const h = norm(href);
-        if (hotelWords.length > 1 && hotelWords.every(w => h.includes(norm(w)))) {
-          foundUrl = href.split("?")[0]; break;
-        }
-      }
-    }
-    if (!foundUrl) {
-      for (const href of hrefs) {
-        if (href.includes("expedia.de/") && (href.includes("/h") || href.includes("Hotel"))) {
-          const h = norm(href);
-          if (hotelWords.some(w => h.includes(norm(w)))) {
-            foundUrl = href.split("?")[0]; break;
-          }
-        }
-      }
-    }
-
-    if (!foundUrl) {
-      await context.close();
-      return { source: "Expedia", error: "Hotel not found", lowest: null };
-    }
-
-    const hotelPageUrl = `${foundUrl}?startDate=${checkin}&endDate=${checkout}&adults=2&rooms=1&currency=EUR`;
-    await page.goto(hotelPageUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
-    await acceptConsent(page);
     await page.waitForTimeout(3000);
 
-    const pageText = await page.innerText("body").catch(() => "");
+    // Extract price directly from search results — find card matching hotel name
     const minTotal = nights * 70;
-    const allPrices = extractEurPrices(pageText).filter(p => p >= minTotal);
-    const lowest = allPrices[0] || null;
+    const expediaResult = await page.evaluate(({ hotelWords, minTotal }) => {
+      const normalize = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const parsePrice = txt => {
+        const patterns = [
+          /(\d{1,2}[.,]\d{3}|\d{3,4})(?:[.,]\d{1,2})?\s*€/g,
+          /€\s*(\d{1,2}[.,]\d{3}|\d{3,4})(?:[.,]\d{1,2})?/g,
+        ];
+        const prices = [];
+        for (const p of patterns) {
+          for (const m of [...txt.matchAll(p)]) {
+            const raw = parseInt(m[1].replace(/[.,](\d{3})$/, "$1").replace(/[.,]/g, ""));
+            if (raw >= minTotal && raw <= 99999) prices.push(raw);
+          }
+        }
+        return prices.length > 0 ? Math.min(...prices) : null;
+      };
+      const cards = document.querySelectorAll("[data-stid='property-listing'], [class*='property-listing'], section[class*='uitk']");
+      for (const card of cards) {
+        const text = card.textContent || "";
+        const normText = normalize(text);
+        if (hotelWords.every(w => normText.includes(normalize(w)))) {
+          const price = parsePrice(text);
+          const link = card.querySelector("a[href]");
+          if (price) return { price, url: link ? link.href : null };
+        }
+      }
+      return null;
+    }, { hotelWords, minTotal }).catch(() => null);
 
     await context.close();
-    return { source: "Expedia", lowest, url: hotelPageUrl };
+    if (!expediaResult || !expediaResult.price) {
+      return { source: "Expedia", error: "Hotel not found in results", lowest: null };
+    }
+    return { source: "Expedia", lowest: expediaResult.price, url: expediaResult.url || searchUrl };
   } catch (e) {
     await context.close().catch(() => {});
     return { source: "Expedia", error: String(e), lowest: null };
