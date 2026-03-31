@@ -233,34 +233,33 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
         };
 
         const results = [];
+        const debug = [];
         // Try room table rows
         const rows = document.querySelectorAll("tr.js-rt-block-row, tr[data-block-id], .hprt-table tbody tr");
+        debug.push("rows_found:" + rows.length);
         for (const row of rows) {
           const nameEl = row.querySelector(".hprt-roomtype-name, .room-info .js-rt-room-title, [class*='roomtype']");
-          if (!nameEl) continue;
-          const rowName = normalize(nameEl.textContent || "");
+          const rowName = nameEl ? normalize(nameEl.textContent || "") : "";
           const roomMatch = roomWords.length === 0 || roomWords.some(w => rowName.includes(normalize(w)));
+          if (rowName) debug.push("row_name:" + rowName + " match:" + roomMatch);
           if (!roomMatch) continue;
-          // Find price in this row
-          const priceEls = row.querySelectorAll(".bui-price-display__value, .prco-inline-block-maker-helper, [class*='price']");
-          for (const el of priceEls) {
-            const p = parsePrice(el.textContent || "");
-            if (p) results.push(p);
-          }
           // Also check full row text
           const rowText = row.textContent || "";
           const allMatches = [...rowText.matchAll(/(\d{1,2}[.,]\d{3}|\d{3,4})(?:[.,]\d{1,2})?\s*€/g)];
           for (const m of allMatches) {
             const raw = parseInt(m[1].replace(/[.,](\d{3})$/, "$1").replace(/[.,]/g, ""));
-            if (raw >= minTotal && raw <= 99999) results.push(raw);
+            if (raw >= minTotal && raw <= 99999) { results.push(raw); debug.push("price:" + raw); }
           }
         }
-        return results;
+        return { results, debug };
       }, { roomWords, mealWords, minTotal }).catch(() => []);
 
-      if (domPrices.length > 0) {
-        bookingPrice = Math.min(...domPrices);
+      const domPricesArr = domPrices?.results || [];
+      console.log("[DOM debug]", JSON.stringify(domPrices?.debug || []));
+      if (domPricesArr.length > 0) {
+        bookingPrice = Math.min(...domPricesArr);
       } else {
+        console.log("[DOM debug] no DOM prices found, falling back to text");
         // Fallback: text-based search
         const pageText = await page.innerText("body").catch(() => "");
         const lines = pageText.split("\n");
