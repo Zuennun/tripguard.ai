@@ -107,7 +107,7 @@ app.get("/scrape", async (req, res) => {
 
   const results = [
     bookingResult.status === "fulfilled" ? bookingResult.value : { source: "Booking.com", error: String(bookingResult.reason), lowest: null },
-    hotelsResult.status === "fulfilled" ? hotelsResult.value : { source: "Hotels.com", error: String(hotelsResult.reason), lowest: null },
+    hotelsResult.status === "fulfilled" ? hotelsResult.value : { source: "Trivago", error: String(hotelsResult.reason), lowest: null },
   ];
 
   const validPrices = results.map(r => r.lowest).filter(p => p != null);
@@ -120,36 +120,35 @@ app.get("/scrape", async (req, res) => {
   });
 });
 
-// ── Expedia scraper ───────────────────────────────────────────────────────────
+// ── Trivago scraper ───────────────────────────────────────────────────────────
 async function scrapeHotels({ hotel, city, checkin, checkout, nights, hotelWords, norm }) {
   const { page, context } = await newPage();
   try {
     const q = encodeURIComponent(`${hotel} ${city || ""}`);
-    const searchUrl = `https://www.expedia.de/Hotel-Search?destination=${q}&startDate=${checkin}&endDate=${checkout}&adults=2&rooms=1&currency=EUR`;
+    const searchUrl = `https://www.trivago.de/?aDateRange%5Barr%5D=${checkin}&aDateRange%5Bdep%5D=${checkout}&aPriceType=perStay&iRoomType=7&iUnits=1&sQuery=${q}`;
 
     await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
     await acceptConsent(page);
-    try { await page.waitForSelector("[data-stid='property-listing'], [class*='uitk-card'], [data-testid='property-card']", { timeout: 8000 }); } catch {}
-    await page.waitForTimeout(3000);
+    try { await page.waitForSelector("[data-testid='item-title'], .item-name, [class*='ItemName']", { timeout: 8000 }); } catch {}
+    await page.waitForTimeout(4000);
 
     const minTotal = nights * 70;
     const pageText = await page.innerText("body").catch(() => "");
     const lines = pageText.split("\n");
 
-    // Find lines containing hotel name, then look for prices nearby
-    let expediaPrice = null;
+    let trivagoPrice = null;
     for (let i = 0; i < lines.length; i++) {
       const ln = norm(lines[i]);
       if (hotelWords.every(w => ln.includes(norm(w)))) {
-        const chunk = lines.slice(i, i + 20).join(" ");
+        const chunk = lines.slice(i, i + 15).join(" ");
         const prices = extractEurPrices(chunk).filter(p => p >= minTotal);
-        if (prices.length > 0) { expediaPrice = prices[0]; break; }
+        if (prices.length > 0) { trivagoPrice = prices[0]; break; }
       }
     }
 
     await context.close();
-    if (!expediaPrice) return { source: "Expedia", error: "Hotel not found in results", lowest: null };
-    return { source: "Expedia", lowest: expediaPrice, url: searchUrl };
+    if (!trivagoPrice) return { source: "Trivago", error: "Hotel not found in results", lowest: null };
+    return { source: "Trivago", lowest: trivagoPrice, url: searchUrl };
   } catch (e) {
     await context.close().catch(() => {});
     return { source: "Expedia", error: String(e), lowest: null };
