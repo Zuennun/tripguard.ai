@@ -136,10 +136,12 @@ async function scrapeHotels({ hotel, city, checkin, checkout, nights, hotelWords
     const pageText = await page.innerText("body").catch(() => "");
     const lines = pageText.split("\n");
 
+    // Use only most distinctive words (first 2) to find the hotel section
+    const keyWords = hotelWords.slice(0, 2);
     let trivagoPrice = null;
     for (let i = 0; i < lines.length; i++) {
       const ln = norm(lines[i]);
-      if (hotelWords.every(w => ln.includes(norm(w)))) {
+      if (keyWords.every(w => ln.includes(norm(w)))) {
         const chunk = lines.slice(i, i + 15).join(" ");
         const prices = extractEurPrices(chunk).filter(p => p >= minTotal);
         if (prices.length > 0) { trivagoPrice = prices[0]; break; }
