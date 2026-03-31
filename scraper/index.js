@@ -351,17 +351,17 @@ async function acceptConsent(page) {
 
 function extractEurPrices(text) {
   const prices = [];
-  // Match "1.178 €", "1,178 €", "1178 €", "€ 1.178", etc.
+  // Match formats: "1.178,00 €", "1.178 €", "1178 €", "€ 1.178", "1,178.00 €"
   const patterns = [
-    /(\d{1,2}[.,]\d{3}|\d{2,4})\s*€/g,
-    /€\s*(\d{1,2}[.,]\d{3}|\d{2,4})/g,
-    /EUR\s*(\d{1,2}[.,]\d{3}|\d{2,4})/g,
-    /(\d{1,2}[.,]\d{3}|\d{2,4})\s*EUR/g,
+    /(\d{1,2}[.,]\d{3}|\d{2,4})(?:[.,]\d{1,2})?\s*€/g,
+    /€\s*(\d{1,2}[.,]\d{3}|\d{2,4})(?:[.,]\d{1,2})?/g,
+    /EUR\s*(\d{1,2}[.,]\d{3}|\d{2,4})(?:[.,]\d{1,2})?/g,
+    /(\d{1,2}[.,]\d{3}|\d{2,4})(?:[.,]\d{1,2})?\s*EUR/g,
   ];
   for (const pattern of patterns) {
     let m;
     while ((m = pattern.exec(text)) !== null) {
-      // Normalize: remove thousands separator
+      // Normalize: strip thousands separator (dot or comma before 3 digits)
       const raw = m[1].replace(/[.,](\d{3})$/, "$1").replace(/[.,]/g, "");
       const p = parseInt(raw);
       if (p >= 40 && p <= 99999) prices.push(p);
