@@ -120,16 +120,16 @@ app.get("/scrape", async (req, res) => {
   });
 });
 
-// ── Hotels.com scraper ───────────────────────────────────────────────────────
+// ── Expedia scraper ───────────────────────────────────────────────────────────
 async function scrapeHotels({ hotel, city, checkin, checkout, nights, hotelWords, norm }) {
   const { page, context } = await newPage();
   try {
     const q = encodeURIComponent(`${hotel} ${city || ""}`);
-    const searchUrl = `https://www.hotels.com/Hotel-Search?destination=${q}&startDate=${checkin}&endDate=${checkout}&adults=2&rooms=1&currency=EUR`;
+    const searchUrl = `https://www.expedia.de/Hotel-Search?destination=${q}&startDate=${checkin}&endDate=${checkout}&adults=2&rooms=1&currency=EUR`;
 
     await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
     await acceptConsent(page);
-    try { await page.waitForSelector("[data-stid='property-listing'], [class*='uitk-card']", { timeout: 8000 }); } catch {}
+    try { await page.waitForSelector("[data-stid='property-listing'], [class*='uitk-card'], [data-testid='property-card']", { timeout: 8000 }); } catch {}
     await page.waitForTimeout(2000);
 
     const hrefs = await page.evaluate(() =>
@@ -138,7 +138,7 @@ async function scrapeHotels({ hotel, city, checkin, checkout, nights, hotelWords
 
     let foundUrl = null;
     for (const href of hrefs) {
-      if (href.includes("hotels.com/h") || href.includes("hotels.com/hotel")) {
+      if (href.includes("expedia.de/") && (href.includes("/h") || href.includes("Hotel"))) {
         const h = norm(href);
         if (hotelWords.length > 1 && hotelWords.every(w => h.includes(norm(w)))) {
           foundUrl = href.split("?")[0]; break;
@@ -147,7 +147,7 @@ async function scrapeHotels({ hotel, city, checkin, checkout, nights, hotelWords
     }
     if (!foundUrl) {
       for (const href of hrefs) {
-        if (href.includes("hotels.com/h") || href.includes("hotels.com/hotel")) {
+        if (href.includes("expedia.de/") && (href.includes("/h") || href.includes("Hotel"))) {
           const h = norm(href);
           if (hotelWords.some(w => h.includes(norm(w)))) {
             foundUrl = href.split("?")[0]; break;
@@ -158,7 +158,7 @@ async function scrapeHotels({ hotel, city, checkin, checkout, nights, hotelWords
 
     if (!foundUrl) {
       await context.close();
-      return { source: "Hotels.com", error: "Hotel not found", lowest: null };
+      return { source: "Expedia", error: "Hotel not found", lowest: null };
     }
 
     const hotelPageUrl = `${foundUrl}?startDate=${checkin}&endDate=${checkout}&adults=2&rooms=1&currency=EUR`;
@@ -172,10 +172,10 @@ async function scrapeHotels({ hotel, city, checkin, checkout, nights, hotelWords
     const lowest = allPrices[0] || null;
 
     await context.close();
-    return { source: "Hotels.com", lowest, url: hotelPageUrl };
+    return { source: "Expedia", lowest, url: hotelPageUrl };
   } catch (e) {
     await context.close().catch(() => {});
-    return { source: "Hotels.com", error: String(e), lowest: null };
+    return { source: "Expedia", error: String(e), lowest: null };
   }
 }
 
