@@ -100,11 +100,18 @@ app.get("/scrape", async (req, res) => {
     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
     .split(/\s+/).filter(w => w.length > 3);
 
-  const bookingResult = await scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm })
-    .catch(e => ({ source: "Booking.com", error: String(e), lowest: null }));
+  const [bookingResult, hotelsResult] = await Promise.allSettled([
+    scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }),
+    scrapeHotels({ hotel, city, checkin, checkout, nights, hotelWords, norm }),
+  ]);
 
-  const results = [bookingResult];
-  const lowestFound = bookingResult.lowest ?? null;
+  const results = [
+    bookingResult.status === "fulfilled" ? bookingResult.value : { source: "Booking.com", error: String(bookingResult.reason), lowest: null },
+    hotelsResult.status === "fulfilled" ? hotelsResult.value : { source: "Hotels.com", error: String(hotelsResult.reason), lowest: null },
+  ];
+
+  const validPrices = results.map(r => r.lowest).filter(p => p != null);
+  const lowestFound = validPrices.length > 0 ? Math.min(...validPrices) : null;
 
   return res.json({
     hotel, city: city || "", checkin: checkin || "", checkout: checkout || "",
@@ -112,6 +119,65 @@ app.get("/scrape", async (req, res) => {
     nights, results, lowestFound, currency: "EUR",
   });
 });
+
+// ── Hotels.com scraper ───────────────────────────────────────────────────────
+async function scrapeHotels({ hotel, city, checkin, checkout, nights, hotelWords, norm }) {
+  const { page, context } = await newPage();
+  try {
+    const q = encodeURIComponent(`${hotel} ${city || ""}`);
+    const searchUrl = `https://www.hotels.com/Hotel-Search?destination=${q}&startDate=${checkin}&endDate=${checkout}&adults=2&rooms=1&currency=EUR`;
+
+    await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+    await acceptConsent(page);
+    try { await page.waitForSelector("[data-stid='property-listing'], [class*='uitk-card']", { timeout: 8000 }); } catch {}
+    await page.waitForTimeout(2000);
+
+    const hrefs = await page.evaluate(() =>
+      Array.from(document.querySelectorAll("a[href]")).map(a => a.href)
+    ).catch(() => []);
+
+    let foundUrl = null;
+    for (const href of hrefs) {
+      if (href.includes("hotels.com/h") || href.includes("hotels.com/hotel")) {
+        const h = norm(href);
+        if (hotelWords.length > 1 && hotelWords.every(w => h.includes(norm(w)))) {
+          foundUrl = href.split("?")[0]; break;
+        }
+      }
+    }
+    if (!foundUrl) {
+      for (const href of hrefs) {
+        if (href.includes("hotels.com/h") || href.includes("hotels.com/hotel")) {
+          const h = norm(href);
+          if (hotelWords.some(w => h.includes(norm(w)))) {
+            foundUrl = href.split("?")[0]; break;
+          }
+        }
+      }
+    }
+
+    if (!foundUrl) {
+      await context.close();
+      return { source: "Hotels.com", error: "Hotel not found", lowest: null };
+    }
+
+    const hotelPageUrl = `${foundUrl}?startDate=${checkin}&endDate=${checkout}&adults=2&rooms=1&currency=EUR`;
+    await page.goto(hotelPageUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+    await acceptConsent(page);
+    await page.waitForTimeout(3000);
+
+    const pageText = await page.innerText("body").catch(() => "");
+    const minTotal = nights * 70;
+    const allPrices = extractEurPrices(pageText).filter(p => p >= minTotal);
+    const lowest = allPrices[0] || null;
+
+    await context.close();
+    return { source: "Hotels.com", lowest, url: hotelPageUrl };
+  } catch (e) {
+    await context.close().catch(() => {});
+    return { source: "Hotels.com", error: String(e), lowest: null };
+  }
+}
 
 // ── Booking.com scraper ──────────────────────────────────────────────────────
 async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }) {
