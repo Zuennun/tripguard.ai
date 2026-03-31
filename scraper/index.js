@@ -240,7 +240,8 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
         for (const row of rows) {
           const nameEl = row.querySelector(".hprt-roomtype-name, .room-info .js-rt-room-title, [class*='roomtype']");
           const rowName = nameEl ? normalize(nameEl.textContent || "") : "";
-          const roomMatch = roomWords.length === 0 || roomWords.some(w => rowName.includes(normalize(w)));
+          // All words must match (AND logic) for multi-word room types like "Junior Suite"
+          const roomMatch = roomWords.length === 0 || roomWords.every(w => rowName.includes(normalize(w)));
           if (rowName) debug.push("row_name:" + rowName + " match:" + roomMatch);
           if (!roomMatch) continue;
           // Also check full row text
@@ -266,7 +267,7 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
         const candidatePrices = [];
         for (let i = 0; i < lines.length; i++) {
           const ln = norm(lines[i]);
-          const roomMatch = roomWords.length === 0 || roomWords.some(w => ln.includes(norm(w)));
+          const roomMatch = roomWords.length === 0 || roomWords.every(w => ln.includes(norm(w)));
           const mealMatch = mealWords.length === 0 || mealWords.some(w => ln.includes(norm(w)));
           if (roomMatch && mealMatch) {
             const prices = extractEurPrices(lines.slice(i, i + 30).join(" ")).filter(p => p >= minTotal);
