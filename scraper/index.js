@@ -100,14 +100,16 @@ app.get("/scrape", async (req, res) => {
     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
     .split(/\s+/).filter(w => w.length > 3);
 
-  const [bookingResult, hrsResult] = await Promise.allSettled([
+  const [bookingResult, skyscannerResult, holidaycheckResult] = await Promise.allSettled([
     scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }),
-    scrapeHRS({ hotel, city, checkin, checkout, nights, hotelWords, norm }),
+    scrapeSkyscanner({ hotel, city, checkin, checkout, nights, hotelWords, norm }),
+    scrapeHolidaycheck({ hotel, city, checkin, checkout, nights, hotelWords, norm }),
   ]);
 
   const results = [
     bookingResult.status === "fulfilled" ? bookingResult.value : { source: "Booking.com", error: String(bookingResult.reason), lowest: null },
-    hrsResult.status === "fulfilled" ? hrsResult.value : { source: "HRS", error: String(hrsResult.reason), lowest: null },
+    skyscannerResult.status === "fulfilled" ? skyscannerResult.value : { source: "Skyscanner", error: String(skyscannerResult.reason), lowest: null },
+    holidaycheckResult.status === "fulfilled" ? holidaycheckResult.value : { source: "HolidayCheck", error: String(holidaycheckResult.reason), lowest: null },
   ];
 
   const validPrices = results.map(r => r.lowest).filter(p => p != null);
@@ -120,6 +122,94 @@ app.get("/scrape", async (req, res) => {
   });
 });
 
+
+// ── Skyscanner scraper ────────────────────────────────────────────────────────
+async function scrapeSkyscanner({ hotel, city, checkin, checkout, nights, hotelWords, norm }) {
+  const { page, context } = await newPage();
+  const minTotal = nights * 100;
+  const keyWords = hotelWords.slice(0, 2);
+
+  try {
+    const q = encodeURIComponent(`${hotel}${city ? " " + city : ""}`);
+    const searchUrl = `https://www.skyscanner.de/hotels/search/?q=${q}&checkin=${checkin}&checkout=${checkout}&rooms=1&adults=2`;
+
+    await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
+    await acceptConsent(page);
+    try { await page.waitForSelector("[class*='HotelCard'], [class*='hotel'], [data-testid*='hotel']", { timeout: 10000 }); } catch {}
+    await page.waitForTimeout(5000);
+
+    const price = await page.evaluate(({ keyWords, minTotal }) => {
+      const normalize = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const parseEur = txt => {
+        const m = txt.match(/(\d{1,2}[.,]\d{3}|\d{3,4})(?:[.,]\d{1,2})?\s*€/) ||
+                  txt.match(/€\s*(\d{1,2}[.,]\d{3}|\d{3,4})/);
+        if (!m) return null;
+        const raw = parseInt(m[1].replace(/[.,](\d{3})$/, "$1").replace(/[.,]/g, ""));
+        return raw >= minTotal && raw <= 99999 ? raw : null;
+      };
+      const cards = document.querySelectorAll("[class*='HotelCard'], [class*='hotel-card'], article, [data-testid]");
+      for (const card of cards) {
+        const txt = card.textContent || "";
+        if (keyWords.every(w => normalize(txt).includes(normalize(w)))) {
+          const p = parseEur(txt);
+          if (p) return p;
+        }
+      }
+      return null;
+    }, { keyWords, minTotal }).catch(() => null);
+
+    await context.close();
+    if (!price) return { source: "Skyscanner", error: "Hotel not found", lowest: null };
+    return { source: "Skyscanner", lowest: price, url: searchUrl };
+  } catch (e) {
+    await context.close().catch(() => {});
+    return { source: "Skyscanner", error: String(e), lowest: null };
+  }
+}
+
+// ── HolidayCheck scraper ──────────────────────────────────────────────────────
+async function scrapeHolidaycheck({ hotel, city, checkin, checkout, nights, hotelWords, norm }) {
+  const { page, context } = await newPage();
+  const minTotal = nights * 100;
+  const keyWords = hotelWords.slice(0, 2);
+
+  try {
+    const q = encodeURIComponent(`${hotel}${city ? " " + city : ""}`);
+    const searchUrl = `https://www.holidaycheck.de/suchresultate?q=${q}&startDate=${checkin}&endDate=${checkout}&adults=2`;
+
+    await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
+    await acceptConsent(page);
+    try { await page.waitForSelector("[class*='hotel'], [class*='result'], article", { timeout: 10000 }); } catch {}
+    await page.waitForTimeout(4000);
+
+    const price = await page.evaluate(({ keyWords, minTotal }) => {
+      const normalize = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const parseEur = txt => {
+        const m = txt.match(/(\d{1,2}[.,]\d{3}|\d{3,4})(?:[.,]\d{1,2})?\s*€/) ||
+                  txt.match(/€\s*(\d{1,2}[.,]\d{3}|\d{3,4})/);
+        if (!m) return null;
+        const raw = parseInt(m[1].replace(/[.,](\d{3})$/, "$1").replace(/[.,]/g, ""));
+        return raw >= minTotal && raw <= 99999 ? raw : null;
+      };
+      const cards = document.querySelectorAll("article, [class*='hotel'], [class*='result'], li");
+      for (const card of cards) {
+        const txt = card.textContent || "";
+        if (keyWords.every(w => normalize(txt).includes(normalize(w)))) {
+          const p = parseEur(txt);
+          if (p) return p;
+        }
+      }
+      return null;
+    }, { keyWords, minTotal }).catch(() => null);
+
+    await context.close();
+    if (!price) return { source: "HolidayCheck", error: "Hotel not found", lowest: null };
+    return { source: "HolidayCheck", lowest: price, url: searchUrl };
+  } catch (e) {
+    await context.close().catch(() => {});
+    return { source: "HolidayCheck", error: String(e), lowest: null };
+  }
+}
 
 // ── HRS.de scraper ────────────────────────────────────────────────────────────
 async function scrapeHRS({ hotel, city, checkin, checkout, nights, hotelWords, norm }) {
