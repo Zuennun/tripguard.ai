@@ -135,51 +135,62 @@ async function scrapeKayak({ hotel, city, checkin, checkout, nights, hotelWords,
   const keyWords = hotelWords.slice(0, 2);
 
   try {
-    // 1. Try direct hotel URL first (Kayak uses hotel-name-city format)
-    const hotelSlug = hotel.toLowerCase()
-      .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue")
-      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    const citySlug = (city || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    const directUrl = `https://www.kayak.de/hotels/${hotelSlug}-${citySlug}/${checkin}/${checkout}/2adults`;
+    // 1. Search via Kayak autocomplete API to get the hotel URL
+    const autoRes = await page.goto(
+      `https://www.kayak.de/mv/ac/hottip?q=${encodeURIComponent(hotel + (city ? " " + city : ""))}&locale=de_DE&v=v2`,
+      { waitUntil: "domcontentloaded", timeout: 15000 }
+    ).catch(() => null);
 
-    await page.goto(directUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
-    await acceptConsent(page);
-    await page.waitForTimeout(5000);
+    let hotelLink = null;
 
-    // Check if we're on a real hotel page (has provider prices) or got redirected to search
-    const isHotelPage = await page.evaluate(() => {
-      const txt = document.body.innerText.toLowerCase();
-      return txt.includes("booking.com") || txt.includes("expedia") || txt.includes("hotels.com") || txt.includes("agoda");
-    }).catch(() => false);
+    if (autoRes && autoRes.ok()) {
+      try {
+        const json = await autoRes.json();
+        const items = json?.results || json?.data || json || [];
+        for (const item of (Array.isArray(items) ? items : [])) {
+          const name = (item?.displayname || item?.name || item?.label || "").toLowerCase();
+          if (keyWords.every(w => name.includes(w))) {
+            const urlPath = item?.url || item?.permalinkUrl || item?.apiUrl || "";
+            if (urlPath) {
+              hotelLink = urlPath.startsWith("http") ? urlPath : `https://www.kayak.de${urlPath}`;
+              // Add dates
+              if (!hotelLink.includes(checkin)) {
+                hotelLink = hotelLink.replace(/\/hotels\/([^/]+)/, `/hotels/$1/${checkin}/${checkout}/2adults`);
+              }
+              break;
+            }
+          }
+        }
+      } catch {}
+    }
 
-    let hotelLink = directUrl;
-
-    if (!isHotelPage) {
-      // 2. Fall back to search page + find hotel link
+    // 2. Fallback: search page, wait longer for JS render
+    if (!hotelLink) {
       const loc = (city || hotel).replace(/\s+/g, "-");
       const searchUrl = `https://www.kayak.de/hotels/${encodeURIComponent(loc)}/${checkin}/${checkout}/2adults`;
-      await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
+      await page.goto(searchUrl, { waitUntil: "networkidle", timeout: 35000 }).catch(() => {});
       await acceptConsent(page);
-      await page.waitForTimeout(6000); // Wait for JS to render hotel cards
+      await page.waitForTimeout(6000);
 
-      const found = await page.evaluate(({ keyWords }) => {
+      hotelLink = await page.evaluate(({ keyWords }) => {
         const normalize = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-        // Look at all anchors — match hotel name in href or text
-        const anchors = Array.from(document.querySelectorAll("a[href]"));
-        for (const a of anchors) {
+        for (const a of document.querySelectorAll("a[href]")) {
           const haystack = normalize((a.textContent || "") + " " + a.href);
           if (keyWords.every(w => haystack.includes(normalize(w)))) return a.href;
         }
         return null;
       }, { keyWords }).catch(() => null);
-
-      if (!found) {
-        await context.close();
-        return [{ source: "Kayak", error: "Hotel not found", lowest: null }];
-      }
-      hotelLink = found;
-      await page.goto(hotelLink, { waitUntil: "domcontentloaded", timeout: 30000 });
     }
+
+    if (!hotelLink) {
+      await context.close();
+      return [{ source: "Kayak", error: "Hotel not found", lowest: null }];
+    }
+
+    // 3. Navigate to hotel page and wait for provider prices
+    await page.goto(hotelLink, { waitUntil: "domcontentloaded", timeout: 30000 });
+    await acceptConsent(page);
+    await page.waitForTimeout(7000);
     await acceptConsent(page);
     await page.waitForTimeout(6000); // Wait for price providers to load
 
