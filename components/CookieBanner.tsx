@@ -140,7 +140,7 @@ export default function CookieBanner() {
                       {isDe ? "Wir nutzen Vercel Analytics, um anonyme Seitenaufrufe zu messen — keine persönlichen Daten, kein Tracking über andere Seiten." : "We use Vercel Analytics to measure anonymous page views — no personal data, no cross-site tracking."}
                     </div>
                   </div>
-                  <Toggle on={analytics} onClick={() => setAnalytics(v => !v)} />
+                  <Toggle on={analytics} />
                 </div>
               </div>
             )}
