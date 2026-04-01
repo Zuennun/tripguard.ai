@@ -3,6 +3,7 @@ export interface BlogPost {
   date: string;
   readTime: number; // minutes
   category: string;
+  image?: string;   // e.g. "/blog/hotel-preis.jpg" — add to /public/blog/
   title: { de: string; en: string };
   description: { de: string; en: string };
   keywords: string[];

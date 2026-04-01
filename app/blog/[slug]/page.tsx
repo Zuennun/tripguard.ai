@@ -6,6 +6,7 @@ import { type Locale, getTranslations } from "@/lib/translations";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { getPostBySlug, getAllPosts } from "@/lib/blog";
+import ShareButtons from "@/components/ShareButtons";
 
 export async function generateStaticParams() {
   return getAllPosts().map((post) => ({ slug: post.slug }));
@@ -97,6 +98,12 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
               lineHeight: 1.8,
               color: "#1a2b4a",
             }}
+          />
+
+          <ShareButtons
+            url={`https://savemyholiday.com/blog/${params.slug}`}
+            title={title}
+            isDE={isDE}
           />
 
           {/* CTA box */}

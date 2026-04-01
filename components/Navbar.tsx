@@ -10,6 +10,7 @@ export default function Navbar({ t }: { t: Translations }) {
     [t.nav.howItWorks, "#how-it-works"],
     [t.nav.trackHotel, "#track-hotels"],
     [t.nav.faq, "#faq"],
+    [t.nav.blog, "/blog"],
     [t.nav.contact, "#contact"],
   ];
 
