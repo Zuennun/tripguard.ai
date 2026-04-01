@@ -49,19 +49,18 @@ function wrap(content: string, locale: EmailLocale = "en"): string {
           <td style="border-radius:20px;overflow:hidden;
                      box-shadow:0 4px 32px rgba(15,32,68,0.13)">
 
-            <!-- HEADER: full-bleed dark navy with gradient -->
+            <!-- HEADER: white background, logo large -->
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
               <tr>
-                <td style="background:linear-gradient(135deg,#1b4080 0%,#0f2044 100%);
-                           padding:32px 36px 28px;text-align:center">
-                  <!-- logo directly on dark bg -->
-                  <img src="https://savemyholiday.com/tripguard1.png" alt="SaveMyHoliday" height="56"
-                       style="display:block;height:56px;width:auto;border:0;margin:0 auto 10px" />
+                <td style="background:#ffffff;padding:28px 36px 22px;text-align:center;
+                           border-bottom:1px solid #e8edf5">
+                  <img src="https://savemyholiday.com/tripguard1.png" alt="SaveMyHoliday" height="80"
+                       style="display:block;height:80px;width:auto;border:0;margin:0 auto 10px" />
                   <div style="font-size:22px;font-weight:900;font-family:Arial,sans-serif;
                               letter-spacing:-0.5px;line-height:1">
-                    <span style="color:#f97316">Save</span><span style="color:#ffffff">My</span><span style="color:#f97316">Holiday</span><span style="color:#f97316">.</span>
+                    <span style="color:#f97316">Save</span><span style="color:#0f2044">My</span><span style="color:#f97316">Holiday</span><span style="color:#0f2044">.</span>
                   </div>
-                  <p style="margin:8px 0 0;color:rgba(255,255,255,0.38);font-size:10px;
+                  <p style="margin:6px 0 0;color:#94a3b8;font-size:10px;
                              font-family:Arial,sans-serif;letter-spacing:2.5px;text-transform:uppercase">
                     ${locale === "de" ? "Preisüberwachung" : "Price Monitoring"}
                   </p>
