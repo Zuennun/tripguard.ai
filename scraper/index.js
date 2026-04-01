@@ -100,10 +100,15 @@ app.get("/scrape", async (req, res) => {
     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
     .split(/\s+/).filter(w => w.length > 3);
 
-  const bookingResult = await scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm })
-    .catch(e => ({ source: "Booking.com", error: String(e), lowest: null }));
+  const [bookingResult, kayakResult] = await Promise.allSettled([
+    scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }),
+    scrapeKayak({ hotel, city, checkin, checkout, nights, hotelWords, norm }),
+  ]);
 
-  const results = [bookingResult];
+  const results = [
+    bookingResult.status === "fulfilled" ? bookingResult.value : { source: "Booking.com", error: String(bookingResult.reason), lowest: null },
+    ...( kayakResult.status === "fulfilled" ? kayakResult.value : [{ source: "Kayak", error: String(kayakResult.reason), lowest: null }] ),
+  ];
 
   const validPrices = results.map(r => r.lowest).filter(p => p != null);
   const lowestFound = validPrices.length > 0 ? Math.min(...validPrices) : null;
@@ -115,6 +120,136 @@ app.get("/scrape", async (req, res) => {
   });
 });
 
+
+// ── Kayak scraper (network interception + DOM fallback) ───────────────────────
+async function scrapeKayak({ hotel, city, checkin, checkout, nights, hotelWords, norm }) {
+  const { page, context } = await newPage();
+  const capturedData = [];
+  const minTotal = nights * 70;
+
+  // Intercept Kayak API responses that contain price data
+  page.on("response", async (response) => {
+    const url = response.url();
+    if (!url.includes("kayak")) return;
+    if (url.includes("/api/") || url.includes("/mvm/") || url.includes("results") || url.includes("price")) {
+      try {
+        const ct = response.headers()["content-type"] || "";
+        if (!ct.includes("json")) return;
+        const json = await response.json();
+        capturedData.push(json);
+      } catch {}
+    }
+  });
+
+  try {
+    // Build search URL — Kayak hotel search
+    const loc = encodeURIComponent((city || hotel).replace(/\s+/g, "-"));
+    const searchUrl = `https://www.kayak.de/hotels/${loc}/${checkin}/${checkout}/2adults`;
+
+    await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
+    await acceptConsent(page);
+
+    // Wait for hotel cards to appear
+    try { await page.waitForSelector("[data-resultid], .yuAt, .listWrapper article", { timeout: 10000 }); } catch {}
+    await page.waitForTimeout(4000);
+
+    // Try to find and click our hotel
+    const keyWords = hotelWords.slice(0, 2);
+    let hotelUrl = null;
+
+    // Find hotel link in search results
+    const links = await page.evaluate(({ keyWords, norm: normFn }) => {
+      const normalize = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const anchors = Array.from(document.querySelectorAll("a[href*='/hotels/']"));
+      return anchors
+        .filter(a => keyWords.every(w => normalize(a.textContent || a.href).includes(normalize(w))))
+        .map(a => a.href)
+        .slice(0, 3);
+    }, { keyWords, norm: null }).catch(() => []);
+
+    if (links.length > 0) {
+      hotelUrl = links[0];
+      await page.goto(hotelUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
+      await acceptConsent(page);
+      try { await page.waitForSelector(".providerName, .price-text, [class*='price'], [class*='provider']", { timeout: 10000 }); } catch {}
+      await page.waitForTimeout(5000);
+    }
+
+    // ── Try DOM extraction: provider + price pairs ─────────────────────────
+    const domResults = await page.evaluate(({ minTotal }) => {
+      const normalize = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const parseEur = txt => {
+        const patterns = [
+          /(\d{1,2}[.,]\d{3}|\d{3,4})(?:[.,]\d{1,2})?\s*€/,
+          /€\s*(\d{1,2}[.,]\d{3}|\d{3,4})(?:[.,]\d{1,2})?/,
+        ];
+        for (const p of patterns) {
+          const m = txt.match(p);
+          if (m) {
+            const raw = parseInt(m[1].replace(/[.,](\d{3})$/, "$1").replace(/[.,]/g, ""));
+            if (raw >= minTotal && raw <= 99999) return raw;
+          }
+        }
+        return null;
+      };
+
+      const results = [];
+      // Kayak provider cards — try multiple selector patterns
+      const selectors = [
+        ".providerName",
+        "[class*='providerName']",
+        "[class*='provider-name']",
+        ".yuAt-provider",
+      ];
+      for (const sel of selectors) {
+        const providers = document.querySelectorAll(sel);
+        if (providers.length === 0) continue;
+        for (const pEl of providers) {
+          const name = pEl.textContent?.trim() || "";
+          if (!name) continue;
+          // Price is usually nearby
+          const container = pEl.closest("[class*='deal'], [class*='provider'], [class*='price'], li, div") || pEl.parentElement;
+          if (!container) continue;
+          const price = parseEur(container.textContent || "");
+          if (price) results.push({ source: name, lowest: price });
+        }
+        if (results.length > 0) break;
+      }
+
+      // Fallback: scan full page for price blocks
+      if (results.length === 0) {
+        const allText = document.body.innerText;
+        const lines = allText.split("\n").map(l => l.trim()).filter(Boolean);
+        for (let i = 0; i < lines.length - 1; i++) {
+          const price = parseEur(lines[i] + " " + lines[i + 1]);
+          if (price) {
+            // Check if adjacent line looks like a provider name
+            const adj = lines[i - 1] || lines[i + 1] || "";
+            if (adj.length > 2 && adj.length < 40 && !/^\d/.test(adj)) {
+              results.push({ source: adj, lowest: price });
+            }
+          }
+        }
+      }
+      return results;
+    }, { minTotal }).catch(() => []);
+
+    await context.close();
+
+    if (domResults.length === 0) return [{ source: "Kayak", error: "No prices found", lowest: null }];
+
+    // Deduplicate by source, keep lowest
+    const bySource = {};
+    for (const r of domResults) {
+      if (!bySource[r.source] || r.lowest < bySource[r.source]) bySource[r.source] = r.lowest;
+    }
+    return Object.entries(bySource).map(([source, lowest]) => ({ source, lowest, url: hotelUrl || searchUrl }));
+
+  } catch (e) {
+    await context.close().catch(() => {});
+    return [{ source: "Kayak", error: String(e), lowest: null }];
+  }
+}
 
 // ── Booking.com scraper ──────────────────────────────────────────────────────
 async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }) {
