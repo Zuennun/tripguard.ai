@@ -57,16 +57,18 @@ export async function OPTIONS() {
   });
 }
 
+const ALLOWED_ORIGINS = new Set([
+  "https://trip-guard.ai",
+  "https://www.trip-guard.ai",
+  "https://savemyholiday.com",
+  "https://www.savemyholiday.com",
+  ...(process.env.ALLOWED_ORIGIN ? [process.env.ALLOWED_ORIGIN] : []),
+]);
+
 function isAllowedOrigin(origin: string): boolean {
-  if (!origin) return true;
-  if (origin.startsWith("http://localhost")) return true;
-  if (origin.endsWith(".vercel.app")) return true;
-  if (origin.includes("urlaubsw")) return true;
-  if (origin.includes("savemyholiday")) return true;
-  if (origin.includes("trip-guard")) return true;
-  const allowed = process.env.ALLOWED_ORIGIN;
-  if (allowed && origin === allowed) return true;
-  return false;
+  if (!origin) return false;
+  if (origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1")) return true;
+  return ALLOWED_ORIGINS.has(origin);
 }
 
 export async function POST(req: NextRequest) {

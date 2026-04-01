@@ -88,6 +88,15 @@ app.get("/scrape", async (req, res) => {
   const { hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl } = req.query;
   if (!hotel) return res.status(400).json({ error: "Missing hotel parameter" });
 
+  // Validate bookingUrl: only allow booking.com hotel URLs
+  if (bookingUrl && !String(bookingUrl).match(/^https:\/\/www\.booking\.com\/hotel\//)) {
+    return res.status(400).json({ error: "Invalid bookingUrl" });
+  }
+  // Validate date format
+  const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+  if (checkin && !dateRe.test(checkin)) return res.status(400).json({ error: "Invalid checkin date" });
+  if (checkout && !dateRe.test(checkout)) return res.status(400).json({ error: "Invalid checkout date" });
+
   const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
   const nights = (checkin && checkout)
