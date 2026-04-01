@@ -100,19 +100,10 @@ app.get("/scrape", async (req, res) => {
     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
     .split(/\s+/).filter(w => w.length > 3);
 
-  const [bookingResult, openaiResult] = await Promise.allSettled([
-    scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }),
-    scrapeViaOpenAI({ hotel, city, checkin, checkout, nights, roomType }),
-  ]);
+  const bookingResult = await scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm })
+    .catch(e => ({ source: "Booking.com", error: String(e), lowest: null }));
 
-  const bookingRes = bookingResult.status === "fulfilled"
-    ? bookingResult.value
-    : { source: "Booking.com", error: String(bookingResult.reason), lowest: null };
-  const openaiRes = openaiResult.status === "fulfilled"
-    ? openaiResult.value
-    : [{ source: "OpenAI Search", error: String(openaiResult.reason), lowest: null }];
-
-  const results = [bookingRes, ...openaiRes];
+  const results = [bookingResult];
 
   const validPrices = results.map(r => r.lowest).filter(p => p != null);
   const lowestFound = validPrices.length > 0 ? Math.min(...validPrices) : null;
@@ -124,42 +115,6 @@ app.get("/scrape", async (req, res) => {
   });
 });
 
-// ── Trivago scraper ───────────────────────────────────────────────────────────
-async function scrapeHotels({ hotel, city, checkin, checkout, nights, hotelWords, norm }) {
-  const { page, context } = await newPage();
-  try {
-    const q = encodeURIComponent(`${hotel} ${city || ""}`);
-    const searchUrl = `https://www.trivago.de/?aDateRange%5Barr%5D=${checkin}&aDateRange%5Bdep%5D=${checkout}&aPriceType=perStay&iRoomType=7&iUnits=1&sQuery=${q}`;
-
-    await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
-    await acceptConsent(page);
-    try { await page.waitForSelector("[data-testid='item-title'], .item-name, [class*='ItemName']", { timeout: 8000 }); } catch {}
-    await page.waitForTimeout(4000);
-
-    const minTotal = nights * 70;
-    const pageText = await page.innerText("body").catch(() => "");
-    const lines = pageText.split("\n");
-
-    // Use only most distinctive words (first 2) to find the hotel section
-    const keyWords = hotelWords.slice(0, 2);
-    let trivagoPrice = null;
-    for (let i = 0; i < lines.length; i++) {
-      const ln = norm(lines[i]);
-      if (keyWords.every(w => ln.includes(norm(w)))) {
-        const chunk = lines.slice(i, i + 15).join(" ");
-        const prices = extractEurPrices(chunk).filter(p => p >= minTotal);
-        if (prices.length > 0) { trivagoPrice = prices[0]; break; }
-      }
-    }
-
-    await context.close();
-    if (!trivagoPrice) return { source: "Trivago", error: "Hotel not found in results", lowest: null };
-    return { source: "Trivago", lowest: trivagoPrice, url: searchUrl };
-  } catch (e) {
-    await context.close().catch(() => {});
-    return { source: "Expedia", error: String(e), lowest: null };
-  }
-}
 
 // ── Booking.com scraper ──────────────────────────────────────────────────────
 async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }) {
@@ -345,9 +300,10 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
   }
 }
 
-// ── OpenAI Web Search scraper ─────────────────────────────────────────────────
-// Nutzt gpt-4o-search-preview um Preise von Booking.com, Expedia, Trip.com etc. zu finden
+// ── OpenAI Web Search scraper (disabled) ──────────────────────────────────────
 async function scrapeViaOpenAI({ hotel, city, checkin, checkout, nights, roomType }) {
+  return [];
+  // eslint-disable-next-line no-unreachable
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return [{ source: "OpenAI Search", error: "No API key", lowest: null }];
 
