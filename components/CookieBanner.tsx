@@ -6,7 +6,7 @@ const STORAGE_KEY = "rbs_cookie_consent";
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false);
   const [isDe, setIsDe] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const [analytics, setAnalytics] = useState(false);
 
   useEffect(() => {
@@ -51,12 +51,30 @@ export default function CookieBanner() {
         boxShadow: "0 8px 40px rgba(15,32,68,0.18), 0 2px 8px rgba(15,32,68,0.08)",
         border: "1px solid #e5e7eb",
         overflow: "hidden",
+        position: "relative",
         animation: "cookieSlideUp 0.4s cubic-bezier(0.34,1.56,0.64,1) both",
       }}>
 
         <div style={{ height: 4, background: "linear-gradient(90deg, #0f2044 0%, #f97316 100%)" }} />
 
         <div style={{ padding: "1.5rem 1.75rem" }}>
+
+          {/* X close button */}
+          <button
+            onClick={acceptNecessary}
+            style={{
+              position: "absolute", top: "1rem", right: "1rem",
+              background: "none", border: "none", cursor: "pointer",
+              width: 28, height: 28, borderRadius: "50%",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: "#9ca3af", fontSize: "1.1rem", lineHeight: 1,
+              transition: "background 0.15s, color 0.15s",
+              zIndex: 10,
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "#f3f4f6"; (e.currentTarget as HTMLButtonElement).style.color = "#374151"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "none"; (e.currentTarget as HTMLButtonElement).style.color = "#9ca3af"; }}
+            aria-label="Schließen"
+          >✕</button>
 
           {/* Header */}
           <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "1rem" }}>
@@ -102,8 +120,8 @@ export default function CookieBanner() {
                     <div style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: "0.82rem", color: "#0f2044" }}>
                       {isDe ? "Notwendige Cookies" : "Necessary Cookies"}
                     </div>
-                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.78rem", color: "#9ca3af", marginTop: 2 }}>
-                      {isDe ? "Für den Betrieb der Website zwingend erforderlich." : "Essential for the website to function."}
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.78rem", color: "#9ca3af", marginTop: 2, lineHeight: 1.5 }}>
+                      {isDe ? "Speichern deine Cookie-Einstellungen und deinen Sprachpräferenz. Ohne diese funktioniert die Website nicht korrekt." : "Store your cookie preferences and language setting. Required for the website to work correctly."}
                     </div>
                   </div>
                   <Toggle on={true} disabled />
@@ -118,8 +136,8 @@ export default function CookieBanner() {
                     <div style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: "0.82rem", color: "#0f2044" }}>
                       {isDe ? "Analyse-Cookies" : "Analytics Cookies"}
                     </div>
-                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.78rem", color: "#9ca3af", marginTop: 2 }}>
-                      {isDe ? "Helfen uns zu verstehen, wie Besucher die Seite nutzen (z. B. Vercel Analytics)." : "Help us understand how visitors use the site (e.g. Vercel Analytics)."}
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.78rem", color: "#9ca3af", marginTop: 2, lineHeight: 1.5 }}>
+                      {isDe ? "Wir nutzen Vercel Analytics, um anonyme Seitenaufrufe zu messen — keine persönlichen Daten, kein Tracking über andere Seiten." : "We use Vercel Analytics to measure anonymous page views — no personal data, no cross-site tracking."}
                     </div>
                   </div>
                   <Toggle on={analytics} onClick={() => setAnalytics(v => !v)} />
