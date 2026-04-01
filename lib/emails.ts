@@ -36,9 +36,9 @@ function wrap(content: string, locale: EmailLocale = "en"): string {
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background:#f0f2f5;-webkit-text-size-adjust:100%">
+<body style="margin:0;padding:0;background:#e8edf5;-webkit-text-size-adjust:100%">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-         style="background:#f0f2f5;padding:32px 0">
+         style="background:#e8edf5;padding:36px 0">
     <tr><td align="center" style="padding:0 12px">
 
       <table role="presentation" cellpadding="0" cellspacing="0"
@@ -46,40 +46,46 @@ function wrap(content: string, locale: EmailLocale = "en"): string {
 
         <!-- CARD -->
         <tr>
-          <td style="background:#ffffff;border-radius:20px;overflow:hidden;
-                     box-shadow:0 2px 20px rgba(15,32,68,0.08)">
+          <td style="border-radius:20px;overflow:hidden;
+                     box-shadow:0 4px 32px rgba(15,32,68,0.13)">
 
-            <!-- HEADER STRIPE -->
+            <!-- HEADER: full-bleed dark navy with gradient -->
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
               <tr>
-                <td style="background:#0f2044;padding:28px 36px;text-align:center">
-                  <table cellpadding="0" cellspacing="0" style="margin:0 auto 12px">
-                    <tr>
-                      <td style="background:#ffffff;border-radius:12px;padding:8px 12px;vertical-align:middle">
-                        <img src="https://savemyholiday.com/tripguard1.png" alt="" height="40"
-                             style="display:block;height:40px;width:auto;border:0" />
-                      </td>
-                    </tr>
-                  </table>
-                  <div style="font-size:24px;font-weight:900;font-family:Arial,sans-serif;letter-spacing:-0.5px;line-height:1">
-                    <span style="color:#f97316">Save</span><span style="color:#ffffff">My</span><span style="color:#f97316">Holiday</span>
+                <td style="background:linear-gradient(135deg,#1b4080 0%,#0f2044 100%);
+                           padding:32px 36px 28px;text-align:center">
+                  <!-- logo directly on dark bg -->
+                  <img src="https://savemyholiday.com/tripguard1.png" alt="SaveMyHoliday" height="56"
+                       style="display:block;height:56px;width:auto;border:0;margin:0 auto 10px" />
+                  <div style="font-size:22px;font-weight:900;font-family:Arial,sans-serif;
+                              letter-spacing:-0.5px;line-height:1">
+                    <span style="color:#f97316">Save</span><span style="color:#ffffff">My</span><span style="color:#f97316">Holiday</span><span style="color:#f97316">.</span>
                   </div>
-                  <p style="margin:6px 0 0;color:#6b82a8;font-size:11px;font-family:Arial,sans-serif;
-                             letter-spacing:2px;text-transform:uppercase">${locale === "de" ? "Preisüberwachung" : "Price Monitoring"}</p>
+                  <p style="margin:8px 0 0;color:rgba(255,255,255,0.38);font-size:10px;
+                             font-family:Arial,sans-serif;letter-spacing:2.5px;text-transform:uppercase">
+                    ${locale === "de" ? "Preisüberwachung" : "Price Monitoring"}
+                  </p>
                 </td>
+              </tr>
+              <!-- orange accent line -->
+              <tr>
+                <td style="background:linear-gradient(90deg,#f97316,#fb923c);height:3px;font-size:0;line-height:0">&nbsp;</td>
               </tr>
             </table>
 
-            <!-- CONTENT -->
-            ${content}
+            <!-- WHITE CONTENT AREA -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                   style="background:#ffffff">
+              ${content}
+            </table>
 
             <!-- FOOTER -->
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td style="background:#f8fafc;padding:20px 36px;border-top:1px solid #e8edf5;
                            text-align:center">
-                  <p style="margin:0 0 4px;color:#94a3b8;font-size:12px;font-family:Arial,sans-serif">
-                    <a href="${siteUrl}" style="color:#f97316;text-decoration:none;font-weight:600">savemyholiday.com</a>
+                  <p style="margin:0 0 5px;color:#94a3b8;font-size:12px;font-family:Arial,sans-serif">
+                    <a href="${siteUrl}" style="color:#f97316;text-decoration:none;font-weight:700">savemyholiday.com</a>
                     &nbsp;·&nbsp; Berlin, Deutschland
                   </p>
                   <p style="margin:0;color:#cbd5e1;font-size:11px;font-family:Arial,sans-serif">
@@ -152,15 +158,21 @@ export function customerConfirmationEmail(data: {
   return wrap(`
     <!-- HERO -->
     <tr>
-      <td class="card" style="padding:36px 36px 28px;text-align:center">
-        <div style="width:64px;height:64px;background:#fff3e8;border-radius:16px;
-                    margin:0 auto 20px;line-height:64px;font-size:32px">🛎️</div>
-        <h1 style="margin:0 0 12px;color:#0f2044;font-size:26px;font-weight:900;
-                   font-family:Arial,sans-serif;line-height:1.2;letter-spacing:-0.5px">
+      <td class="card" style="padding:40px 36px 32px;text-align:center;
+                               background:linear-gradient(180deg,#fafbff 0%,#ffffff 100%)">
+        <!-- shield icon circle -->
+        <div style="width:68px;height:68px;border-radius:50%;
+                    background:linear-gradient(135deg,#f97316 0%,#fb923c 100%);
+                    margin:0 auto 20px;display:flex;align-items:center;justify-content:center;
+                    box-shadow:0 6px 20px rgba(249,115,22,0.35)">
+          <div style="width:68px;height:68px;line-height:68px;text-align:center;font-size:30px">&#10003;</div>
+        </div>
+        <h1 style="margin:0 0 10px;color:#0f2044;font-size:28px;font-weight:900;
+                   font-family:Arial,sans-serif;line-height:1.15;letter-spacing:-0.5px">
           ${heroTitle}
         </h1>
-        <p style="margin:0;color:#64748b;font-size:15px;line-height:1.7;
-                  font-family:Arial,sans-serif;max-width:400px;margin:0 auto">
+        <p style="margin:0 auto;color:#64748b;font-size:15px;line-height:1.75;
+                  font-family:Arial,sans-serif;max-width:380px">
           ${heroBody}
         </p>
       </td>
@@ -170,57 +182,77 @@ export function customerConfirmationEmail(data: {
     <tr>
       <td class="email-body" style="padding:0 36px 28px">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-               style="background:#f8fafc;border-radius:14px;border:1px solid #e8edf5">
+               style="background:#f8fafc;border-radius:14px;
+                      border:1px solid #e2e8f0;border-left:4px solid #f97316">
           <tr><td class="card" style="padding:22px 24px">
             <p style="margin:0 0 6px;font-size:10px;font-weight:700;color:#94a3b8;
                       text-transform:uppercase;letter-spacing:1.5px;
                       font-family:Arial,sans-serif">${bookingLabel}</p>
-            <p style="margin:0 0 2px;font-size:19px;font-weight:800;color:#0f2044;
-                      font-family:Arial,sans-serif;letter-spacing:-0.3px">${hotelName}</p>
-            ${location ? `<p style="margin:0 0 16px;color:#94a3b8;font-size:13px;font-family:Arial,sans-serif">📍 ${location}</p>` : `<p style="margin:0 0 16px"></p>`}
+            <p style="margin:0 0 2px;font-size:20px;font-weight:900;color:#0f2044;
+                      font-family:Arial,sans-serif;letter-spacing:-0.4px">${hotelName}</p>
+            ${location ? `<p style="margin:0 0 16px;color:#94a3b8;font-size:13px;font-family:Arial,sans-serif">&#128205; ${location}</p>` : `<p style="margin:0 0 16px"></p>`}
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
               ${row(checkinLabel, formatDate(checkin, locale))}
               ${row(checkoutLabel, formatDate(checkout, locale))}
-              ${row(priceLabel, parsedPrice ? `<span style="color:#f97316;font-size:15px;font-weight:700">${parsedPrice} ${safeCurrency}</span>` : "—")}
+              ${row(priceLabel, parsedPrice ? `<span style="color:#f97316;font-size:16px;font-weight:800">${parsedPrice} ${safeCurrency}</span>` : "—")}
             </table>
           </td></tr>
         </table>
       </td>
     </tr>
 
+    <!-- STEPS heading -->
+    <tr>
+      <td class="email-body" style="padding:4px 36px 12px">
+        <p style="margin:0;font-size:10px;font-weight:700;color:#94a3b8;
+                  text-transform:uppercase;letter-spacing:1.5px;
+                  font-family:Arial,sans-serif">${nextLabel}</p>
+      </td>
+    </tr>
+
     <!-- STEPS -->
     <tr>
       <td class="email-body" style="padding:0 36px 28px">
-        <p style="margin:0 0 16px;font-size:10px;font-weight:700;color:#94a3b8;
-                  text-transform:uppercase;letter-spacing:1.5px;
-                  font-family:Arial,sans-serif">${nextLabel}</p>
-        <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%"
+               style="background:#f8fafc;border-radius:14px;border:1px solid #e2e8f0">
           <tr>
-            <td style="vertical-align:top;width:36px;padding-top:1px">
-              <div style="width:26px;height:26px;background:#f97316;border-radius:8px;
-                          text-align:center;line-height:26px;color:#fff;
-                          font-weight:800;font-size:13px;font-family:Arial,sans-serif">1</div>
+            <td style="padding:18px 20px;border-bottom:1px solid #e2e8f0">
+              <table cellpadding="0" cellspacing="0" width="100%"><tr>
+                <td style="vertical-align:top;width:32px">
+                  <div style="width:28px;height:28px;background:#f97316;border-radius:50%;
+                              text-align:center;line-height:28px;color:#fff;
+                              font-weight:800;font-size:13px;font-family:Arial,sans-serif">1</div>
+                </td>
+                <td style="padding-left:12px;color:#374151;font-size:14px;line-height:1.65;
+                           font-family:Arial,sans-serif;vertical-align:top;padding-top:4px">${step1}</td>
+              </tr></table>
             </td>
-            <td style="padding:0 0 16px 10px;color:#374151;font-size:14px;line-height:1.65;
-                       font-family:Arial,sans-serif">${step1}</td>
           </tr>
           <tr>
-            <td style="vertical-align:top;width:36px;padding-top:1px">
-              <div style="width:26px;height:26px;background:#f97316;border-radius:8px;
-                          text-align:center;line-height:26px;color:#fff;
-                          font-weight:800;font-size:13px;font-family:Arial,sans-serif">2</div>
+            <td style="padding:18px 20px;border-bottom:1px solid #e2e8f0">
+              <table cellpadding="0" cellspacing="0" width="100%"><tr>
+                <td style="vertical-align:top;width:32px">
+                  <div style="width:28px;height:28px;background:#f97316;border-radius:50%;
+                              text-align:center;line-height:28px;color:#fff;
+                              font-weight:800;font-size:13px;font-family:Arial,sans-serif">2</div>
+                </td>
+                <td style="padding-left:12px;color:#374151;font-size:14px;line-height:1.65;
+                           font-family:Arial,sans-serif;vertical-align:top;padding-top:4px">${step2}</td>
+              </tr></table>
             </td>
-            <td style="padding:0 0 16px 10px;color:#374151;font-size:14px;line-height:1.65;
-                       font-family:Arial,sans-serif">${step2}</td>
           </tr>
           <tr>
-            <td style="vertical-align:top;width:36px;padding-top:1px">
-              <div style="width:26px;height:26px;background:#f97316;border-radius:8px;
-                          text-align:center;line-height:26px;color:#fff;
-                          font-weight:800;font-size:13px;font-family:Arial,sans-serif">3</div>
+            <td style="padding:18px 20px">
+              <table cellpadding="0" cellspacing="0" width="100%"><tr>
+                <td style="vertical-align:top;width:32px">
+                  <div style="width:28px;height:28px;background:#f97316;border-radius:50%;
+                              text-align:center;line-height:28px;color:#fff;
+                              font-weight:800;font-size:13px;font-family:Arial,sans-serif">3</div>
+                </td>
+                <td style="padding-left:12px;color:#374151;font-size:14px;line-height:1.65;
+                           font-family:Arial,sans-serif;vertical-align:top;padding-top:4px">${step3}</td>
+              </tr></table>
             </td>
-            <td style="padding:0 0 0 10px;color:#374151;font-size:14px;line-height:1.65;
-                       font-family:Arial,sans-serif">${step3}</td>
           </tr>
         </table>
       </td>
@@ -228,11 +260,12 @@ export function customerConfirmationEmail(data: {
 
     <!-- TIP BOX -->
     <tr>
-      <td class="email-body" style="padding:0 36px 36px">
+      <td class="email-body" style="padding:0 36px 40px">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-               style="background:#fff7ed;border-radius:12px;border:1px solid #fed7aa">
+               style="background:linear-gradient(135deg,#fff7ed,#fff3e8);
+                      border-radius:12px;border-left:4px solid #f97316">
           <tr><td style="padding:16px 20px">
-            <p style="margin:0;color:#92400e;font-size:13px;line-height:1.65;
+            <p style="margin:0;color:#92400e;font-size:13px;line-height:1.7;
                       font-family:Arial,sans-serif">
               ${tipText}
             </p>
