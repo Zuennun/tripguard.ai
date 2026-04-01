@@ -333,7 +333,8 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
     try { await page.waitForSelector(".hprt-table, [data-block='property_room_type_row'], .js-rt-block-row", { timeout: 8000 }); } catch {}
     await page.waitForTimeout(2000);
 
-    const minTotal = nights * 70;
+    // Use nights*100 as minimum to filter out per-night prices shown alongside totals
+    const minTotal = nights * 100;
     let bookingPrice = null;
 
     if (roomType || mealPlan) {
