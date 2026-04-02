@@ -51,7 +51,6 @@ export default function CookieBanner() {
         boxShadow: "0 8px 40px rgba(15,32,68,0.18), 0 2px 8px rgba(15,32,68,0.08)",
         border: "1px solid #e5e7eb",
         overflow: "hidden",
-        position: "relative",
         animation: "cookieSlideUp 0.4s cubic-bezier(0.34,1.56,0.64,1) both",
       }}>
 
