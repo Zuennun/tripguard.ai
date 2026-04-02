@@ -10,6 +10,8 @@ export interface PriceResult {
   statusCode: number | null;
 }
 
+const TRUSTED_SOURCES = ["Booking.com"];
+
 function normalizeScraperError(error: string | null | undefined) {
   const text = String(error || "").trim();
   if (!text) return "No price found";
@@ -95,8 +97,10 @@ export async function checkCurrentPrice(params: {
     const data = await res.json();
     const price: number | null = data.lowestFound ?? null;
     const bookingResult = data.results?.find((r: any) => r.source === "Booking.com") ?? data.results?.[0] ?? null;
-    const validResults = (data.results ?? []).filter((r: any) => r.lowest != null);
-    const cheapestResult = validResults.sort((a: any, b: any) => a.lowest - b.lowest)[0] ?? bookingResult;
+    const allValidResults = (data.results ?? []).filter((r: any) => r.lowest != null);
+    const validResults = allValidResults.filter((r: any) => TRUSTED_SOURCES.includes(r.source));
+    const resultsForCheapest = validResults.length > 0 ? validResults : allValidResults;
+    const cheapestResult = resultsForCheapest.sort((a: any, b: any) => a.lowest - b.lowest)[0] ?? bookingResult;
 
     if (price === null) {
       const resultError =
