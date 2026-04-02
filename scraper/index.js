@@ -30,6 +30,26 @@ function normalizeCurrency(currency) {
   return CURRENCY_CONFIG[code] ? code : "EUR";
 }
 
+function buildBookingHotelUrl(rawUrl, { checkin, checkout, currency }) {
+  const base = String(rawUrl || "").trim();
+  if (!base) return "";
+
+  try {
+    const url = new URL(base);
+    url.search = "";
+    url.searchParams.set("checkin", checkin || "");
+    url.searchParams.set("checkout", checkout || "");
+    url.searchParams.set("group_adults", "2");
+    url.searchParams.set("no_rooms", "1");
+    url.searchParams.set("group_children", "0");
+    url.searchParams.set("selected_currency", currency);
+    return url.toString();
+  } catch {
+    const clean = base.split("?")[0];
+    return `${clean}?checkin=${checkin || ""}&checkout=${checkout || ""}&group_adults=2&no_rooms=1&group_children=0&selected_currency=${currency}`;
+  }
+}
+
 // ── Improvement 1: Shared browser singleton ──────────────────────────────────
 let sharedBrowser = null;
 
@@ -214,8 +234,7 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
 
     // ── Improvement 3: Use stored URL if provided (skip search entirely) ────
     if (bookingUrl) {
-      const sep = bookingUrl.includes("?") ? "&" : "?";
-      hotelPageUrl = `${bookingUrl.split("?")[0]}${sep}checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0&selected_currency=${currency}`;
+      hotelPageUrl = buildBookingHotelUrl(bookingUrl, { checkin, checkout, currency });
     } else {
       // Search for hotel URL
       const q = encodeURIComponent(`${hotel} ${city || ""}`);
@@ -288,7 +307,7 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
         await context.close();
         return { source: "Booking.com", error: "Hotel not found", lowest: null };
       }
-      hotelPageUrl = `${foundUrl}?checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0&selected_currency=${currency}`;
+      hotelPageUrl = buildBookingHotelUrl(foundUrl, { checkin, checkout, currency });
     }
 
     await guardedGoto(page, hotelPageUrl);
