@@ -13,19 +13,28 @@ export async function GET(
   const supabase = getSupabaseAdmin();
   const { data: click } = await supabase
     .from("affiliate_clicks")
-    .select("id, destination, clicked_at")
+    .select("id, destination, clicked_at, click_count")
     .eq("token", token)
     .single();
 
   if (!click) return NextResponse.redirect("https://savemyholiday.com");
-
-  // Record click timestamp (only first click)
-  if (!click.clicked_at) {
-    await supabase
-      .from("affiliate_clicks")
-      .update({ clicked_at: new Date().toISOString() })
-      .eq("id", click.id);
+  if (
+    !click.destination ||
+    !(
+      click.destination.startsWith("https://www.booking.com/") ||
+      click.destination.startsWith("https://booking.com/")
+    )
+  ) {
+    return NextResponse.json({ error: "Invalid destination" }, { status: 400 });
   }
+
+  await supabase
+    .from("affiliate_clicks")
+    .update({
+      clicked_at: new Date().toISOString(),
+      click_count: (click.click_count ?? 0) + 1,
+    })
+    .eq("id", click.id);
 
   return NextResponse.redirect(click.destination);
 }

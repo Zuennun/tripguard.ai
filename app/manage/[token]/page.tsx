@@ -37,7 +37,7 @@ export default function ManagePage() {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/api/manage/booking?token=${token}`)
+    fetch(`/api/manage?token=${token}`)
       .then(r => r.json())
       .then(data => {
         if (data.error) setError(data.error);
@@ -76,6 +76,29 @@ export default function ManagePage() {
     }
   }
 
+  async function cancelMonitoring() {
+    setActionLoading(true);
+    setMessage(null);
+    try {
+      const res = await fetch("/api/manage", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        setMessage(data.error);
+      } else {
+        setBooking((b) => (b ? { ...b, status: "cancelled" } : b));
+        setMessage("Überwachung gestoppt.");
+      }
+    } catch {
+      setMessage("Fehler. Bitte versuche es erneut.");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
   if (loading) return <Page><p style={{ color: "#6b7280", textAlign: "center" }}>Laden…</p></Page>;
   if (error || !booking) return <Page><p style={{ color: "#ef4444", textAlign: "center" }}>{error ?? "Nicht gefunden."}</p></Page>;
 
@@ -101,6 +124,14 @@ export default function ManagePage() {
           Buchungsverwaltung
         </p>
       </div>
+
+      {booking.status === "expired" && (
+        <div style={{ background: "#f8fafc", borderRadius: 12, border: "1px solid #cbd5e1", padding: "14px 16px", marginBottom: 16 }}>
+          <p style={{ margin: 0, color: "#64748b", fontSize: 14, fontWeight: 700, fontFamily: "Arial,sans-serif" }}>
+            Your stay has ended — monitoring was automatically stopped.
+          </p>
+        </div>
+      )}
 
       {/* Booking Card */}
       <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e2e8f0", borderLeft: "4px solid #f97316", padding: "24px", marginBottom: 16 }}>
@@ -162,8 +193,8 @@ export default function ManagePage() {
               ▶ Überwachung fortsetzen
             </ActionButton>
           )}
-          <ActionButton onClick={() => doAction("cancel")} loading={actionLoading} color="#ef4444" outline>
-            ✕ Überwachung stoppen
+          <ActionButton onClick={cancelMonitoring} loading={actionLoading} color="#ef4444" outline>
+            ✕ Cancel Monitoring
           </ActionButton>
           <ActionButton onClick={() => { if (confirm("Buchung wirklich löschen?")) doAction("delete"); }} loading={actionLoading} color="#94a3b8" outline>
             🗑 Buchung löschen
