@@ -11,14 +11,41 @@ type AttentionRow = {
   bookingUrl?: string | null;
 };
 
+type LatestCheckStatus = {
+  found: boolean;
+  error: string | null;
+};
+
+function truncate(text: string, max = 40) {
+  return text.length > max ? `${text.slice(0, max)}…` : text;
+}
+
+function getReasonLabel(
+  latestCheckByBooking: Map<string, LatestCheckStatus>,
+  bookingId: string
+) {
+  const check = latestCheckByBooking.get(bookingId);
+  if (!check) return "Never checked";
+
+  const error = String(check.error || "");
+  if (/Bot protection/i.test(error)) return "🤖 Bot protection";
+  if (/Timeout/i.test(error)) return "⏱ Timeout";
+  if (/401|Unauthorized/i.test(error)) return "🔑 Auth error";
+  if (/No price/i.test(error) || (!check.found && !error)) return "❓ No price found";
+  if (error) return `⚠️ ${truncate(error, 40)}`;
+  return "❓ No price found";
+}
+
 export default function AdminNeedAttention({
   noPriceRows,
   failureRows,
   outlierRows,
+  latestCheckByBooking,
 }: {
   noPriceRows: AttentionRow[];
   failureRows: AttentionRow[];
   outlierRows: AttentionRow[];
+  latestCheckByBooking: Map<string, LatestCheckStatus>;
 }) {
   const router = useRouter();
   const [retryingId, setRetryingId] = useState<string | null>(null);
@@ -59,6 +86,7 @@ export default function AdminNeedAttention({
         retryingId={retryingId}
         statusByBooking={statusByBooking}
         onRetry={retryBooking}
+        latestCheckByBooking={latestCheckByBooking}
       />
       <AttentionCard
         title="Recent Failures"
@@ -68,6 +96,7 @@ export default function AdminNeedAttention({
         retryingId={retryingId}
         statusByBooking={statusByBooking}
         onRetry={retryBooking}
+        latestCheckByBooking={latestCheckByBooking}
       />
       <AttentionCard
         title="Suspicious Prices"
@@ -77,6 +106,7 @@ export default function AdminNeedAttention({
         retryingId={retryingId}
         statusByBooking={statusByBooking}
         onRetry={retryBooking}
+        latestCheckByBooking={latestCheckByBooking}
       />
     </div>
   );
@@ -90,6 +120,7 @@ function AttentionCard({
   retryingId,
   statusByBooking,
   onRetry,
+  latestCheckByBooking,
 }: {
   title: string;
   tone: string;
@@ -98,6 +129,7 @@ function AttentionCard({
   retryingId: string | null;
   statusByBooking: Record<string, string>;
   onRetry: (bookingId: string) => void;
+  latestCheckByBooking: Map<string, LatestCheckStatus>;
 }) {
   return (
     <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: "16px 18px" }}>
@@ -112,7 +144,12 @@ function AttentionCard({
             <div key={`${title}-${row.bookingId}`} style={{ background: "#f8fafc", borderRadius: 12, padding: "12px 14px", display: "grid", gap: 7 }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#0f2044" }}>{row.hotel}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#0f2044" }}>{row.hotel}</div>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: tone, background: "#fff", border: "1px solid #e2e8f0", borderRadius: 999, padding: "2px 8px" }}>
+                      {getReasonLabel(latestCheckByBooking, row.bookingId)}
+                    </span>
+                  </div>
                   <div style={{ fontSize: 12, color: "#64748b" }}>{row.meta}</div>
                 </div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>

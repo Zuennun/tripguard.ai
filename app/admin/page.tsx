@@ -77,6 +77,7 @@ export default async function AdminPage({
     { data: jobRuns },
     { data: unchecked },
     { data: allTokenBookingIds },
+    { data: latestChecks },
     { count: todayChecks },
     { count: todayFoundChecks },
     { count: todayAlerts },
@@ -106,10 +107,21 @@ export default async function AdminPage({
     db.from("job_runs").select("*").order("started_at", { ascending: false }).limit(6),
     db.from("bookings").select("id,hotel_name,email,created_at").eq("status", "active").is("last_checked_at", null),
     db.from("booking_tokens").select("booking_id").eq("purpose", "manage"),
+    db.from("price_checks")
+      .select("booking_id, found, error, checked_at")
+      .order("checked_at", { ascending: false })
+      .limit(200),
     db.from("price_checks").select("*", { count: "exact", head: true }).gte("checked_at", todayIso),
     db.from("price_checks").select("*", { count: "exact", head: true }).gte("checked_at", todayIso).eq("found", true),
     db.from("alerts").select("*", { count: "exact", head: true }).gte("sent_at", todayIso),
   ]);
+
+  const latestCheckByBooking = new Map<string, { found: boolean; error: string | null }>();
+  for (const c of latestChecks ?? []) {
+    if (!latestCheckByBooking.has(c.booking_id)) {
+      latestCheckByBooking.set(c.booking_id, { found: c.found, error: c.error });
+    }
+  }
 
   const today = new Date().toISOString().split("T")[0];
   const bs = (bookings ?? []).filter((b: any) => {
@@ -281,6 +293,7 @@ export default async function AdminPage({
           noPriceRows={noPriceRows}
           failureRows={failureRows}
           outlierRows={outlierRows}
+          latestCheckByBooking={latestCheckByBooking}
         />
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(6,minmax(0,1fr))", gap: 12, marginBottom: 24 }}>
@@ -316,6 +329,7 @@ export default async function AdminPage({
             ...b,
             hasToken: tokenedIds.has(b.id),
           }))}
+          latestCheckByBooking={latestCheckByBooking}
         />
 
         <AdminRunChecksButton />

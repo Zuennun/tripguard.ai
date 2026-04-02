@@ -38,6 +38,11 @@ type TestResult = {
   converted?: boolean;
 };
 
+type LatestCheckStatus = {
+  found: boolean;
+  error: string | null;
+};
+
 function fmtDate(d: string | null | undefined) {
   if (!d) return "—";
   return new Date(d).toLocaleDateString("de-DE");
@@ -52,7 +57,13 @@ function ago(d: string | null | undefined) {
   return `${Math.floor(h / 24)}d ago`;
 }
 
-export default function AdminBookingsTable({ bookings }: { bookings: BookingRow[] }) {
+export default function AdminBookingsTable({
+  bookings,
+  latestCheckByBooking,
+}: {
+  bookings: BookingRow[];
+  latestCheckByBooking: Map<string, LatestCheckStatus>;
+}) {
   const router = useRouter();
   const [rows, setRows] = useState(bookings);
   const [selectedId, setSelectedId] = useState(bookings[0]?.id ?? "");
@@ -290,7 +301,7 @@ export default function AdminBookingsTable({ bookings }: { bookings: BookingRow[
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              {["", "Hotel", "Email", "Customer Country", "City", "Check-in", "Check-out", "Booked", "Status", "Last Checked", "Lowest Found", "Last Test", "URL", "Alert", "Delete"].map((h) => (
+              {["", "Hotel", "Email", "Customer Country", "City", "Check-in", "Check-out", "Booked", "Status", "Last Checked", "Lowest Found", "Last Check", "Last Test", "URL", "Alert", "Delete"].map((h) => (
                 <th key={h} style={headerStyle}>{h}</th>
               ))}
             </tr>
@@ -298,15 +309,30 @@ export default function AdminBookingsTable({ bookings }: { bookings: BookingRow[
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={15} style={{ ...bodyStyle, color: "#94a3b8", textAlign: "center" }}>
+                <td colSpan={16} style={{ ...bodyStyle, color: "#94a3b8", textAlign: "center" }}>
                   No bookings
                 </td>
               </tr>
             )}
             {pagedRows.map((b) => {
               const test = tests[b.id];
+              const lastCheck = latestCheckByBooking.get(b.id);
               const selectedRow = selectedId === b.id;
               const canAlert = b.lowest_found_price != null && b.price != null && b.lowest_found_price < b.price;
+              const lastCheckLabel = !lastCheck
+                ? "Never"
+                : lastCheck.found
+                  ? "✓ Found"
+                  : lastCheck.error
+                    ? (lastCheck.error.length > 40 ? `${lastCheck.error.slice(0, 40)}…` : lastCheck.error)
+                    : "No price";
+              const lastCheckColor = !lastCheck
+                ? "#94a3b8"
+                : lastCheck.found
+                  ? "#16a34a"
+                  : lastCheck.error
+                    ? "#dc2626"
+                    : "#f59e0b";
               return (
                 <tr
                   key={b.id}
@@ -349,6 +375,14 @@ export default function AdminBookingsTable({ bookings }: { bookings: BookingRow[
                   <td style={{ ...bodyStyle, color: !b.last_checked_at ? "#ef4444" : "#374151" }}>{b.last_checked_at ? ago(b.last_checked_at) : "⚠ never"}</td>
                   <td style={{ ...bodyStyle, color: b.lowest_found_price ? "#059669" : "#94a3b8", fontWeight: 700 }}>
                     {b.lowest_found_price ? `${b.lowest_found_price} ${b.currency}` : "—"}
+                  </td>
+                  <td style={bodyStyle}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 8, maxWidth: 220 }}>
+                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: lastCheckColor, flexShrink: 0 }} />
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", color: lastCheckColor, fontWeight: lastCheck?.found ? 700 : 600 }}>
+                        {lastCheckLabel}
+                      </span>
+                    </span>
                   </td>
                   <td style={{ ...bodyStyle, color: test?.error ? "#b91c1c" : test?.found ? "#059669" : "#94a3b8", fontWeight: 700 }}>
                     {loadingId === b.id
