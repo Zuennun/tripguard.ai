@@ -6,6 +6,8 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const AUTH_TOKEN = process.env.SCRAPER_TOKEN;
 if (!AUTH_TOKEN) { console.error("FATAL: SCRAPER_TOKEN env var not set"); process.exit(1); }
+let activeRequests = 0;
+const MAX_CONCURRENT = 2;
 
 const CURRENCY_CONFIG = {
   EUR: { symbols: ["€"], codes: ["EUR"] },
@@ -180,6 +182,12 @@ app.get("/debug", async (req, res) => {
 
 // ── Scrape endpoint ──────────────────────────────────────────────────────────
 app.get("/scrape", async (req, res) => {
+  if (activeRequests >= MAX_CONCURRENT) {
+    return res.status(503).json({ error: "Scraper busy, retry in 30s" });
+  }
+  activeRequests++;
+
+  try {
   const { hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl } = req.query;
   const currency = normalizeCurrency(req.query.currency);
   if (!hotel) return res.status(400).json({ error: "Missing hotel parameter" });
@@ -208,14 +216,14 @@ app.get("/scrape", async (req, res) => {
   const bookingResult = await scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm, currency })
     .catch(e => ({ source: "Booking.com", error: String(e), lowest: null }));
 
-  const [expediaResult, hotelsResult, hrsResult, tripResult] = await Promise.allSettled([
-    scrapeExpedia({ hotel, city, checkin, checkout, currency, nights }),
-    scrapeHotels({ hotel, city, checkin, checkout, currency, nights }),
-    scrapeHRS({ hotel, city, checkin, checkout, currency, nights }),
-    scrapeTrip({ hotel, city, checkin, checkout, currency, nights }),
-  ]).then(results => results.map(r =>
-    r.status === "fulfilled" ? r.value : { source: "unknown", lowest: null, error: r.reason?.message }
-  ));
+  const expediaResult = await scrapeExpedia({ hotel, city, checkin, checkout, currency, nights })
+    .catch(e => ({ source: "Expedia", lowest: null, error: String(e) }));
+  const hotelsResult = await scrapeHotels({ hotel, city, checkin, checkout, currency, nights })
+    .catch(e => ({ source: "Hotels.com", lowest: null, error: String(e) }));
+  const hrsResult = await scrapeHRS({ hotel, city, checkin, checkout, currency, nights })
+    .catch(e => ({ source: "HRS", lowest: null, error: String(e) }));
+  const tripResult = await scrapeTrip({ hotel, city, checkin, checkout, currency, nights })
+    .catch(e => ({ source: "Trip.com", lowest: null, error: String(e) }));
 
   const results = [bookingResult, expediaResult, hotelsResult, hrsResult, tripResult];
 
@@ -227,6 +235,9 @@ app.get("/scrape", async (req, res) => {
     roomType: roomType || null, mealPlan: mealPlan || null,
     nights, results, lowestFound, currency,
   });
+  } finally {
+    activeRequests--;
+  }
 });
 
 app.get("/multi-debug", async (req, res) => {
@@ -243,15 +254,16 @@ app.get("/multi-debug", async (req, res) => {
   const cur = normalizeCurrency(currency);
   const hotelWords = hotel.toLowerCase().split(/\s+/).filter(w => w.length > 3);
 
-  const [bk, ex, ht, hrs, tr] = await Promise.allSettled([
-    scrapeBooking({ hotel, city, checkin, checkout, roomType: null, mealPlan: null, bookingUrl: null, nights, hotelWords, norm, currency: cur }),
-    scrapeExpedia({ hotel, city, checkin, checkout, currency: cur, nights }),
-    scrapeHotels({ hotel, city, checkin, checkout, currency: cur, nights }),
-    scrapeHRS({ hotel, city, checkin, checkout, currency: cur, nights }),
-    scrapeTrip({ hotel, city, checkin, checkout, currency: cur, nights }),
-  ]).then(rs => rs.map(r =>
-    r.status === "fulfilled" ? r.value : { source: "unknown", lowest: null, error: r.reason?.message }
-  ));
+  const bk = await scrapeBooking({ hotel, city, checkin, checkout, roomType: null, mealPlan: null, bookingUrl: null, nights, hotelWords, norm, currency: cur })
+    .catch(e => ({ source: "Booking.com", lowest: null, error: String(e) }));
+  const ex = await scrapeExpedia({ hotel, city, checkin, checkout, currency: cur, nights })
+    .catch(e => ({ source: "Expedia", lowest: null, error: String(e) }));
+  const ht = await scrapeHotels({ hotel, city, checkin, checkout, currency: cur, nights })
+    .catch(e => ({ source: "Hotels.com", lowest: null, error: String(e) }));
+  const hrs = await scrapeHRS({ hotel, city, checkin, checkout, currency: cur, nights })
+    .catch(e => ({ source: "HRS", lowest: null, error: String(e) }));
+  const tr = await scrapeTrip({ hotel, city, checkin, checkout, currency: cur, nights })
+    .catch(e => ({ source: "Trip.com", lowest: null, error: String(e) }));
 
   res.json({ hotel, city, checkin, checkout, currency: cur, nights, results: [bk, ex, ht, hrs, tr] });
 });
