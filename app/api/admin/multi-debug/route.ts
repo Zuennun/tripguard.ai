@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
   const checkin = searchParams.get("checkin") ?? "";
   const checkout = searchParams.get("checkout") ?? "";
   const currency = searchParams.get("currency") ?? "EUR";
+  const tripadvisorUrl = searchParams.get("tripadvisorUrl") ?? "";
 
   const SCRAPER_URL = process.env.SCRAPER_URL;
   const SCRAPER_TOKEN = process.env.SCRAPER_TOKEN ?? "";
@@ -26,6 +27,9 @@ export async function GET(req: NextRequest) {
   }
 
   const params = new URLSearchParams({ hotel, city, checkin, checkout, currency });
+  if (tripadvisorUrl) {
+    params.set("tripadvisorUrl", tripadvisorUrl);
+  }
   const res = await fetch(`${SCRAPER_URL}/multi-debug?${params}`, {
     headers: { "x-scraper-token": SCRAPER_TOKEN },
     signal: AbortSignal.timeout(120000),

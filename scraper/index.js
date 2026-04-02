@@ -241,7 +241,7 @@ app.get("/scrape", async (req, res) => {
 });
 
 app.get("/multi-debug", async (req, res) => {
-  const { hotel, city, checkin, checkout, currency } = req.query;
+  const { hotel, city, checkin, checkout, currency, tripadvisorUrl } = req.query;
   if (!hotel) return res.status(400).json({ error: "Missing hotel" });
   const dateRe = /^\d{4}-\d{2}-\d{2}$/;
   if (checkin && !dateRe.test(checkin)) return res.status(400).json({ error: "Invalid checkin" });
@@ -265,7 +265,7 @@ app.get("/multi-debug", async (req, res) => {
   // const tr = await scrapeTrip({ hotel, city, checkin, checkout, currency: cur, nights })
   //   .catch(e => ({ source: "Trip.com", lowest: null, error: String(e) }));
 
-  const ta = await scrapeTripadvisor({ hotel, city, checkin, checkout, currency: cur, nights })
+  const ta = await scrapeTripadvisor({ hotel, city, checkin, checkout, currency: cur, nights, tripadvisorUrl })
     .catch(e => ({ source: "Tripadvisor", lowest: null, error: String(e) }));
 
   res.json({ hotel, city, checkin, checkout, currency: cur, nights, results: [bk, ta] });
@@ -571,7 +571,7 @@ async function scrapeTrip({ hotel, city, checkin, checkout, currency, nights }) 
   }
 }
 
-async function scrapeTripadvisor({ hotel, city, checkin, checkout, currency, nights }) {
+async function scrapeTripadvisor({ hotel, city, checkin, checkout, currency, nights, tripadvisorUrl }) {
   let context = null;
   try {
     const ctx = await newPage();
@@ -580,71 +580,79 @@ async function scrapeTripadvisor({ hotel, city, checkin, checkout, currency, nig
     page.setDefaultTimeout(20000);
     page.setDefaultNavigationTimeout(20000);
 
-    const hotelTerms = tokenizeTripadvisorQuery(hotel);
-    const cityTerms = tokenizeTripadvisorQuery(city || "");
-    const queries = [
-      `${hotel} ${city || ""}`.trim(),
-      hotel.trim(),
-      `${hotel} ${city || ""} hotel`.trim(),
-    ].filter(Boolean);
+    let hotelUrl = String(tripadvisorUrl || "").trim();
+    let debugUrl = hotelUrl || null;
 
-    let foundUrl = null;
-    let finalSearchUrl = null;
-    for (const query of queries) {
-      finalSearchUrl = `https://www.tripadvisor.com/Search?q=${encodeURIComponent(query)}`;
-      await guardedGoto(page, finalSearchUrl);
-      try { await page.waitForSelector("a[href], [data-automation], [class*='result']", { timeout: 8000 }); } catch {}
-      await humanPause(page, 900, 1800);
+    if (!hotelUrl) {
+      const hotelTerms = tokenizeTripadvisorQuery(hotel);
+      const cityTerms = tokenizeTripadvisorQuery(city || "");
+      const queries = [
+        `${hotel} ${city || ""}`.trim(),
+        hotel.trim(),
+        `${hotel} ${city || ""} hotel`.trim(),
+      ].filter(Boolean);
 
-      foundUrl = await page.evaluate(({ hotelTerms, cityTerms }) => {
-        const stopWords = ["restaurant", "restaurants", "flight", "flights", "vacation rental", "things to do", "forum"];
-        const norm = (value) => (value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-        const textOf = (node) => (node.textContent || "").trim();
-        const candidates = Array.from(document.querySelectorAll("a[href]"))
-          .map((a) => ({
-            href: a.getAttribute("href") || "",
-            text: textOf(a),
-            aria: a.getAttribute("aria-label") || "",
-            title: a.getAttribute("title") || "",
-          }))
-          .filter((c) => c.href);
+      let foundUrl = null;
+      let finalSearchUrl = null;
+      for (const query of queries) {
+        finalSearchUrl = `https://www.tripadvisor.com/Search?q=${encodeURIComponent(query)}`;
+        await guardedGoto(page, finalSearchUrl);
+        try { await page.waitForSelector("a[href], [data-automation], [class*='result']", { timeout: 8000 }); } catch {}
+        await humanPause(page, 900, 1800);
 
-        let best = null;
-        let bestScore = -1;
+        foundUrl = await page.evaluate(({ hotelTerms, cityTerms }) => {
+          const stopWords = ["restaurant", "restaurants", "flight", "flights", "vacation rental", "things to do", "forum"];
+          const norm = (value) => (value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+          const textOf = (node) => (node.textContent || "").trim();
+          const candidates = Array.from(document.querySelectorAll("a[href]"))
+            .map((a) => ({
+              href: a.getAttribute("href") || "",
+              text: textOf(a),
+              aria: a.getAttribute("aria-label") || "",
+              title: a.getAttribute("title") || "",
+            }))
+            .filter((c) => c.href);
 
-        for (const candidate of candidates) {
-          const raw = `${candidate.text} ${candidate.aria} ${candidate.title} ${candidate.href}`.toLowerCase();
-          if (!candidate.href.includes("Hotel_Review")) continue;
-          if (stopWords.some((word) => raw.includes(word))) continue;
+          let best = null;
+          let bestScore = -1;
 
-          const combined = norm(raw);
-          let score = 5;
-          for (const term of hotelTerms) {
-            if (combined.includes(term)) score += 4;
+          for (const candidate of candidates) {
+            const raw = `${candidate.text} ${candidate.aria} ${candidate.title} ${candidate.href}`.toLowerCase();
+            if (!candidate.href.includes("Hotel_Review")) continue;
+            if (stopWords.some((word) => raw.includes(word))) continue;
+
+            const combined = norm(raw);
+            let score = 5;
+            for (const term of hotelTerms) {
+              if (combined.includes(term)) score += 4;
+            }
+            for (const term of cityTerms) {
+              if (combined.includes(term)) score += 2;
+            }
+            if (candidate.href.startsWith("/Hotel_Review-")) score += 3;
+            if (candidate.text && hotelTerms.some((term) => norm(candidate.text).includes(term))) score += 2;
+
+            if (score > bestScore) {
+              best = candidate.href;
+              bestScore = score;
+            }
           }
-          for (const term of cityTerms) {
-            if (combined.includes(term)) score += 2;
-          }
-          if (candidate.href.startsWith("/Hotel_Review-")) score += 3;
-          if (candidate.text && hotelTerms.some((term) => norm(candidate.text).includes(term))) score += 2;
 
-          if (score > bestScore) {
-            best = candidate.href;
-            bestScore = score;
-          }
+          return bestScore >= 9 ? best : null;
+        }, { hotelTerms, cityTerms }).catch(() => null);
+
+        if (foundUrl) {
+          hotelUrl = new URL(foundUrl, "https://www.tripadvisor.com").toString();
+          debugUrl = finalSearchUrl;
+          break;
         }
-
-        return bestScore >= 9 ? best : null;
-      }, { hotelTerms, cityTerms }).catch(() => null);
-
-      if (foundUrl) break;
+      }
     }
 
-    if (!foundUrl) {
-      return { source: "Tripadvisor", lowest: null, url: finalSearchUrl, error: "Hotel page not found" };
+    if (!hotelUrl) {
+      return { source: "Tripadvisor", lowest: null, url: debugUrl, error: "Hotel page not found" };
     }
 
-    const hotelUrl = new URL(foundUrl, "https://www.tripadvisor.com").toString();
     await guardedGoto(page, hotelUrl);
     try { await page.waitForSelector("button, a, [class*='price'], [data-automation]", { timeout: 8000 }); } catch {}
     await humanPause(page, 1200, 2200);
