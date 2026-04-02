@@ -4,6 +4,20 @@ export interface PriceResult {
   currency: string;
   source: string;
   bookingUrl: string;
+  error: string | null;
+  statusCode: number | null;
+}
+
+function normalizeScraperError(error: string | null | undefined) {
+  const text = String(error || "").trim();
+  if (!text) return "No price found";
+  if (/bot protection detected|captcha|verify you are human|unusual traffic|access denied|security check|cloudflare/i.test(text)) {
+    return "Bot protection detected";
+  }
+  if (/timeout|aborted/i.test(text)) {
+    return "Timeout while loading hotel page";
+  }
+  return text;
 }
 
 export async function checkCurrentPrice(params: {
@@ -23,7 +37,15 @@ export async function checkCurrentPrice(params: {
   const SCRAPER_TOKEN = process.env.SCRAPER_TOKEN ?? "";
 
   if (!SCRAPER_URL) {
-    return { found: false, price: null, currency: params.currency, source: "", bookingUrl: "" };
+    return {
+      found: false,
+      price: null,
+      currency: params.currency,
+      source: "",
+      bookingUrl: "",
+      error: "SCRAPER_URL is not configured",
+      statusCode: null,
+    };
   }
 
   try {
@@ -32,6 +54,7 @@ export async function checkCurrentPrice(params: {
       city:     params.city ?? "",
       checkin:  params.checkinDate,
       checkout: params.checkoutDate,
+      currency: params.currency,
     });
     if (params.roomType) searchParams.set("roomType", params.roomType);
     if (params.mealPlan) searchParams.set("mealPlan", params.mealPlan);
@@ -51,26 +74,58 @@ export async function checkCurrentPrice(params: {
     }
 
     if (!res.ok) {
-      return { found: false, price: null, currency: params.currency, source: "", bookingUrl: "" };
+      const errText = await res.text().catch(() => "");
+      return {
+        found: false,
+        price: null,
+        currency: params.currency,
+        source: "",
+        bookingUrl: "",
+        error: normalizeScraperError(`Scraper returned ${res.status}${errText ? `: ${errText.slice(0, 240)}` : ""}`),
+        statusCode: res.status,
+      };
     }
 
     const data = await res.json();
     const price: number | null = data.lowestFound ?? null;
+    const bookingResult = data.results?.find((r: any) => r.source === "Booking.com") ?? data.results?.[0] ?? null;
 
     if (price === null) {
-      return { found: false, price: null, currency: params.currency, source: "", bookingUrl: "" };
-    }
+      const resultError =
+        bookingResult?.error ||
+        data?.note ||
+        data?.error ||
+        "No price found";
 
-    const bookingResult = data.results?.find((r: any) => r.source === "Booking.com");
+      return {
+        found: false,
+        price: null,
+        currency: data.currency ?? params.currency,
+        source: bookingResult?.source ?? "",
+        bookingUrl: bookingResult?.url ?? "",
+        error: normalizeScraperError(resultError),
+        statusCode: res.status,
+      };
+    }
 
     return {
       found: true,
       price,
-      currency: "EUR",
-      source: bookingResult ? "Booking.com" : "",
+      currency: data.currency ?? params.currency,
+      source: bookingResult?.source ?? "",
       bookingUrl: bookingResult?.url ?? "",
+      error: null,
+      statusCode: res.status,
     };
-  } catch {
-    return { found: false, price: null, currency: params.currency, source: "", bookingUrl: "" };
+  } catch (err: any) {
+    return {
+      found: false,
+      price: null,
+      currency: params.currency,
+      source: "",
+      bookingUrl: "",
+      error: normalizeScraperError(err?.message ?? "Unknown scraper error"),
+      statusCode: null,
+    };
   }
 }

@@ -7,6 +7,29 @@ const PORT = process.env.PORT || 3001;
 const AUTH_TOKEN = process.env.SCRAPER_TOKEN;
 if (!AUTH_TOKEN) { console.error("FATAL: SCRAPER_TOKEN env var not set"); process.exit(1); }
 
+const CURRENCY_CONFIG = {
+  EUR: { symbols: ["€"], codes: ["EUR"] },
+  USD: { symbols: ["US$", "$"], codes: ["USD", "US$"] },
+  GBP: { symbols: ["£"], codes: ["GBP"] },
+  CAD: { symbols: ["C$", "CA$"], codes: ["CAD", "C$"] },
+  CHF: { symbols: ["CHF"], codes: ["CHF"] },
+};
+
+const USER_AGENTS = [
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+];
+
+function pickRandom(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function normalizeCurrency(currency) {
+  const code = String(currency || "EUR").trim().toUpperCase();
+  return CURRENCY_CONFIG[code] ? code : "EUR";
+}
+
 // ── Improvement 1: Shared browser singleton ──────────────────────────────────
 let sharedBrowser = null;
 
@@ -30,10 +53,17 @@ async function getBrowser() {
 async function newPage() {
   const browser = await getBrowser();
   const context = await browser.newContext({
-    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    userAgent: pickRandom(USER_AGENTS),
     locale: "de-DE",
     viewport: { width: 1366, height: 768 },
     extraHTTPHeaders: { "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7" },
+  });
+  await context.route("**/*", (route) => {
+    const type = route.request().resourceType();
+    if (type === "image" || type === "media" || type === "font") {
+      return route.abort();
+    }
+    return route.continue();
   });
   await context.addInitScript(() => {
     Object.defineProperty(navigator, "webdriver", { get: () => false });
@@ -42,7 +72,52 @@ async function newPage() {
     window.chrome = { runtime: {} };
   });
   const page = await context.newPage();
+  page.setDefaultTimeout(25000);
+  page.setDefaultNavigationTimeout(25000);
   return { page, context };
+}
+
+async function humanPause(page, min = 400, max = 1100) {
+  const ms = Math.floor(Math.random() * (max - min + 1)) + min;
+  try {
+    await page.waitForTimeout(ms);
+  } catch {}
+}
+
+async function looksBlocked(page) {
+  try {
+    const title = (await page.title().catch(() => "")).toLowerCase();
+    const body = ((await page.innerText("body").catch(() => "")) || "").toLowerCase().slice(0, 6000);
+    const url = page.url().toLowerCase();
+    const signals = [
+      "captcha",
+      "verify you are human",
+      "verify you're human",
+      "unusual traffic",
+      "access denied",
+      "robot or human",
+      "security check",
+      "just a moment",
+      "cloudflare",
+      "forbidden",
+      "temporarily blocked",
+    ];
+    const hit = signals.find((signal) => title.includes(signal) || body.includes(signal) || url.includes(signal));
+    return hit ? hit : null;
+  } catch {
+    return null;
+  }
+}
+
+async function guardedGoto(page, url) {
+  await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
+  await humanPause(page, 500, 1200);
+  await acceptConsent(page);
+  await humanPause(page, 600, 1400);
+  const blocked = await looksBlocked(page);
+  if (blocked) {
+    throw new Error(`Bot protection detected: ${blocked}`);
+  }
 }
 
 // ── Auth middleware ──────────────────────────────────────────────────────────
@@ -86,6 +161,7 @@ app.get("/debug", async (req, res) => {
 // ── Scrape endpoint ──────────────────────────────────────────────────────────
 app.get("/scrape", async (req, res) => {
   const { hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl } = req.query;
+  const currency = normalizeCurrency(req.query.currency);
   if (!hotel) return res.status(400).json({ error: "Missing hotel parameter" });
 
   // Validate bookingUrl: only allow booking.com hotel URLs
@@ -109,7 +185,7 @@ app.get("/scrape", async (req, res) => {
     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
     .split(/\s+/).filter(w => w.length > 3);
 
-  const bookingResult = await scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm })
+  const bookingResult = await scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm, currency })
     .catch(e => ({ source: "Booking.com", error: String(e), lowest: null }));
 
   const results = [bookingResult];
@@ -120,35 +196,39 @@ app.get("/scrape", async (req, res) => {
   return res.json({
     hotel, city: city || "", checkin: checkin || "", checkout: checkout || "",
     roomType: roomType || null, mealPlan: mealPlan || null,
-    nights, results, lowestFound, currency: "EUR",
+    nights, results, lowestFound, currency,
   });
 });
 
 
 // ── Booking.com scraper ──────────────────────────────────────────────────────
-async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm }) {
-  const { page, context } = await newPage();
-  try {
+async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm, currency }) {
+  let lastError = null;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    const { page, context } = await newPage();
+    try {
+      if (attempt === 2) {
+        await humanPause(page, 1200, 2200);
+      }
     let hotelPageUrl = null;
 
     // ── Improvement 3: Use stored URL if provided (skip search entirely) ────
     if (bookingUrl) {
       const sep = bookingUrl.includes("?") ? "&" : "?";
-      hotelPageUrl = `${bookingUrl.split("?")[0]}${sep}checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0&selected_currency=EUR`;
+      hotelPageUrl = `${bookingUrl.split("?")[0]}${sep}checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0&selected_currency=${currency}`;
     } else {
       // Search for hotel URL
       const q = encodeURIComponent(`${hotel} ${city || ""}`);
       const ciParts = (checkin || "").split("-");
       const coParts = (checkout || "").split("-");
-      let searchUrl = `https://www.booking.com/search.html?ss=${q}&lang=de&sb=1&selected_currency=EUR`;
+      let searchUrl = `https://www.booking.com/search.html?ss=${q}&lang=de&sb=1&selected_currency=${currency}`;
       if (ciParts.length === 3) searchUrl += `&checkin_year=${ciParts[0]}&checkin_month=${parseInt(ciParts[1])}&checkin_monthday=${parseInt(ciParts[2])}`;
       if (coParts.length === 3) searchUrl += `&checkout_year=${coParts[0]}&checkout_month=${parseInt(coParts[1])}&checkout_monthday=${parseInt(coParts[2])}`;
       searchUrl += `&group_adults=2&no_rooms=1&group_children=0`;
 
-      await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
-      await acceptConsent(page);
+      await guardedGoto(page, searchUrl);
       try { await page.waitForSelector("[data-testid='property-card'], .sr_item, [data-hotelid]", { timeout: 8000 }); } catch {}
-      await page.waitForTimeout(2000);
+      await humanPause(page, 1500, 2600);
 
       const hrefs = await page.evaluate(() =>
         Array.from(document.querySelectorAll("a[href]")).map(a => a.href)
@@ -208,14 +288,13 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
         await context.close();
         return { source: "Booking.com", error: "Hotel not found", lowest: null };
       }
-      hotelPageUrl = `${foundUrl}?checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0&selected_currency=EUR`;
+      hotelPageUrl = `${foundUrl}?checkin=${checkin}&checkout=${checkout}&group_adults=2&no_rooms=1&group_children=0&selected_currency=${currency}`;
     }
 
-    await page.goto(hotelPageUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
-    await acceptConsent(page);
+    await guardedGoto(page, hotelPageUrl);
     // Wait for room table to render
     try { await page.waitForSelector(".hprt-table, [data-block='property_room_type_row'], .js-rt-block-row", { timeout: 8000 }); } catch {}
-    await page.waitForTimeout(2000);
+    await humanPause(page, 1400, 2400);
 
     // Use nights*100 as minimum to filter out per-night prices shown alongside totals
     const minTotal = nights * 100;
@@ -235,14 +314,34 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
       const mealWords = mealPlan ? (mealKeywords[mealPlan] || []) : [];
 
       // Try DOM-based extraction: find room rows and their prices
-      const domPrices = await page.evaluate(({ roomWords, mealWords, minTotal }) => {
+        const domPrices = await page.evaluate(({ roomWords, mealWords, minTotal, currency }) => {
+        const currencyConfig = {
+          EUR: { symbols: ["€"], codes: ["EUR"] },
+          USD: { symbols: ["US$", "$"], codes: ["USD", "US$"] },
+          GBP: { symbols: ["£"], codes: ["GBP"] },
+          CAD: { symbols: ["C$", "CA$"], codes: ["CAD", "C$"] },
+          CHF: { symbols: ["CHF"], codes: ["CHF"] },
+        };
         const normalize = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+        const escapeRegExp = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         const parsePrice = txt => {
-          // Match "1.178,00" "1.178" "1178" etc.
-          const m = txt.match(/(\d{1,2}[.,]\d{3}|\d{3,4})(?:[.,]\d{1,2})?/);
-          if (!m) return null;
-          const raw = parseInt(m[1].replace(/[.,](\d{3})$/, "$1").replace(/[.,]/g, ""));
-          return raw >= minTotal && raw <= 99999 ? raw : null;
+          const cfg = currencyConfig[currency] || currencyConfig.EUR;
+          const markers = [...cfg.symbols, ...cfg.codes];
+          const patterns = markers.flatMap((marker) => {
+            const escaped = escapeRegExp(marker);
+            return [
+              new RegExp(`(\\d{1,3}(?:[.,]\\d{3})+|\\d{2,5})(?:[.,]\\d{1,2})?\\s*${escaped}`, "g"),
+              new RegExp(`${escaped}\\s*(\\d{1,3}(?:[.,]\\d{3})+|\\d{2,5})(?:[.,]\\d{1,2})?`, "g"),
+            ];
+          });
+          const values = [];
+          for (const pattern of patterns) {
+            for (const match of [...txt.matchAll(pattern)]) {
+              const raw = parseInt(match[1].replace(/[.,](\d{3})$/, "$1").replace(/[.,]/g, ""));
+              if (raw >= minTotal && raw <= 99999) values.push(raw);
+            }
+          }
+          return values;
         };
 
         const results = [];
@@ -259,19 +358,14 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
           if (!roomMatch) continue;
           // Also check full row text — both "1.178 €" and "€ 1.178" formats
           const rowText = row.textContent || "";
-          const pricePatterns = [
-            /(\d{1,2}[.,]\d{3}|\d{3,4})(?:[.,]\d{1,2})?\s*€/g,
-            /€\s*(\d{1,2}[.,]\d{3}|\d{3,4})(?:[.,]\d{1,2})?/g,
-          ];
-          for (const pattern of pricePatterns) {
-            for (const m of [...rowText.matchAll(pattern)]) {
-              const raw = parseInt(m[1].replace(/[.,](\d{3})$/, "$1").replace(/[.,]/g, ""));
-              if (raw >= minTotal && raw <= 99999) { results.push(raw); debug.push("price:" + raw); }
-            }
+          const rowPrices = parsePrice(rowText);
+          for (const raw of rowPrices) {
+            results.push(raw);
+            debug.push("price:" + raw);
           }
         }
         return { results, debug };
-      }, { roomWords, mealWords, minTotal }).catch(() => []);
+      }, { roomWords, mealWords, minTotal, currency }).catch(() => []);
 
       const domPricesArr = domPrices?.results || [];
       console.log("[DOM debug]", JSON.stringify(domPrices?.debug || []));
@@ -288,7 +382,7 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
           const roomMatch = roomWords.length === 0 || roomWords.every(w => ln.includes(norm(w)));
           const mealMatch = mealWords.length === 0 || mealWords.some(w => ln.includes(norm(w)));
           if (roomMatch && mealMatch) {
-            const prices = extractEurPrices(lines.slice(i, i + 30).join(" ")).filter(p => p >= minTotal);
+            const prices = extractCurrencyPrices(lines.slice(i, i + 30).join(" "), currency).filter(p => p >= minTotal);
             candidatePrices.push(...prices);
           }
         }
@@ -298,16 +392,21 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
 
     if (!bookingPrice) {
       const pageText = await page.innerText("body").catch(() => "");
-      const allPrices = extractEurPrices(pageText).filter(p => p >= minTotal);
+      const allPrices = extractCurrencyPrices(pageText, currency).filter(p => p >= minTotal);
       bookingPrice = allPrices[0] || null;
     }
 
-    await context.close();
-    return { source: "Booking.com", lowest: bookingPrice, url: hotelPageUrl };
-  } catch (e) {
-    await context.close().catch(() => {});
-    return { source: "Booking.com", error: String(e), lowest: null };
+      await context.close();
+      return { source: "Booking.com", lowest: bookingPrice, url: hotelPageUrl };
+    } catch (e) {
+      lastError = String(e);
+      await context.close().catch(() => {});
+      if (!/bot protection/i.test(lastError) || attempt === 2) {
+        return { source: "Booking.com", error: lastError, lowest: null };
+      }
+    }
   }
+  return { source: "Booking.com", error: lastError || "Unknown scraper error", lowest: null };
 }
 
 
@@ -355,18 +454,23 @@ async function acceptConsent(page) {
 }
 
 function extractEurPrices(text) {
+  return extractCurrencyPrices(text, "EUR");
+}
+
+function extractCurrencyPrices(text, currency) {
+  const cfg = CURRENCY_CONFIG[normalizeCurrency(currency)] || CURRENCY_CONFIG.EUR;
   const prices = [];
-  // Match formats: "1.178,00 €", "1.178 €", "1178 €", "€ 1.178", "1,178.00 €"
-  const patterns = [
-    /(\d{1,2}[.,]\d{3}|\d{2,4})(?:[.,]\d{1,2})?\s*€/g,
-    /€\s*(\d{1,2}[.,]\d{3}|\d{2,4})(?:[.,]\d{1,2})?/g,
-    /EUR\s*(\d{1,2}[.,]\d{3}|\d{2,4})(?:[.,]\d{1,2})?/g,
-    /(\d{1,2}[.,]\d{3}|\d{2,4})(?:[.,]\d{1,2})?\s*EUR/g,
-  ];
+  const markers = [...cfg.symbols, ...cfg.codes];
+  const patterns = markers.flatMap((marker) => {
+    const escaped = marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return [
+      new RegExp(`(\\d{1,3}(?:[.,]\\d{3})+|\\d{2,5})(?:[.,]\\d{1,2})?\\s*${escaped}`, "g"),
+      new RegExp(`${escaped}\\s*(\\d{1,3}(?:[.,]\\d{3})+|\\d{2,5})(?:[.,]\\d{1,2})?`, "g"),
+    ];
+  });
   for (const pattern of patterns) {
     let m;
     while ((m = pattern.exec(text)) !== null) {
-      // Normalize: strip thousands separator (dot or comma before 3 digits)
       const raw = m[1].replace(/[.,](\d{3})$/, "$1").replace(/[.,]/g, "");
       const p = parseInt(raw);
       if (p >= 40 && p <= 99999) prices.push(p);
