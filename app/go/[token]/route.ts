@@ -22,7 +22,15 @@ export async function GET(
     !click.destination ||
     !(
       click.destination.startsWith("https://www.booking.com/") ||
-      click.destination.startsWith("https://booking.com/")
+      click.destination.startsWith("https://booking.com/") ||
+      click.destination.startsWith("https://www.expedia.com/") ||
+      click.destination.startsWith("https://expedia.com/") ||
+      click.destination.startsWith("https://www.hotels.com/") ||
+      click.destination.startsWith("https://hotels.com/") ||
+      click.destination.startsWith("https://www.hrs.com/") ||
+      click.destination.startsWith("https://hrs.com/") ||
+      click.destination.startsWith("https://www.trip.com/") ||
+      click.destination.startsWith("https://trip.com/")
     )
   ) {
     return NextResponse.json({ error: "Invalid destination" }, { status: 400 });

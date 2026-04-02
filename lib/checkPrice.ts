@@ -4,6 +4,8 @@ export interface PriceResult {
   currency: string;
   source: string;
   bookingUrl: string;
+  cheapestSource: string;
+  cheapestUrl: string;
   error: string | null;
   statusCode: number | null;
 }
@@ -43,6 +45,8 @@ export async function checkCurrentPrice(params: {
       currency: params.currency,
       source: "",
       bookingUrl: "",
+      cheapestSource: "",
+      cheapestUrl: "",
       error: "SCRAPER_URL is not configured",
       statusCode: null,
     };
@@ -81,6 +85,8 @@ export async function checkCurrentPrice(params: {
         currency: params.currency,
         source: "",
         bookingUrl: "",
+        cheapestSource: "",
+        cheapestUrl: "",
         error: normalizeScraperError(`Scraper returned ${res.status}${errText ? `: ${errText.slice(0, 240)}` : ""}`),
         statusCode: res.status,
       };
@@ -89,6 +95,8 @@ export async function checkCurrentPrice(params: {
     const data = await res.json();
     const price: number | null = data.lowestFound ?? null;
     const bookingResult = data.results?.find((r: any) => r.source === "Booking.com") ?? data.results?.[0] ?? null;
+    const validResults = (data.results ?? []).filter((r: any) => r.lowest != null);
+    const cheapestResult = validResults.sort((a: any, b: any) => a.lowest - b.lowest)[0] ?? bookingResult;
 
     if (price === null) {
       const resultError =
@@ -103,6 +111,8 @@ export async function checkCurrentPrice(params: {
         currency: data.currency ?? params.currency,
         source: bookingResult?.source ?? "",
         bookingUrl: bookingResult?.url ?? "",
+        cheapestSource: cheapestResult?.source ?? bookingResult?.source ?? "",
+        cheapestUrl: cheapestResult?.url ?? bookingResult?.url ?? "",
         error: normalizeScraperError(resultError),
         statusCode: res.status,
       };
@@ -114,6 +124,8 @@ export async function checkCurrentPrice(params: {
       currency: data.currency ?? params.currency,
       source: bookingResult?.source ?? "",
       bookingUrl: bookingResult?.url ?? "",
+      cheapestSource: cheapestResult?.source ?? bookingResult?.source ?? "",
+      cheapestUrl: cheapestResult?.url ?? bookingResult?.url ?? "",
       error: null,
       statusCode: res.status,
     };
@@ -124,6 +136,8 @@ export async function checkCurrentPrice(params: {
       currency: params.currency,
       source: "",
       bookingUrl: "",
+      cheapestSource: "",
+      cheapestUrl: "",
       error: normalizeScraperError(err?.message ?? "Unknown scraper error"),
       statusCode: null,
     };

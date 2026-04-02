@@ -9,6 +9,7 @@ import { insertAlertCompat } from "@/lib/alerts";
 import { createAffiliateClickCompat } from "@/lib/affiliateClicks";
 
 const MIN_SAVINGS_AMOUNT = 5;
+const EXPEDIA_AFFILIATE_ID = process.env.EXPEDIA_AFFILIATE_ID ?? "";
 
 export async function runPriceChecks(params?: {
   trigger?: "cron" | "admin";
@@ -149,18 +150,26 @@ export async function runPriceChecks(params?: {
               oldPrice: booking.price,
               savings: comparison.savings,
               currency: booking.currency,
-              provider: result.source ?? null,
-              resultUrl: result.bookingUrl ?? null,
+              provider: result.cheapestSource || result.source || null,
+              resultUrl: result.cheapestUrl || result.bookingUrl || null,
             });
 
             let clickToken: string | null = null;
-            if (result.bookingUrl) {
+            let destination = result.cheapestUrl || result.bookingUrl;
+            if ((result.cheapestSource || result.source) === "Expedia" && EXPEDIA_AFFILIATE_ID) {
+              try {
+                const u = new URL(destination);
+                u.searchParams.set("affcid", EXPEDIA_AFFILIATE_ID);
+                destination = u.toString();
+              } catch {}
+            }
+            if (destination) {
               const affiliate = await createAffiliateClickCompat({
                 supabase,
                 bookingId: booking.id,
                 alertId: alert.id ?? null,
-                destination: result.bookingUrl,
-                provider: result.source ?? null,
+                destination,
+                provider: result.cheapestSource || result.source || null,
               });
               clickToken = affiliate.token;
             }
@@ -198,7 +207,7 @@ export async function runPriceChecks(params?: {
                 originalPrice: booking.price,
                 newPrice: comparison.normalizedFoundPrice!,
                 currency: booking.currency,
-                source: result.source ?? "Booking.com",
+                source: result.cheapestSource || result.source || "Booking.com",
                 bookingUrl,
                 manageUrl,
                 locale,
@@ -229,6 +238,8 @@ export async function runPriceChecks(params?: {
                     currency: booking.currency,
                     source: "",
                     bookingUrl: "",
+                    cheapestSource: "",
+                    cheapestUrl: "",
                     error: err.message?.slice(0, 500) ?? "unknown error",
                     statusCode: null,
                   },

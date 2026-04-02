@@ -208,7 +208,16 @@ app.get("/scrape", async (req, res) => {
   const bookingResult = await scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm, currency })
     .catch(e => ({ source: "Booking.com", error: String(e), lowest: null }));
 
-  const results = [bookingResult];
+  const [expediaResult, hotelsResult, hrsResult, tripResult] = await Promise.allSettled([
+    scrapeExpedia({ hotel, city, checkin, checkout, currency, nights }),
+    scrapeHotels({ hotel, city, checkin, checkout, currency, nights }),
+    scrapeHRS({ hotel, city, checkin, checkout, currency, nights }),
+    scrapeTrip({ hotel, city, checkin, checkout, currency, nights }),
+  ]).then(results => results.map(r =>
+    r.status === "fulfilled" ? r.value : { source: "unknown", lowest: null, error: r.reason?.message }
+  ));
+
+  const results = [bookingResult, expediaResult, hotelsResult, hrsResult, tripResult];
 
   const validPrices = results.map(r => r.lowest).filter(p => p != null);
   const lowestFound = validPrices.length > 0 ? Math.min(...validPrices) : null;
@@ -426,6 +435,98 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
     }
   }
   return { source: "Booking.com", error: lastError || "Unknown scraper error", lowest: null };
+}
+
+async function scrapeExpedia({ hotel, city, checkin, checkout, currency, nights }) {
+  let context = null;
+  try {
+    const ctx = await newPage();
+    const page = ctx.page;
+    context = ctx.context;
+    page.setDefaultTimeout(20000);
+    page.setDefaultNavigationTimeout(20000);
+    const pageUrl = `https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(`${hotel} ${city || ""}`.trim())}&startDate=${checkin}&endDate=${checkout}&adults=2&rooms=1&selected_currency=${currency}`;
+    await guardedGoto(page, pageUrl);
+    try { await page.waitForSelector(".uitk-price-summary, [data-stid='price-summary'], .price-summary", { timeout: 8000 }); } catch {}
+    await humanPause(page, 900, 1800);
+    const pageText = await page.innerText("body").catch(() => "");
+    const prices = extractCurrencyPrices(pageText, currency).filter((p) => p >= nights * 80);
+    const minPrice = prices.length ? Math.min(...prices) : null;
+    return { source: "Expedia", lowest: minPrice, url: pageUrl, error: null };
+  } catch (e) {
+    return { source: "Expedia", lowest: null, error: String(e) };
+  } finally {
+    if (context) await context.close().catch(() => {});
+  }
+}
+
+async function scrapeHotels({ hotel, city, checkin, checkout, currency, nights }) {
+  let context = null;
+  try {
+    const ctx = await newPage();
+    const page = ctx.page;
+    context = ctx.context;
+    page.setDefaultTimeout(20000);
+    page.setDefaultNavigationTimeout(20000);
+    const pageUrl = `https://www.hotels.com/Hotel-Search?destination=${encodeURIComponent(`${hotel} ${city || ""}`.trim())}&startDate=${checkin}&endDate=${checkout}&adults=2&rooms=1`;
+    await guardedGoto(page, pageUrl);
+    try { await page.waitForSelector(".uitk-price-summary, [data-stid='price-summary'], .price-summary", { timeout: 8000 }); } catch {}
+    await humanPause(page, 900, 1800);
+    const pageText = await page.innerText("body").catch(() => "");
+    const prices = extractCurrencyPrices(pageText, currency).filter((p) => p >= nights * 80);
+    const minPrice = prices.length ? Math.min(...prices) : null;
+    return { source: "Hotels.com", lowest: minPrice, url: pageUrl, error: null };
+  } catch (e) {
+    return { source: "Hotels.com", lowest: null, error: String(e) };
+  } finally {
+    if (context) await context.close().catch(() => {});
+  }
+}
+
+async function scrapeHRS({ hotel, city, checkin, checkout, currency, nights }) {
+  let context = null;
+  try {
+    const ctx = await newPage();
+    const page = ctx.page;
+    context = ctx.context;
+    page.setDefaultTimeout(20000);
+    page.setDefaultNavigationTimeout(20000);
+    const pageUrl = `https://www.hrs.com/web3/search/hotel?destination=${encodeURIComponent(`${hotel} ${city || ""}`.trim())}&arrivalDate=${checkin}&departureDate=${checkout}&roomQuantity=1&adults=2`;
+    await guardedGoto(page, pageUrl);
+    try { await page.waitForSelector(".rate-price, .price-value, [class*='price']", { timeout: 8000 }); } catch {}
+    await humanPause(page, 900, 1800);
+    const pageText = await page.innerText("body").catch(() => "");
+    const prices = extractCurrencyPrices(pageText, currency).filter((p) => p >= nights * 80);
+    const minPrice = prices.length ? Math.min(...prices) : null;
+    return { source: "HRS", lowest: minPrice, url: pageUrl, error: null };
+  } catch (e) {
+    return { source: "HRS", lowest: null, error: String(e) };
+  } finally {
+    if (context) await context.close().catch(() => {});
+  }
+}
+
+async function scrapeTrip({ hotel, city, checkin, checkout, currency, nights }) {
+  let context = null;
+  try {
+    const ctx = await newPage();
+    const page = ctx.page;
+    context = ctx.context;
+    page.setDefaultTimeout(20000);
+    page.setDefaultNavigationTimeout(20000);
+    const pageUrl = `https://www.trip.com/hotels/list?city=${encodeURIComponent(city || "")}&hotelName=${encodeURIComponent(hotel)}&checkin=${checkin}&checkout=${checkout}&curr=${currency}`;
+    await guardedGoto(page, pageUrl);
+    try { await page.waitForSelector(".price-box, [class*='price'], .product-price", { timeout: 8000 }); } catch {}
+    await humanPause(page, 900, 1800);
+    const pageText = await page.innerText("body").catch(() => "");
+    const prices = extractCurrencyPrices(pageText, currency).filter((p) => p >= nights * 80);
+    const minPrice = prices.length ? Math.min(...prices) : null;
+    return { source: "Trip.com", lowest: minPrice, url: pageUrl, error: null };
+  } catch (e) {
+    return { source: "Trip.com", lowest: null, error: String(e) };
+  } finally {
+    if (context) await context.close().catch(() => {});
+  }
 }
 
 
