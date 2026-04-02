@@ -579,6 +579,16 @@ async function scrapeTripadvisor({ hotel, city, checkin, checkout, currency, nig
     context = ctx.context;
     page.setDefaultTimeout(20000);
     page.setDefaultNavigationTimeout(20000);
+    const networkHits = [];
+    page.on("response", (response) => {
+      const url = response.url();
+      if (/tripadvisor|graphql|api|price|offer|hotel/i.test(url)) {
+        networkHits.push({
+          url,
+          status: response.status(),
+        });
+      }
+    });
 
     let hotelUrl = String(tripadvisorUrl || "").trim();
     let debugUrl = hotelUrl || null;
@@ -657,11 +667,54 @@ async function scrapeTripadvisor({ hotel, city, checkin, checkout, currency, nig
     try { await page.waitForSelector("button, a, [class*='price'], [data-automation]", { timeout: 8000 }); } catch {}
     await humanPause(page, 1200, 2200);
 
+    const pageTitle = await page.title().catch(() => "");
     const pageText = await page.innerText("body").catch(() => "");
     const prices = extractCurrencyPrices(pageText, currency).filter((p) => p >= nights * 150 && p <= 99999);
     const minPrice = prices.length ? Math.min(...prices) : null;
+    const providerMentions = ["booking.com", "expedia", "trip.com", "hotels.com", "stayforlong", "vio", "zenhotels", "fairmont"]
+      .filter((name) => pageText.toLowerCase().includes(name));
+    const priceLines = pageText
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .filter((line) => /(\$|€|USD|EUR|GBP|CAD)/i.test(line))
+      .slice(0, 15);
+    const offerSnippets = await page.evaluate(() => {
+      const textOf = (node) => (node.textContent || "").replace(/\s+/g, " ").trim();
+      return Array.from(document.querySelectorAll("button, a, div, span"))
+        .map((node) => ({
+          text: textOf(node),
+          cls: node.className || "",
+          href: node.getAttribute && node.getAttribute("href"),
+          automation: node.getAttribute && node.getAttribute("data-automation"),
+        }))
+        .filter((entry) => entry.text)
+        .filter((entry) => /angebot|offer|booking\.com|expedia|trip\.com|hotels\.com|stayforlong|vio|zenhotels|verfugbarkeit|availability|price|preis/i.test(`${entry.text} ${entry.cls} ${entry.automation || ""}`))
+        .slice(0, 25);
+    }).catch(() => []);
+    const scriptSnippets = await page.evaluate(() =>
+      Array.from(document.querySelectorAll("script[type='application/ld+json'], script[type='application/json'], script"))
+        .map((node) => (node.textContent || "").replace(/\s+/g, " ").trim())
+        .filter(Boolean)
+        .filter((text) => /price|offer|booking\.com|expedia|trip\.com|hotels\.com|stayforlong|vio|zenhotels/i.test(text))
+        .slice(0, 5)
+        .map((text) => text.slice(0, 700))
+    ).catch(() => []);
 
-    return { source: "Tripadvisor", lowest: minPrice, url: hotelUrl, error: null };
+    return {
+      source: "Tripadvisor",
+      lowest: minPrice,
+      url: hotelUrl,
+      error: null,
+      debug: {
+        title: pageTitle,
+        providerMentions,
+        priceLines,
+        offerSnippets,
+        scriptSnippets,
+        networkHits: networkHits.slice(0, 25),
+      },
+    };
   } catch (e) {
     return { source: "Tripadvisor", lowest: null, error: String(e) };
   } finally {
