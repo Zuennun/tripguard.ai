@@ -216,16 +216,16 @@ app.get("/scrape", async (req, res) => {
   const bookingResult = await scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPlan, bookingUrl, nights, hotelWords, norm, currency })
     .catch(e => ({ source: "Booking.com", error: String(e), lowest: null }));
 
-  const expediaResult = await scrapeExpedia({ hotel, city, checkin, checkout, currency, nights })
-    .catch(e => ({ source: "Expedia", lowest: null, error: String(e) }));
-  const hotelsResult = await scrapeHotels({ hotel, city, checkin, checkout, currency, nights })
-    .catch(e => ({ source: "Hotels.com", lowest: null, error: String(e) }));
-  const hrsResult = await scrapeHRS({ hotel, city, checkin, checkout, currency, nights })
-    .catch(e => ({ source: "HRS", lowest: null, error: String(e) }));
-  const tripResult = await scrapeTrip({ hotel, city, checkin, checkout, currency, nights })
-    .catch(e => ({ source: "Trip.com", lowest: null, error: String(e) }));
+  // const expediaResult = await scrapeExpedia({ hotel, city, checkin, checkout, currency, nights })
+  //   .catch(e => ({ source: "Expedia", lowest: null, error: String(e) }));
+  // const hotelsResult = await scrapeHotels({ hotel, city, checkin, checkout, currency, nights })
+  //   .catch(e => ({ source: "Hotels.com", lowest: null, error: String(e) }));
+  // const hrsResult = await scrapeHRS({ hotel, city, checkin, checkout, currency, nights })
+  //   .catch(e => ({ source: "HRS", lowest: null, error: String(e) }));
+  // const tripResult = await scrapeTrip({ hotel, city, checkin, checkout, currency, nights })
+  //   .catch(e => ({ source: "Trip.com", lowest: null, error: String(e) }));
 
-  const results = [bookingResult, expediaResult, hotelsResult, hrsResult, tripResult];
+  const results = [bookingResult];
 
   const validPrices = results.map(r => r.lowest).filter(p => p != null);
   const lowestFound = validPrices.length > 0 ? Math.min(...validPrices) : null;
@@ -256,16 +256,16 @@ app.get("/multi-debug", async (req, res) => {
 
   const bk = await scrapeBooking({ hotel, city, checkin, checkout, roomType: null, mealPlan: null, bookingUrl: null, nights, hotelWords, norm, currency: cur })
     .catch(e => ({ source: "Booking.com", lowest: null, error: String(e) }));
-  const ex = await scrapeExpedia({ hotel, city, checkin, checkout, currency: cur, nights })
-    .catch(e => ({ source: "Expedia", lowest: null, error: String(e) }));
-  const ht = await scrapeHotels({ hotel, city, checkin, checkout, currency: cur, nights })
-    .catch(e => ({ source: "Hotels.com", lowest: null, error: String(e) }));
-  const hrs = await scrapeHRS({ hotel, city, checkin, checkout, currency: cur, nights })
-    .catch(e => ({ source: "HRS", lowest: null, error: String(e) }));
-  const tr = await scrapeTrip({ hotel, city, checkin, checkout, currency: cur, nights })
-    .catch(e => ({ source: "Trip.com", lowest: null, error: String(e) }));
+  // const ex = await scrapeExpedia({ hotel, city, checkin, checkout, currency: cur, nights })
+  //   .catch(e => ({ source: "Expedia", lowest: null, error: String(e) }));
+  // const ht = await scrapeHotels({ hotel, city, checkin, checkout, currency: cur, nights })
+  //   .catch(e => ({ source: "Hotels.com", lowest: null, error: String(e) }));
+  // const hrs = await scrapeHRS({ hotel, city, checkin, checkout, currency: cur, nights })
+  //   .catch(e => ({ source: "HRS", lowest: null, error: String(e) }));
+  // const tr = await scrapeTrip({ hotel, city, checkin, checkout, currency: cur, nights })
+  //   .catch(e => ({ source: "Trip.com", lowest: null, error: String(e) }));
 
-  res.json({ hotel, city, checkin, checkout, currency: cur, nights, results: [bk, ex, ht, hrs, tr] });
+  res.json({ hotel, city, checkin, checkout, currency: cur, nights, results: [bk] });
 });
 
 
