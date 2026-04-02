@@ -5,6 +5,9 @@ type FxCache = {
 
 const ECB_DAILY_URL = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
+const FALLBACK_RATES: Record<string, number> = {
+  USD: 1.08, GBP: 0.86, CHF: 0.96, CAD: 1.47, AED: 3.97, TRY: 35.1,
+};
 
 let fxCache: FxCache | null = null;
 
@@ -50,7 +53,16 @@ export async function getEcbRates() {
 export async function convertAmount(amount: number, from: string, to: string) {
   if (from === to) return amount;
 
-  const rates = await getEcbRates();
+  let rates: Record<string, number>;
+  try {
+    rates = await getEcbRates();
+  } catch {
+    rates = {
+      EUR: 1,
+      ...FALLBACK_RATES,
+    };
+  }
+
   const fromRate = rates[from];
   const toRate = rates[to];
 
