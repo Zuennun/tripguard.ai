@@ -580,22 +580,68 @@ async function scrapeTripadvisor({ hotel, city, checkin, checkout, currency, nig
     page.setDefaultTimeout(20000);
     page.setDefaultNavigationTimeout(20000);
 
-    const query = `${hotel} ${city || ""} hotel`;
-    const searchUrl = `https://www.tripadvisor.com/Search?q=${encodeURIComponent(query.trim())}`;
-    await guardedGoto(page, searchUrl);
-    try { await page.waitForSelector("a[href*='/Hotel_Review-'], [href*='Hotel_Review']", { timeout: 8000 }); } catch {}
-    await humanPause(page, 900, 1800);
+    const hotelTerms = tokenizeTripadvisorQuery(hotel);
+    const cityTerms = tokenizeTripadvisorQuery(city || "");
+    const queries = [
+      `${hotel} ${city || ""}`.trim(),
+      hotel.trim(),
+      `${hotel} ${city || ""} hotel`.trim(),
+    ].filter(Boolean);
 
-    const foundUrl = await page.evaluate(() => {
-      const links = Array.from(document.querySelectorAll("a[href]"))
-        .map((a) => a.getAttribute("href"))
-        .filter(Boolean);
-      const hotelLink = links.find((href) => href.includes("/Hotel_Review-"));
-      return hotelLink || null;
-    }).catch(() => null);
+    let foundUrl = null;
+    let finalSearchUrl = null;
+    for (const query of queries) {
+      finalSearchUrl = `https://www.tripadvisor.com/Search?q=${encodeURIComponent(query)}`;
+      await guardedGoto(page, finalSearchUrl);
+      try { await page.waitForSelector("a[href], [data-automation], [class*='result']", { timeout: 8000 }); } catch {}
+      await humanPause(page, 900, 1800);
+
+      foundUrl = await page.evaluate(({ hotelTerms, cityTerms }) => {
+        const stopWords = ["restaurant", "restaurants", "flight", "flights", "vacation rental", "things to do", "forum"];
+        const norm = (value) => (value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+        const textOf = (node) => (node.textContent || "").trim();
+        const candidates = Array.from(document.querySelectorAll("a[href]"))
+          .map((a) => ({
+            href: a.getAttribute("href") || "",
+            text: textOf(a),
+            aria: a.getAttribute("aria-label") || "",
+            title: a.getAttribute("title") || "",
+          }))
+          .filter((c) => c.href);
+
+        let best = null;
+        let bestScore = -1;
+
+        for (const candidate of candidates) {
+          const raw = `${candidate.text} ${candidate.aria} ${candidate.title} ${candidate.href}`.toLowerCase();
+          if (!candidate.href.includes("Hotel_Review")) continue;
+          if (stopWords.some((word) => raw.includes(word))) continue;
+
+          const combined = norm(raw);
+          let score = 5;
+          for (const term of hotelTerms) {
+            if (combined.includes(term)) score += 4;
+          }
+          for (const term of cityTerms) {
+            if (combined.includes(term)) score += 2;
+          }
+          if (candidate.href.startsWith("/Hotel_Review-")) score += 3;
+          if (candidate.text && hotelTerms.some((term) => norm(candidate.text).includes(term))) score += 2;
+
+          if (score > bestScore) {
+            best = candidate.href;
+            bestScore = score;
+          }
+        }
+
+        return bestScore >= 9 ? best : null;
+      }, { hotelTerms, cityTerms }).catch(() => null);
+
+      if (foundUrl) break;
+    }
 
     if (!foundUrl) {
-      return { source: "Tripadvisor", lowest: null, url: searchUrl, error: "Hotel page not found" };
+      return { source: "Tripadvisor", lowest: null, url: finalSearchUrl, error: "Hotel page not found" };
     }
 
     const hotelUrl = new URL(foundUrl, "https://www.tripadvisor.com").toString();
@@ -613,6 +659,15 @@ async function scrapeTripadvisor({ hotel, city, checkin, checkout, currency, nig
   } finally {
     if (context) await context.close().catch(() => {});
   }
+}
+
+function tokenizeTripadvisorQuery(value) {
+  return (value || "")
+    .toLowerCase()
+    .split(/[\s,/-]+/)
+    .map((part) => part.replace(/[^a-z0-9]/g, ""))
+    .filter((part) => part.length > 2)
+    .filter((part) => !["hotel", "the", "and", "city"].includes(part));
 }
 
 
