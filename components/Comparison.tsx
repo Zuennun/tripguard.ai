@@ -40,13 +40,7 @@ export default function Comparison({ t }: { t: Translations }) {
                 <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.9rem" }}>
                   <span style={{ width: 22, height: 22, borderRadius: 6, background: "rgba(15,32,68,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1, color: "#0f2044", fontSize: "0.8rem", fontWeight: 800 }}>✓</span>
                   <span style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", color: "#374151", lineHeight: 1.55 }}>
-                    {item.includes("10+") ? (
-                      <>
-                        {item.split("10+")[0]}
-                        <span style={{ color: "#f97316", fontWeight: 700 }}>10+</span>
-                        {item.split("10+")[1]}
-                      </>
-                    ) : item}
+                    {item}
                   </span>
                 </li>
               ))}

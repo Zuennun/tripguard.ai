@@ -2,7 +2,7 @@ const stats = [
   { icon: "📊", num: "50,000+", label: "Bookings tracked" },
   { icon: "💰", num: "$2.4M", label: "Saved for travelers" },
   { icon: "🔍", num: "10+", label: "Platforms scanned" },
-  { icon: "⚡", num: "< 1h", label: "Alert response time" },
+  { icon: "⚡", num: "Daily", label: "Automated price scans" },
 ];
 
 export default function TrustBar() {

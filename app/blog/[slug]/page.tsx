@@ -90,14 +90,110 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
 
         {/* Content */}
         <div style={{ maxWidth: 760, margin: "0 auto", padding: "3rem 2rem 2rem" }}>
+          <style>{`
+            .article-body { font-family: var(--font-body); font-size: 1.05rem; line-height: 1.85; color: #1a2b4a; }
+            .article-body p { margin: 0 0 1.4rem; }
+            .article-body h2 {
+              font-family: var(--font-head);
+              font-size: clamp(1.25rem, 2.5vw, 1.55rem);
+              font-weight: 800;
+              color: #0f2044;
+              margin: 2.5rem 0 1rem;
+              padding-left: 1rem;
+              border-left: 4px solid #f97316;
+              line-height: 1.25;
+            }
+            .article-body h3 {
+              font-family: var(--font-head);
+              font-size: 1.15rem;
+              font-weight: 700;
+              color: #0f2044;
+              margin: 2rem 0 0.75rem;
+            }
+            .article-body ul, .article-body ol {
+              margin: 0 0 1.5rem 0;
+              padding-left: 0;
+              list-style: none;
+            }
+            .article-body ul li, .article-body ol li {
+              position: relative;
+              padding: 0.65rem 1rem 0.65rem 2.75rem;
+              margin-bottom: 0.5rem;
+              background: #f8f9fb;
+              border-radius: 10px;
+              border: 1px solid #e8ecf2;
+              font-size: 0.97rem;
+              line-height: 1.6;
+            }
+            .article-body ul li::before {
+              content: "✓";
+              position: absolute;
+              left: 0.85rem;
+              top: 0.65rem;
+              color: #f97316;
+              font-weight: 800;
+              font-size: 0.9rem;
+            }
+            .article-body ol { counter-reset: list-counter; }
+            .article-body ol li { counter-increment: list-counter; }
+            .article-body ol li::before {
+              content: counter(list-counter);
+              position: absolute;
+              left: 0.75rem;
+              top: 0.6rem;
+              background: #f97316;
+              color: white;
+              font-weight: 800;
+              font-size: 0.75rem;
+              width: 1.35rem;
+              height: 1.35rem;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              line-height: 1;
+              text-align: center;
+              padding-top: 0.05rem;
+            }
+            .article-body strong { color: #0f2044; font-weight: 700; }
+            .article-body a { color: #f97316; text-decoration: underline; }
+            .article-body blockquote {
+              background: linear-gradient(135deg, #fff8f3, #fff3e8);
+              border-left: 4px solid #f97316;
+              border-radius: 0 12px 12px 0;
+              padding: 1.25rem 1.5rem;
+              margin: 1.5rem 0;
+              font-size: 1.08rem;
+              font-style: italic;
+              color: #374151;
+            }
+            .article-body .stat-box {
+              background: linear-gradient(135deg, #0f2044 0%, #1a3a6e 100%);
+              border-radius: 14px;
+              padding: 1.5rem 1.75rem;
+              margin: 2rem 0;
+              display: flex;
+              align-items: center;
+              gap: 1.25rem;
+            }
+            .article-body .stat-number {
+              font-family: var(--font-head);
+              font-size: 2.5rem;
+              font-weight: 900;
+              color: #f97316;
+              line-height: 1;
+              white-space: nowrap;
+            }
+            .article-body .stat-label {
+              font-family: var(--font-body);
+              font-size: 0.95rem;
+              color: rgba(255,255,255,0.85);
+              line-height: 1.5;
+            }
+          `}</style>
           <div
             dangerouslySetInnerHTML={{ __html: content }}
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "1.05rem",
-              lineHeight: 1.8,
-              color: "#1a2b4a",
-            }}
+            className="article-body"
           />
 
           <ShareButtons

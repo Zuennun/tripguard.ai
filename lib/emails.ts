@@ -30,9 +30,18 @@ function wrap(content: string, locale: EmailLocale = "en"): string {
   <style>
     :root { color-scheme: light only; }
     @media only screen and (max-width:600px){
-      .email-body { padding: 0 16px !important; }
-      .card       { padding: 20px !important; }
-      .hide-mobile{ display:none !important; }
+      .email-body   { padding: 0 16px !important; }
+      .card         { padding: 20px !important; }
+      .hide-mobile  { display:none !important; }
+      .hero-cell    { padding: 32px 20px 28px !important; }
+      .section-gap  { padding-top: 20px !important; }
+      .manage-cta-btn {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        text-align: center !important;
+        padding: 16px 24px !important;
+      }
     }
   </style>
 </head>
@@ -116,9 +125,9 @@ function row(label: string, value: string): string {
     </tr>`;
 }
 
-// ─── Customer confirmation email ─────────────────────────────────────────────
+// ─── Tracking started email (sent immediately on submission, no confirmation needed) ──
 
-export function customerConfirmationEmail(data: {
+export function trackingStartedEmail(data: {
   hotelName: string;
   city?: string;
   country?: string;
@@ -127,23 +136,22 @@ export function customerConfirmationEmail(data: {
   parsedPrice: number | null;
   safeCurrency: string;
   locale?: EmailLocale;
+  manageUrl?: string;
 }): string {
-  const { hotelName, city, country, checkin, checkout, parsedPrice, safeCurrency, locale = "en" } = data;
+  const { hotelName, city, country, checkin, checkout, parsedPrice, safeCurrency, locale = "en", manageUrl } = data;
   const location = [city, country].filter(Boolean).join(", ");
-
   const isDe = locale === "de";
-  const heroTitle = isDe ? "Wir sind dran!" : "We're on it!";
-  const heroBody = isDe
-    ? `Deine Buchung im <strong style="color:#0f2044">${hotelName}</strong> wird jetzt rund um die Uhr überwacht.<br>Sobald wir einen günstigeren Preis für dasselbe Zimmer finden,<br>schreiben wir dir sofort — damit du sparst.`
-    : `Your booking at <strong style="color:#0f2044">${hotelName}</strong> is now being monitored 24/7.<br>The moment we find a cheaper price for the same room,<br>we'll email you instantly — so you can save.`;
-  const bookingLabel = isDe ? "Deine Buchung" : "Your Booking";
-  const checkinLabel = isDe ? "Check-in" : "Check-in";
-  const checkoutLabel = isDe ? "Check-out" : "Check-out";
-  const priceLabel = isDe ? "Gebuchter Preis" : "Price you paid";
-  const nextLabel = isDe ? "Was passiert als nächstes" : "What happens next";
+
+  const heroTitle  = isDe ? "Überwachung läuft!" : "Tracking started!";
+  const heroBody   = isDe
+    ? `Wir überwachen jetzt täglich den Preis für dein Hotel <strong style="color:#0f2044">${hotelName}</strong>.<br>Sobald wir einen günstigeren Preis finden, schreiben wir dir sofort.`
+    : `We're now checking the price for <strong style="color:#0f2044">${hotelName}</strong> daily.<br>The moment we find a cheaper rate, we'll email you right away.`;
+  const bookingLabel  = isDe ? "Deine Buchung" : "Your Booking";
+  const priceLabel    = isDe ? "Gebuchter Preis" : "Price you paid";
+  const nextLabel     = isDe ? "Was passiert als nächstes" : "What happens next";
   const step1 = isDe
-    ? `Wir prüfen <strong>10+ Plattformen</strong> (Booking.com, Expedia, Hotels.com…) stündlich — für dein genaues Zimmer und deine Daten.`
-    : `We scan <strong>10+ platforms</strong> (Booking.com, Expedia, Hotels.com…) every hour for your exact room and dates.`;
+    ? `Wir prüfen <strong>10+ Plattformen</strong> (Booking.com, Expedia, Hotels.com…) täglich — für dein genaues Hotel und deine Reisedaten.`
+    : `We check <strong>10+ platforms</strong> (Booking.com, Expedia, Hotels.com…) daily — for your exact hotel and travel dates.`;
   const step2 = isDe
     ? `Sobald ein <strong>günstigerer Preis auftaucht</strong>, bekommst du eine E-Mail mit dem neuen Preis und einem direkten Umbuchungslink.`
     : `The moment a <strong>cheaper rate appears</strong>, you get an email with the new price and a direct rebook link.`;
@@ -151,21 +159,18 @@ export function customerConfirmationEmail(data: {
     ? `Du <strong>stornierst &amp; buchst neu</strong> zum günstigeren Preis. Die Differenz gehört dir — fertig.`
     : `You <strong>cancel &amp; rebook</strong> at the lower price. Pocket the difference — done.`;
   const tipText = isDe
-    ? `<strong>💡 Tipp:</strong> Stelle sicher, dass deine Buchung <strong>kostenlos stornierbar</strong> ist — so kannst du jederzeit neu buchen, wenn wir einen besseren Preis finden.`
-    : `<strong>💡 Tip:</strong> Make sure your booking is <strong>free cancellation</strong> — that way you can always rebook without losing money if we find a better price.`;
+    ? `<strong>💡 Tipp:</strong> Stelle sicher, dass deine Buchung <strong>kostenlos stornierbar</strong> ist — so kannst du neu buchen, wenn wir einen besseren Preis finden.`
+    : `<strong>💡 Tip:</strong> Make sure your booking is <strong>free cancellation</strong> — so you can rebook if we find a better price.`;
 
   return wrap(`
     <!-- HERO -->
     <tr>
-      <td class="card" style="padding:40px 36px 32px;text-align:center;
+      <td class="card hero-cell" style="padding:40px 36px 32px;text-align:center;
                                background:linear-gradient(180deg,#fafbff 0%,#ffffff 100%)">
-        <!-- shield icon circle -->
         <div style="width:68px;height:68px;border-radius:50%;
                     background:linear-gradient(135deg,#f97316 0%,#fb923c 100%);
-                    margin:0 auto 20px;display:flex;align-items:center;justify-content:center;
-                    box-shadow:0 6px 20px rgba(249,115,22,0.35)">
-          <div style="width:68px;height:68px;line-height:68px;text-align:center;font-size:30px">&#10003;</div>
-        </div>
+                    margin:0 auto 20px;line-height:68px;text-align:center;font-size:30px;
+                    box-shadow:0 6px 20px rgba(249,115,22,0.35)">&#10003;</div>
         <h1 style="margin:0 0 10px;color:#0f2044;font-size:28px;font-weight:900;
                    font-family:Arial,sans-serif;line-height:1.15;letter-spacing:-0.5px">
           ${heroTitle}
@@ -191,8 +196,8 @@ export function customerConfirmationEmail(data: {
                       font-family:Arial,sans-serif;letter-spacing:-0.4px">${hotelName}</p>
             ${location ? `<p style="margin:0 0 16px;color:#94a3b8;font-size:13px;font-family:Arial,sans-serif">&#128205; ${location}</p>` : `<p style="margin:0 0 16px"></p>`}
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-              ${row(checkinLabel, formatDate(checkin, locale))}
-              ${row(checkoutLabel, formatDate(checkout, locale))}
+              ${row("Check-in", formatDate(checkin, locale))}
+              ${row("Check-out", formatDate(checkout, locale))}
               ${row(priceLabel, parsedPrice ? `<span style="color:#f97316;font-size:16px;font-weight:800">${parsedPrice} ${safeCurrency}</span>` : "—")}
             </table>
           </td></tr>
@@ -202,7 +207,7 @@ export function customerConfirmationEmail(data: {
 
     <!-- STEPS heading -->
     <tr>
-      <td class="email-body" style="padding:4px 36px 12px">
+      <td class="email-body section-gap" style="padding:20px 36px 14px">
         <p style="margin:0;font-size:10px;font-weight:700;color:#94a3b8;
                   text-transform:uppercase;letter-spacing:1.5px;
                   font-family:Arial,sans-serif">${nextLabel}</p>
@@ -214,64 +219,54 @@ export function customerConfirmationEmail(data: {
       <td class="email-body" style="padding:0 36px 28px">
         <table role="presentation" cellpadding="0" cellspacing="0" width="100%"
                style="background:#f8fafc;border-radius:14px;border:1px solid #e2e8f0">
-          <tr>
-            <td style="padding:18px 20px;border-bottom:1px solid #e2e8f0">
-              <table cellpadding="0" cellspacing="0" width="100%"><tr>
-                <td style="vertical-align:top;width:32px">
-                  <div style="width:28px;height:28px;background:#f97316;border-radius:50%;
-                              text-align:center;line-height:28px;color:#fff;
-                              font-weight:800;font-size:13px;font-family:Arial,sans-serif">1</div>
-                </td>
-                <td style="padding-left:12px;color:#374151;font-size:14px;line-height:1.65;
-                           font-family:Arial,sans-serif;vertical-align:top;padding-top:4px">${step1}</td>
-              </tr></table>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:18px 20px;border-bottom:1px solid #e2e8f0">
-              <table cellpadding="0" cellspacing="0" width="100%"><tr>
-                <td style="vertical-align:top;width:32px">
-                  <div style="width:28px;height:28px;background:#f97316;border-radius:50%;
-                              text-align:center;line-height:28px;color:#fff;
-                              font-weight:800;font-size:13px;font-family:Arial,sans-serif">2</div>
-                </td>
-                <td style="padding-left:12px;color:#374151;font-size:14px;line-height:1.65;
-                           font-family:Arial,sans-serif;vertical-align:top;padding-top:4px">${step2}</td>
-              </tr></table>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:18px 20px">
-              <table cellpadding="0" cellspacing="0" width="100%"><tr>
-                <td style="vertical-align:top;width:32px">
-                  <div style="width:28px;height:28px;background:#f97316;border-radius:50%;
-                              text-align:center;line-height:28px;color:#fff;
-                              font-weight:800;font-size:13px;font-family:Arial,sans-serif">3</div>
-                </td>
-                <td style="padding-left:12px;color:#374151;font-size:14px;line-height:1.65;
-                           font-family:Arial,sans-serif;vertical-align:top;padding-top:4px">${step3}</td>
-              </tr></table>
-            </td>
-          </tr>
+          ${["1","2","3"].map((n, i) => `
+          <tr><td style="padding:18px 20px;${i < 2 ? "border-bottom:1px solid #e2e8f0" : ""}">
+            <table cellpadding="0" cellspacing="0" width="100%"><tr>
+              <td style="vertical-align:top;width:32px">
+                <div style="width:28px;height:28px;background:#f97316;border-radius:50%;
+                            text-align:center;line-height:28px;color:#fff;
+                            font-weight:800;font-size:13px;font-family:Arial,sans-serif">${n}</div>
+              </td>
+              <td style="padding-left:12px;color:#374151;font-size:14px;line-height:1.65;
+                         font-family:Arial,sans-serif;vertical-align:top;padding-top:4px">
+                ${[step1, step2, step3][i]}
+              </td>
+            </tr></table>
+          </td></tr>`).join("")}
         </table>
       </td>
     </tr>
 
     <!-- TIP BOX -->
     <tr>
-      <td class="email-body" style="padding:0 36px 40px">
+      <td class="email-body section-gap" style="padding:8px 36px ${manageUrl ? "24px" : "44px"}">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
                style="background:linear-gradient(135deg,#fff7ed,#fff3e8);
                       border-radius:12px;border-left:4px solid #f97316">
           <tr><td style="padding:16px 20px">
             <p style="margin:0;color:#92400e;font-size:13px;line-height:1.7;
-                      font-family:Arial,sans-serif">
-              ${tipText}
-            </p>
+                      font-family:Arial,sans-serif">${tipText}</p>
           </td></tr>
         </table>
       </td>
     </tr>
+
+    ${manageUrl ? `
+    <!-- MANAGE LINK -->
+    <tr>
+      <td class="email-body" style="padding:20px 36px 44px;text-align:center">
+        <a href="${manageUrl}" class="manage-cta-btn"
+           style="display:inline-block;color:#0f2044;text-decoration:none;
+                  font-family:Arial,sans-serif;font-size:14px;font-weight:600;
+                  padding:14px 32px;border-radius:10px;border:1.5px solid #e2e8f0;">
+          ${isDe ? "Buchung verwalten →" : "Manage booking →"}
+        </a>
+        <p style="margin:10px 0 0;color:#94a3b8;font-size:11px;font-family:Arial,sans-serif">
+          ${isDe ? "Pausieren, stoppen oder Details einsehen — ohne Login." : "Pause, stop, or view details — no login needed."}
+        </p>
+      </td>
+    </tr>
+    ` : ""}
   `, locale);
 }
 
@@ -291,10 +286,11 @@ export function founderNotificationEmail(data: {
   parsedChildren: number;
   email: string;
   locale?: EmailLocale;
+  manageUrl?: string;
 }): string {
   const {
     hotelName, city, country, roomType, checkin, checkout,
-    parsedPrice, safeCurrency, parsedRooms, parsedAdults, parsedChildren, email, locale = "en",
+    parsedPrice, safeCurrency, parsedRooms, parsedAdults, parsedChildren, email, locale = "en", manageUrl,
   } = data;
   const location = [city, country].filter(Boolean).join(", ");
 
@@ -346,7 +342,7 @@ export function founderNotificationEmail(data: {
 
     <!-- USER EMAIL -->
     <tr>
-      <td class="email-body" style="padding:0 32px 28px">
+      <td class="email-body" style="padding:0 32px 20px">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
                style="background:#fff3e8;border-radius:10px;border-left:4px solid #f97316">
           <tr><td style="padding:14px 20px">
@@ -359,6 +355,16 @@ export function founderNotificationEmail(data: {
         </table>
       </td>
     </tr>
+
+    ${manageUrl ? `
+    <tr>
+      <td class="email-body" style="padding:0 32px 32px;text-align:center">
+        <a href="${manageUrl}" style="color:#94a3b8;text-decoration:none;font-size:12px;font-family:Arial,sans-serif">
+          Buchung verwalten →
+        </a>
+      </td>
+    </tr>
+    ` : ""}
   `, locale);
 }
 
@@ -375,9 +381,10 @@ export function priceAlertEmail(data: {
   currency: string;
   source: string;
   bookingUrl: string;
+  manageUrl?: string;
   locale?: EmailLocale;
 }): string {
-  const { hotelName, city, country, checkin, checkout, originalPrice, newPrice, currency, source, bookingUrl, locale = "en" } = data;
+  const { hotelName, city, country, checkin, checkout, originalPrice, newPrice, currency, source, bookingUrl, manageUrl, locale = "en" } = data;
   const location = [city, country].filter(Boolean).join(", ");
   const savings = (originalPrice - newPrice).toFixed(2);
   const pct = Math.round(((originalPrice - newPrice) / originalPrice) * 100);
@@ -428,8 +435,8 @@ export function priceAlertEmail(data: {
 
     <!-- CTA -->
     <tr>
-      <td class="email-body" style="padding:0 36px 36px;text-align:center">
-        <a href="${bookingUrl}"
+      <td class="email-body section-gap" style="padding:12px 36px 40px;text-align:center">
+        <a href="${bookingUrl}" class="manage-cta-btn"
            style="display:inline-block;background:#f97316;color:#ffffff;
                   text-decoration:none;padding:16px 36px;border-radius:12px;
                   font-family:Arial,sans-serif;font-size:16px;font-weight:800;
@@ -439,6 +446,11 @@ export function priceAlertEmail(data: {
         <p style="margin:14px 0 0;color:#94a3b8;font-size:12px;font-family:Arial,sans-serif">
           ${isDe ? "Storniere zuerst deine aktuelle Buchung — am besten nur bei kostenloser Stornierung." : "Cancel your current booking first — only if it's free cancellation."}
         </p>
+        ${manageUrl ? `<p style="margin:10px 0 0;font-size:12px;font-family:Arial,sans-serif">
+          <a href="${manageUrl}" style="color:#94a3b8;text-decoration:none">
+            ${isDe ? "Überwachung verwalten →" : "Manage tracking →"}
+          </a>
+        </p>` : ""}
       </td>
     </tr>
   `, locale);

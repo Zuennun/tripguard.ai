@@ -57,7 +57,12 @@ export default function GlobalCoverage({ t }: { t: Translations }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.includes("@")) return;
+    if (!hotelName.trim()) { setError(t.form.errorHotel); return; }
+    if (!city.trim()) { setError(t.form.errorCity); return; }
+    if (!checkin) { setError(t.form.errorCheckin); return; }
+    if (!checkout) { setError(t.form.errorCheckout); return; }
+    if (checkin >= checkout) { setError(t.form.errorDates); return; }
+    if (!email.includes("@")) { setError(t.form.errorEmail); return; }
     setLoading(true);
     setError("");
     try {
@@ -232,9 +237,9 @@ export default function GlobalCoverage({ t }: { t: Translations }) {
 
                 {/* Hotel Name */}
                 <div>
-                  <label style={labelStyle}>{t.form.hotelName}</label>
+                  <label style={labelStyle}>{t.form.hotelName} <span style={{ color: "#f97316" }}>*</span></label>
                   <input type="text" placeholder={t.form.hotelPlaceholder} value={hotelName}
-                    onChange={e => setHotelName(e.target.value)} style={inputStyle}
+                    onChange={e => setHotelName(e.target.value)} style={inputStyle} required
                     onFocus={e => (e.currentTarget.style.borderColor = "#f97316")}
                     onBlur={e => (e.currentTarget.style.borderColor = "#e5e7eb")} />
                 </div>
@@ -242,9 +247,9 @@ export default function GlobalCoverage({ t }: { t: Translations }) {
                 {/* City + Country */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.65rem" }}>
                   <div>
-                    <label style={labelStyle}>{t.form.city}</label>
+                    <label style={labelStyle}>{t.form.city} <span style={{ color: "#f97316" }}>*</span></label>
                     <input type="text" placeholder={t.form.cityPlaceholder} value={city}
-                      onChange={e => setCity(e.target.value)} style={inputStyle}
+                      onChange={e => setCity(e.target.value)} style={inputStyle} required
                       onFocus={e => (e.currentTarget.style.borderColor = "#f97316")}
                       onBlur={e => (e.currentTarget.style.borderColor = "#e5e7eb")} />
                   </div>
@@ -302,16 +307,16 @@ export default function GlobalCoverage({ t }: { t: Translations }) {
                 {/* Check-in / Check-out */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.65rem" }}>
                   <div>
-                    <label style={labelStyle}>{t.form.checkin}</label>
-                    <input type="date" value={checkin}
-                      onChange={e => setCheckin(e.target.value)} style={inputStyle}
+                    <label style={labelStyle}>{t.form.checkin} <span style={{ color: "#f97316" }}>*</span></label>
+                    <input type="date" value={checkin} min={today}
+                      onChange={e => setCheckin(e.target.value)} style={inputStyle} required
                       onFocus={e => (e.currentTarget.style.borderColor = "#f97316")}
                       onBlur={e => (e.currentTarget.style.borderColor = "#e5e7eb")} />
                   </div>
                   <div>
-                    <label style={labelStyle}>{t.form.checkout}</label>
-                    <input type="date" value={checkout}
-                      onChange={e => setCheckout(e.target.value)} style={inputStyle}
+                    <label style={labelStyle}>{t.form.checkout} <span style={{ color: "#f97316" }}>*</span></label>
+                    <input type="date" value={checkout} min={checkin || today}
+                      onChange={e => setCheckout(e.target.value)} style={inputStyle} required
                       onFocus={e => (e.currentTarget.style.borderColor = "#f97316")}
                       onBlur={e => (e.currentTarget.style.borderColor = "#e5e7eb")} />
                   </div>
@@ -343,8 +348,8 @@ export default function GlobalCoverage({ t }: { t: Translations }) {
 
                 {/* Email */}
                 <div>
-                  <label style={labelStyle}>{t.form.email}</label>
-                  <input type="email" placeholder={t.form.emailPlaceholder} value={email}
+                  <label style={labelStyle}>{t.form.email} <span style={{ color: "#f97316" }}>*</span></label>
+                  <input type="email" placeholder={t.form.emailPlaceholder} value={email} required
                     onChange={e => setEmail(e.target.value)} style={inputStyle}
                     onFocus={e => (e.currentTarget.style.borderColor = "#f97316")}
                     onBlur={e => (e.currentTarget.style.borderColor = "#e5e7eb")} />

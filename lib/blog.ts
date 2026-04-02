@@ -58,7 +58,14 @@ export const blogPosts: BlogPost[] = [
 
 <h2>Wie viel kann ich sparen?</h2>
 
+<div class="stat-box">
+  <div class="stat-number">25%</div>
+  <div class="stat-label">Durchschnittliche Preisschwankung bei Hotelpreisen nach der Buchung — bei 1.000 € Aufenthalt sind das bis zu <strong style="color:#f97316">250 € gespart</strong>.</div>
+</div>
+
 <p>Studien zeigen, dass Hotelpreise nach der Buchung im Durchschnitt um <strong>15–25%</strong> schwanken. Bei einem Hotel für 1.000 Euro sind das bis zu 250 Euro, die du einfach liegenlässt — wenn du keine Preisüberwachung hast.</p>
+
+<blockquote>„Ich habe meinen Hotelpreis nach der Buchung noch nie gecheckt." — Das sagen die meisten Reisenden. Und genau das kostet sie jedes Jahr hunderte Euro.</blockquote>
 
 <h2>Automatisch sparen mit SaveMyHoliday</h2>
 
@@ -92,7 +99,14 @@ export const blogPosts: BlogPost[] = [
 
 <h2>How much can I save?</h2>
 
+<div class="stat-box">
+  <div class="stat-number">25%</div>
+  <div class="stat-label">Average hotel price fluctuation after booking — on a €1,000 stay that's up to <strong style="color:#f97316">€250 saved</strong>.</div>
+</div>
+
 <p>Studies show hotel prices fluctuate by an average of <strong>15–25%</strong> after booking. On a €1,000 hotel stay that's up to €250 you're leaving on the table — without price monitoring.</p>
+
+<blockquote>"I never check my hotel price after booking." — Most travellers say this. And that's costing them hundreds every year.</blockquote>
 
 <h2>Save automatically with SaveMyHoliday</h2>
 
@@ -125,6 +139,11 @@ export const blogPosts: BlogPost[] = [
     content: {
       de: `
 <p>Wer klug reist, zahlt weniger — ohne auf Qualität zu verzichten. Diese 7 Methoden nutzen erfahrene Reisende, um bei Hotelbuchungen systematisch zu sparen.</p>
+
+<div class="stat-box">
+  <div class="stat-number">7</div>
+  <div class="stat-label">Bewährte Methoden, mit denen Reiseprofis bei Hotels sparen — <strong style="color:#f97316">ohne auf Komfort zu verzichten</strong>.</div>
+</div>
 
 <h2>1. Preise vergleichen, bevor du buchst</h2>
 
@@ -164,6 +183,11 @@ export const blogPosts: BlogPost[] = [
       `,
       en: `
 <p>Smart travellers pay less — without sacrificing quality. Here are 7 methods experienced travellers use to systematically save on hotel bookings.</p>
+
+<div class="stat-box">
+  <div class="stat-number">7</div>
+  <div class="stat-label">Proven methods travel pros use to save on hotels — <strong style="color:#f97316">without sacrificing comfort</strong>.</div>
+</div>
 
 <h2>1. Compare prices before booking</h2>
 
