@@ -265,7 +265,10 @@ app.get("/multi-debug", async (req, res) => {
   // const tr = await scrapeTrip({ hotel, city, checkin, checkout, currency: cur, nights })
   //   .catch(e => ({ source: "Trip.com", lowest: null, error: String(e) }));
 
-  res.json({ hotel, city, checkin, checkout, currency: cur, nights, results: [bk] });
+  const ta = await scrapeTripadvisor({ hotel, city, checkin, checkout, currency: cur, nights })
+    .catch(e => ({ source: "Tripadvisor", lowest: null, error: String(e) }));
+
+  res.json({ hotel, city, checkin, checkout, currency: cur, nights, results: [bk, ta] });
 });
 
 
@@ -563,6 +566,50 @@ async function scrapeTrip({ hotel, city, checkin, checkout, currency, nights }) 
     return { source: "Trip.com", lowest: minPrice, url: pageUrl, error: null };
   } catch (e) {
     return { source: "Trip.com", lowest: null, error: String(e) };
+  } finally {
+    if (context) await context.close().catch(() => {});
+  }
+}
+
+async function scrapeTripadvisor({ hotel, city, checkin, checkout, currency, nights }) {
+  let context = null;
+  try {
+    const ctx = await newPage();
+    const page = ctx.page;
+    context = ctx.context;
+    page.setDefaultTimeout(20000);
+    page.setDefaultNavigationTimeout(20000);
+
+    const query = `${hotel} ${city || ""} hotel`;
+    const searchUrl = `https://www.tripadvisor.com/Search?q=${encodeURIComponent(query.trim())}`;
+    await guardedGoto(page, searchUrl);
+    try { await page.waitForSelector("a[href*='/Hotel_Review-'], [href*='Hotel_Review']", { timeout: 8000 }); } catch {}
+    await humanPause(page, 900, 1800);
+
+    const foundUrl = await page.evaluate(() => {
+      const links = Array.from(document.querySelectorAll("a[href]"))
+        .map((a) => a.getAttribute("href"))
+        .filter(Boolean);
+      const hotelLink = links.find((href) => href.includes("/Hotel_Review-"));
+      return hotelLink || null;
+    }).catch(() => null);
+
+    if (!foundUrl) {
+      return { source: "Tripadvisor", lowest: null, url: searchUrl, error: "Hotel page not found" };
+    }
+
+    const hotelUrl = new URL(foundUrl, "https://www.tripadvisor.com").toString();
+    await guardedGoto(page, hotelUrl);
+    try { await page.waitForSelector("button, a, [class*='price'], [data-automation]", { timeout: 8000 }); } catch {}
+    await humanPause(page, 1200, 2200);
+
+    const pageText = await page.innerText("body").catch(() => "");
+    const prices = extractCurrencyPrices(pageText, currency).filter((p) => p >= nights * 150 && p <= 99999);
+    const minPrice = prices.length ? Math.min(...prices) : null;
+
+    return { source: "Tripadvisor", lowest: minPrice, url: hotelUrl, error: null };
+  } catch (e) {
+    return { source: "Tripadvisor", lowest: null, error: String(e) };
   } finally {
     if (context) await context.close().catch(() => {});
   }
