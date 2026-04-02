@@ -48,7 +48,6 @@ export async function finishJobRunCompat(params: {
       status: params.status,
       bookings_checked: params.bookingsChecked,
       alerts_sent: params.alertsSent,
-      duration_ms: params.durationMs,
       finished_at: new Date().toISOString(),
       error: params.error ?? null,
     },
