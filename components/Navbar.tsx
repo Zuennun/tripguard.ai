@@ -8,6 +8,8 @@ export default function Navbar({ t }: { t: Translations }) {
   const links = [
     [t.nav.home, "/"],
     [t.nav.howItWorks, "#how-it-works"],
+    [t.nav.priceGuide, "/hotel-price-tracker"],
+    [t.nav.cities, "/hotels"],
     [t.nav.trackHotel, "#track-hotels"],
     [t.nav.faq, "#faq"],
     [t.nav.blog, "/blog"],

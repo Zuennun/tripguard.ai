@@ -48,6 +48,13 @@ export default function Footer({ t }: { t: Translations }) {
 
         {/* Bottom bar */}
         <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "1.5rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem", textAlign: "center" }}>
+          <div style={{ display: "flex", gap: "0.85rem", flexWrap: "wrap", justifyContent: "center" }}>
+            <span style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.6)", fontWeight: 700 }}>{t.footer.guides}</span>
+            <a href="/hotel-price-tracker" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>{t.footer.hotelPriceTracker}</a>
+            <a href="/hotel-price-alert-after-booking" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>{t.footer.priceAlertAfterBooking}</a>
+            <a href="/hotels" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>{t.footer.cityPages}</a>
+            <a href="/blog" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>{t.footer.blog}</a>
+          </div>
           <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", justifyContent: "center" }}>
             <a href="/impressum" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>{t.footer.imprint}</a>
             <a href="/datenschutz" style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>{t.footer.privacy}</a>

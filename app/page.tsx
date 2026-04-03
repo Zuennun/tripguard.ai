@@ -11,6 +11,7 @@ import Comparison from "@/components/Comparison";
 import Testimonials from "@/components/Testimonials";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
+import SeoGateway from "@/components/SeoGateway";
 
 export default function Home() {
   const headersList = headers();
@@ -27,6 +28,7 @@ export default function Home() {
       <GlobalCoverage t={t} />
       <LiveScanning t={t} />
       <Comparison t={t} />
+      <SeoGateway t={t} />
       <Testimonials t={t} />
       <FAQ t={t} />
       <Footer t={t} />
