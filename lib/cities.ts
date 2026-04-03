@@ -18,6 +18,7 @@ export const cities: City[] = [
     country: "Ungarn",
     countryCode: "HU",
     image: "https://images.unsplash.com/photo-1549893072-4bc678117f45?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1566438480900-0609be27a4be?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Überwache Hotelpreise in Budapest automatisch und spare bis zu 25 % auf deine nächste Unterkunft in der ungarischen Hauptstadt.",
     description_en:
@@ -166,6 +167,7 @@ export const cities: City[] = [
     country: "Österreich",
     countryCode: "AT",
     image: "https://images.unsplash.com/photo-1609856878074-cf31e21ccb6b?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1516550893885-985c836c7e95?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Hotelpreise in Wien automatisch überwachen lassen und bei jeder Preissenkung sofort per E-Mail benachrichtigt werden.",
     description_en:
@@ -189,6 +191,7 @@ export const cities: City[] = [
     country: "Tschechien",
     countryCode: "CZ",
     image: "https://images.unsplash.com/photo-1519677100203-a0e668c92439?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1541849546-216549ae216d?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Für dein Prag-Urlaub Hotelpreise überwachen und sicherstellen, dass du nie mehr als nötig zahlst.",
     description_en:
@@ -212,6 +215,7 @@ export const cities: City[] = [
     country: "Portugal",
     countryCode: "PT",
     image: "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Lissabon-Hotelpreise täglich überwachen lassen — SaveMyHoliday benachrichtigt dich kostenlos, wenn dein Hotel günstiger wird.",
     description_en:
@@ -235,6 +239,7 @@ export const cities: City[] = [
     country: "Vereinigte Arabische Emirate",
     countryCode: "AE",
     image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Dubai-Hotels sind bekannt für starke Preisschwankungen — mit SaveMyHoliday verpasst du keine einzige Preissenkung.",
     description_en:
@@ -258,6 +263,7 @@ export const cities: City[] = [
     country: "USA",
     countryCode: "US",
     image: "https://images.unsplash.com/photo-1490644658840-3f2e3f8c5625?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1465447142348-e9952c393450?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "New-York-Hotels automatisch auf Preissenkungen überwachen und mit SaveMyHoliday bis zu 25 % bei der nächsten Buchung sparen.",
     description_en:
@@ -281,6 +287,7 @@ export const cities: City[] = [
     country: "Indonesien",
     countryCode: "ID",
     image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Bali-Hotelpreise kostenlos überwachen — SaveMyHoliday schickt dir eine E-Mail, sobald dein Traumresort auf der Insel der Götter günstiger wird.",
     description_en:
@@ -304,6 +311,7 @@ export const cities: City[] = [
     country: "Spanien",
     countryCode: "ES",
     image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1574279606130-09958dc756f7?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Mallorca-Hotelpreise täglich überwachen und bei Preissenkungen sofort reagieren — mit SaveMyHoliday komplett kostenlos.",
     description_en:
@@ -327,6 +335,7 @@ export const cities: City[] = [
     country: "Spanien",
     countryCode: "ES",
     image: "https://images.unsplash.com/photo-1563784462041-5f97ac9523dd?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Teneriffa-Hotelpreise im Blick behalten und nie wieder zu viel für das Urlaubs-Hotel auf der Sonneninsel zahlen.",
     description_en:
@@ -350,6 +359,7 @@ export const cities: City[] = [
     country: "Schweiz",
     countryCode: "CH",
     image: "https://images.unsplash.com/photo-1604537529428-15bcbeecfe4d?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1515488764276-beab7607c1e6?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Zürich gehört zu den teuersten Städten Europas — SaveMyHoliday überwacht Hotelpreise in Zürich und hilft dir, das Beste herauszuholen.",
     description_en:
@@ -373,6 +383,7 @@ export const cities: City[] = [
     country: "Italien",
     countryCode: "IT",
     image: "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1533676802871-eca1ae998cd5?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Venedig-Hotels sind oft überraschend günstig buchbar — SaveMyHoliday überwacht die Preise und informiert dich, wenn Sparpotenzial entsteht.",
     description_en:
@@ -396,6 +407,7 @@ export const cities: City[] = [
     country: "Italien",
     countryCode: "IT",
     image: "https://images.unsplash.com/photo-1541343672885-9be56236302a?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Florenz-Hotelpreise automatisch überwachen lassen und per E-Mail informiert werden, sobald dein Wunschhotel in der Toskanastadt günstiger wird.",
     description_en:
@@ -419,6 +431,7 @@ export const cities: City[] = [
     country: "Spanien",
     countryCode: "ES",
     image: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1543783207-ec64e4d95325?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Hotelpreise in Madrid überwachen und bei jeder Preissenkung sofort eine E-Mail-Benachrichtigung erhalten — kostenlos mit SaveMyHoliday.",
     description_en:
@@ -442,6 +455,7 @@ export const cities: City[] = [
     country: "Griechenland",
     countryCode: "GR",
     image: "https://images.unsplash.com/photo-1555993539-1732b0258235?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1603565816030-6b389eeb23cb?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Athen-Hotelpreise kostenlos und automatisch überwachen — SaveMyHoliday benachrichtigt dich, wenn du bei deiner Unterkunft sparen kannst.",
     description_en:
@@ -465,6 +479,7 @@ export const cities: City[] = [
     country: "Türkei",
     countryCode: "TR",
     image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Istanbul bietet faszinierende Hotels zu sehr variablen Preisen — SaveMyHoliday überwacht deinen Hotelpreis täglich und informiert dich bei Preissenkungen.",
     description_en:
