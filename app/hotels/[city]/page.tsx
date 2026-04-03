@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { type Locale, getTranslations } from "@/lib/translations";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SeoPageRail from "@/components/SeoPageRail";
 import { getCityBySlug, getAllCities } from "@/lib/cities";
 import { getAllPosts } from "@/lib/blog";
 
@@ -75,48 +76,74 @@ export default function CityPage({ params }: { params: { city: string } }) {
     : `Monitor Hotel Prices in ${city.name} — Never Overpay Again`;
 
   const introParagraph = isDe
-    ? `${city.name} ist ein begehrtes Reiseziel — und genau deshalb schwanken die Hotelpreise hier besonders stark. Mit SaveMyHoliday überwachst du deinen Hotelpreis in ${city.name} automatisch und kostenlos. Du bekommst eine E-Mail, sobald der Preis sinkt — und kannst die Ersparnis sofort nutzen.`
-    : `${city.name} is a sought-after destination — and that's exactly why hotel prices here fluctuate so significantly. With SaveMyHoliday you monitor your hotel price in ${city.name} automatically and for free. You receive an email as soon as the price drops — and can pocket the savings immediately.`;
+    ? `${city.name} ist nicht nur ein beliebtes Reiseziel, sondern auch eine Stadt mit echter Preisdynamik. Zwischen Buchung und Anreise können Hotels hier spürbar günstiger werden. Genau deshalb lohnt sich Preisüberwachung in ${city.name}: Du lässt denselben Aufenthalt weiter prüfen und reagierst erst dann, wenn eine wirklich bessere Rate auftaucht.`
+    : `${city.name} is not just a popular destination, it is also a city with real pricing volatility. Between booking and check-in, hotels here can become noticeably cheaper. That is exactly why tracking matters in ${city.name}: you keep checking the same stay and only react when a genuinely better rate appears.`;
 
   const steps = isDe
     ? [
         {
-          icon: "🔗",
+          image: "/urlaub.gif",
           title: "Buchung eintragen",
-          text: `Gib deine Buchungs-URL und E-Mail-Adresse ein. Kein Account erforderlich.`,
+          text: `Du trägst Hotel, Reisedaten und E-Mail einmal ein. Danach läuft die Überwachung automatisch weiter.`,
         },
         {
-          icon: "📊",
+          image: "/scanner.gif",
           title: "Wir überwachen täglich",
-          text: `SaveMyHoliday prüft täglich den Hotelpreis in ${city.name} und vergleicht ihn mit deinem gebuchten Preis.`,
+          text: `SaveMyHoliday prüft täglich denselben Aufenthalt in ${city.name} und achtet darauf, ob eine bessere Rate für genau deine Reise auftaucht.`,
         },
         {
-          icon: "💰",
+          image: "/sparen.gif",
           title: "Du sparst",
-          text: `Sobald der Preis sinkt, bekommst du eine E-Mail. Du entscheidest, ob du stornierst und günstiger neu buchst.`,
+          text: `Sobald ein echter Preisvorteil auftaucht, bekommst du Bescheid. Erst dann entscheidest du, ob du stornierst und günstiger neu buchst.`,
         },
       ]
     : [
         {
-          icon: "🔗",
+          image: "/urlaub.gif",
           title: "Add your booking",
-          text: `Enter your booking URL and email address. No account needed.`,
+          text: `You add your hotel, travel dates and email once. After that, monitoring continues automatically.`,
         },
         {
-          icon: "📊",
+          image: "/scanner.gif",
           title: "We monitor daily",
-          text: `SaveMyHoliday checks the hotel price in ${city.name} daily and compares it against your booked rate.`,
+          text: `SaveMyHoliday checks the same stay in ${city.name} daily and watches whether a genuinely better rate appears for your trip.`,
         },
         {
-          icon: "💰",
+          image: "/sparen.gif",
           title: "You save",
-          text: `As soon as the price drops, you get an email. You decide whether to cancel and rebook at the lower rate.`,
+          text: `As soon as a real savings opportunity appears, you get notified. Then you decide whether to cancel and rebook.`,
         },
       ];
 
   const keywords = isDe ? city.keywords_de : city.keywords_en;
   const relatedCities = getAllCities().filter((entry) => entry.slug !== city.slug).slice(0, 3);
   const relatedPosts = getAllPosts().slice(0, 3);
+  const railItems = [
+    {
+      href: "/hotel-price-tracker",
+      title: isDe ? "Hotel Price Tracker" : "Hotel Price Tracker",
+      text: isDe
+        ? "Die Übersichtsseite zum gesamten Thema Preisüberwachung nach der Buchung."
+        : "The overview page for the full post-booking hotel tracking topic.",
+      image: "/hero.gif",
+    },
+    {
+      href: "/hotel-price-alert-after-booking",
+      title: isDe ? "Preisalarm nach Buchung" : "Price Alert After Booking",
+      text: isDe
+        ? "Hier wird erklärt, wann ein günstigerer Preis später wirklich relevant wird."
+        : "This explains when a later cheaper price really matters.",
+      image: "/sparen.gif",
+    },
+    {
+      href: "/blog",
+      title: isDe ? "Blog & Hotel-Guides" : "Blog & Hotel Guides",
+      text: isDe
+        ? "Mehr Kontext zu Stornierung, Preisstürzen und cleveren Rebooking-Entscheidungen."
+        : "More context on cancellation, price drops and smarter rebooking decisions.",
+      image: "/scanner.gif",
+    },
+  ];
   const faqItems = isDe
     ? [
         {
@@ -213,8 +240,8 @@ export default function CityPage({ params }: { params: { city: string } }) {
       <main style={{ background: "#f8f9fb", minHeight: "100vh", paddingTop: 84 }}>
 
         {/* ── Hero ── */}
-        <div style={{ background: "#0f2044", padding: "4rem 2rem 3rem" }}>
-          <div style={{ maxWidth: 860, margin: "0 auto" }}>
+        <div style={{ background: "#0f2044", padding: "4.3rem 2rem 3.2rem" }}>
+          <div style={{ maxWidth: 980, margin: "0 auto", textAlign: "center" }}>
             <div style={{
               fontFamily: "var(--font-body)",
               fontSize: "0.78rem",
@@ -243,17 +270,25 @@ export default function CityPage({ params }: { params: { city: string } }) {
               fontFamily: "var(--font-body)",
               fontSize: "1.05rem",
               color: "rgba(255,255,255,0.75)",
-              margin: 0,
-              maxWidth: 580,
+              margin: "0 auto 1.6rem",
+              maxWidth: 760,
               lineHeight: 1.6,
             }}>
               {introParagraph}
             </p>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <img src="/hero.gif" alt={pageTitle} style={{ width: "100%", maxWidth: 280, height: "auto", display: "block" }} />
+            </div>
           </div>
         </div>
 
         {/* ── Main content ── */}
         <div style={{ maxWidth: 860, margin: "0 auto", padding: "3rem 2rem 5rem" }}>
+          <SeoPageRail
+            eyebrow={isDe ? "Wichtige nächste Seiten" : "Important next pages"}
+            title={isDe ? "Von dieser Stadtseite solltest du direkt weiterfinden" : "From this city page, you should be able to move on directly"}
+            items={railItems}
+          />
 
           {/* How it works */}
           <div style={{ marginBottom: "3rem" }}>
@@ -293,10 +328,11 @@ export default function CityPage({ params }: { params: { city: string } }) {
                     padding: "1.75rem 1.5rem",
                     boxShadow: "0 2px 12px rgba(15,32,68,0.07)",
                     border: "1px solid #e8ecf2",
+                    textAlign: "center",
                   }}
                 >
-                  <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>
-                    {step.icon}
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.85rem" }}>
+                    <img src={step.image} alt={step.title} style={{ width: "100%", maxWidth: 92, height: "auto", display: "block" }} />
                   </div>
                   <div style={{
                     fontFamily: "var(--font-body)",
@@ -420,11 +456,22 @@ export default function CityPage({ params }: { params: { city: string } }) {
                   fontSize: "0.95rem",
                   color: "#64748b",
                   lineHeight: 1.7,
-                  margin: 0,
+                  margin: "0 0 1rem",
                 }}>
                   {isDe
                     ? `In ${city.name} spielen Saison, Events, Wochenenden und Auslastung eine große Rolle. Genau dadurch entstehen nach der Buchung oft neue Chancen für günstigere Raten. Wenn du eine flexible Rate hast, kann ein Preisalarm hier besonders wertvoll sein.`
                     : `In ${city.name}, seasonality, events, weekends, and occupancy levels all influence pricing. That creates real opportunities for lower rates after booking. If your rate is flexible, price monitoring becomes especially valuable here.`}
+                </p>
+                <p style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "0.95rem",
+                  color: "#64748b",
+                  lineHeight: 1.7,
+                  margin: 0,
+                }}>
+                  {isDe
+                    ? `Besonders relevant ist das bei Städtereisen rund um Feiertage, Messen, Events oder Wochenenden. Je früher du gebucht hast, desto größer ist oft die Chance, dass sich später noch ein besserer Preis ergibt.`
+                    : `This matters especially for city trips around holidays, fairs, events or busy weekends. The earlier you booked, the more likely it often becomes that a better rate shows up later.`}
                 </p>
               </div>
             </div>
@@ -477,6 +524,40 @@ export default function CityPage({ params }: { params: { city: string } }) {
                   {item}
                 </div>
               ))}
+            </div>
+          </div>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "1.2rem",
+            marginBottom: "3rem",
+          }}>
+            <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 18, padding: "1.4rem 1.5rem" }}>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
+                {isDe ? "Wann es sich hier besonders lohnt" : "When it matters most here"}
+              </div>
+              <h2 style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.25rem", color: "#0f2044", margin: "0 0 0.75rem" }}>
+                {isDe ? `${city.name} ist vor allem für flexible Buchungen spannend` : `${city.name} is especially interesting for flexible bookings`}
+              </h2>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "0.94rem", color: "#64748b", lineHeight: 1.7, margin: 0 }}>
+                {isDe
+                  ? `Wenn du kostenlos stornieren kannst, wird ein Preisalarm in ${city.name} deutlich wertvoller. Dann kannst du entspannt beobachten, ob zwischen heute und deiner Anreise eine bessere Rate auftaucht.`
+                  : `If your hotel can be cancelled for free, price tracking in ${city.name} becomes much more valuable. You can simply watch whether a better rate appears between now and check-in.`}
+              </p>
+            </div>
+            <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 18, padding: "1.4rem 1.5rem" }}>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
+                {isDe ? "Worauf du achten solltest" : "What to watch out for"}
+              </div>
+              <h2 style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.25rem", color: "#0f2044", margin: "0 0 0.75rem" }}>
+                {isDe ? "Nicht jeder niedrigere Preis ist automatisch besser" : "Not every lower price is automatically better"}
+              </h2>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "0.94rem", color: "#64748b", lineHeight: 1.7, margin: 0 }}>
+                {isDe
+                  ? `Wichtig sind dieselben Daten, ein vergleichbarer Tarif und die Frage, ob du deine alte Buchung ohne Risiko stornieren kannst. Genau deshalb hilft ein sauberer Vergleich mehr als irgendein billiger Deal.`
+                  : `What matters are the same dates, a comparable rate and whether you can cancel your old booking safely. That is why a clean comparison helps more than any random cheap-looking deal.`}
+              </p>
             </div>
           </div>
 

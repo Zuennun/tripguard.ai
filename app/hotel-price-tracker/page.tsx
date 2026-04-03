@@ -4,6 +4,7 @@ import Link from "next/link";
 import { type Locale, getTranslations } from "@/lib/translations";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SeoPageRail from "@/components/SeoPageRail";
 import { getAllCities } from "@/lib/cities";
 import { getAllPosts } from "@/lib/blog";
 
@@ -78,6 +79,33 @@ export default function HotelPriceTrackerPage() {
         },
       ];
 
+  const railItems = [
+    {
+      href: "/hotel-price-alert-after-booking",
+      title: isDe ? "Preisalarm nach Buchung" : "Price Alert After Booking",
+      text: isDe
+        ? "Die passende Seite, wenn du verstehen willst, wie du später günstiger neu buchst."
+        : "The right page if you want to understand how to rebook cheaper later.",
+      image: "/urlaub.gif",
+    },
+    {
+      href: "/hotels",
+      title: isDe ? "Städte & Reiseziele" : "Cities & Destinations",
+      text: isDe
+        ? "Ausführlichere Seiten mit lokalen Preislogiken, Saison-Effekten und mehr Kontext."
+        : "Richer pages with local price logic, seasonality and more context.",
+      image: "/flugzeug.gif",
+    },
+    {
+      href: "/blog",
+      title: isDe ? "Guides & Artikel" : "Guides & Articles",
+      text: isDe
+        ? "Mehr Hintergrund zu Preisstürzen, flexiblen Raten und smarterem Rebooking."
+        : "More depth on price drops, flexible rates and smarter rebooking.",
+      image: "/scanner.gif",
+    },
+  ];
+
   const schema = [
     {
       "@context": "https://schema.org",
@@ -114,8 +142,8 @@ export default function HotelPriceTrackerPage() {
 
       <main style={{ background: "#f6f8fc", minHeight: "100vh", paddingTop: 84 }}>
         <section style={{ padding: "4.5rem 2rem 4rem", background: "linear-gradient(140deg, #0f2044 0%, #18366a 60%, #28508f 100%)" }}>
-          <div style={{ maxWidth: 1180, margin: "0 auto", display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: "2rem", alignItems: "center" }}>
-            <div>
+          <div style={{ maxWidth: 1180, margin: "0 auto", display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: "2rem", alignItems: "center" }} className="tracker-hero-grid">
+            <div className="tracker-hero-copy">
               <div style={{ fontFamily: "var(--font-body)", fontSize: "0.8rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "1rem" }}>
                 {isDe ? "Money Page · Hotel Price Tracker" : "Money page · Hotel price tracker"}
               </div>
@@ -139,17 +167,19 @@ export default function HotelPriceTrackerPage() {
 
             <div style={{ position: "relative" }}>
               <div style={{ background: "#fff", borderRadius: 22, overflow: "hidden", boxShadow: "0 18px 60px rgba(0,0,0,0.18)" }}>
-                <img
-                  src={cities[0]?.image}
-                  alt={isDe ? "Hotelpreis-Tracking für Städtereisen" : "Hotel price tracking for city trips"}
-                  style={{ width: "100%", height: 290, objectFit: "cover", display: "block" }}
-                />
+                <div style={{ minHeight: 290, background: "linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.2rem" }}>
+                  <img
+                    src="/hero.gif"
+                    alt={isDe ? "Hotelpreis-Tracking für Städtereisen" : "Hotel price tracking for city trips"}
+                    style={{ width: "100%", maxWidth: 330, height: "auto", display: "block" }}
+                  />
+                </div>
                 <div style={{ padding: "1.25rem 1.35rem 1.4rem" }}>
                   <div style={{ display: "grid", gap: "0.7rem" }}>
                     {[
-                      isDe ? "Buchung eingereicht" : "Booking submitted",
-                      isDe ? "Tägliche Preisprüfung aktiv" : "Daily checking active",
-                      isDe ? "Alert erst wenn Preis wirklich günstiger ist" : "Alert only when price is truly lower",
+                      isDe ? "Deine Buchung wird einmal angelegt und danach automatisch weiter geprüft." : "Your booking is added once and then checked automatically over time.",
+                      isDe ? "Wir vergleichen denselben Aufenthalt statt irgendeinen ähnlichen Billig-Deal." : "We compare the same stay instead of some vaguely similar cheap deal.",
+                      isDe ? "Ein Alert ist erst dann wichtig, wenn die neue Rate für dich wirklich besser ist." : "An alert only matters when the new rate is actually better for you.",
                     ].map((line, index) => (
                       <div key={line} style={{ display: "flex", alignItems: "center", gap: "0.7rem" }}>
                         <span style={{ width: 28, height: 28, borderRadius: 999, background: index === 2 ? "#fff7ed" : "#ecfdf5", color: index === 2 ? "#f97316" : "#059669", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>
@@ -166,13 +196,19 @@ export default function HotelPriceTrackerPage() {
         </section>
 
         <section style={{ maxWidth: 1180, margin: "0 auto", padding: "3rem 2rem" }}>
+          <SeoPageRail
+            eyebrow={isDe ? "Direkt weiter zu den wichtigsten Seiten" : "Go straight to the most important pages"}
+            title={isDe ? "Wenn du hier bist, solltest du die nächsten Themen ohne Umwege erreichen" : "If you are here, you should reach the next useful topics without friction"}
+            items={railItems}
+          />
+
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: "1rem", marginBottom: "2.5rem" }}>
             {[
-              { stat: "Daily", label: isDe ? "Preisprüfung nach der Buchung" : "post-booking price checks" },
-              { stat: "No Account", label: isDe ? "nur sicherer Manage-Link" : "just a secure manage link" },
-              { stat: "Geo", label: isDe ? "Seiten für Städte & Reiseziele" : "pages for cities and destinations" },
+              { stat: isDe ? "Täglich" : "Daily", label: isDe ? "derselbe Aufenthalt bleibt im Blick" : "the same stay stays under watch" },
+              { stat: isDe ? "Präzise" : "Precise", label: isDe ? "gleiche Reise statt beliebiger Deal" : "same trip instead of a random deal" },
+              { stat: isDe ? "Klar" : "Clear", label: isDe ? "du reagierst nur bei echtem Vorteil" : "you react only when the upside is real" },
             ].map((item) => (
-              <div key={item.label} style={{ background: "#fff", border: "1px solid #e8ecf2", borderRadius: 18, padding: "1.25rem 1.3rem" }}>
+              <div key={item.label} style={{ background: "#fff", border: "1px solid #e8ecf2", borderRadius: 18, padding: "1.35rem 1.3rem", textAlign: "center" }}>
                 <div style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "1.8rem", color: "#f97316" }}>{item.stat}</div>
                 <div style={{ fontFamily: "var(--font-body)", fontSize: "0.86rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700 }}>{item.label}</div>
               </div>
@@ -268,6 +304,13 @@ export default function HotelPriceTrackerPage() {
           </div>
         </section>
       </main>
+
+      <style>{`
+        @media (max-width: 920px) {
+          .tracker-hero-grid { grid-template-columns: 1fr !important; }
+          .tracker-hero-copy { text-align: center; }
+        }
+      `}</style>
 
       <Footer t={t} />
     </>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { type Locale, getTranslations } from "@/lib/translations";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SeoPageRail from "@/components/SeoPageRail";
 import { getAllPosts } from "@/lib/blog";
 
 export const metadata: Metadata = {
@@ -27,6 +28,32 @@ export default function HotelPriceAlertAfterBookingPage() {
   const t = getTranslations(locale);
   const isDe = locale === "de";
   const posts = getAllPosts().slice(0, 3);
+  const railItems = [
+    {
+      href: "/hotel-price-tracker",
+      title: isDe ? "Hotel Price Tracker" : "Hotel Price Tracker",
+      text: isDe
+        ? "Die Überblicksseite für das ganze Thema Preisüberwachung nach der Buchung."
+        : "The overview page for the full post-booking hotel tracking topic.",
+      image: "/hero.gif",
+    },
+    {
+      href: "/hotels",
+      title: isDe ? "Städte & Reiseziele" : "Cities & Destinations",
+      text: isDe
+        ? "Hier findest du ausführlichere Seiten zu Städten mit starken Preisbewegungen."
+        : "Find richer pages for cities with meaningful hotel price movement.",
+      image: "/flugzeug.gif",
+    },
+    {
+      href: "/blog",
+      title: isDe ? "Mehr Guides" : "More Guides",
+      text: isDe
+        ? "Mehr Kontext zu Preisstürzen, Stornierung und smarteren Buchungsentscheidungen."
+        : "More context on price drops, cancellation and smarter booking decisions.",
+      image: "/scanner.gif",
+    },
+  ];
 
   const schema = {
     "@context": "https://schema.org",
@@ -42,22 +69,31 @@ export default function HotelPriceAlertAfterBookingPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <main style={{ background: "#f7fafc", minHeight: "100vh", paddingTop: 84 }}>
         <section style={{ padding: "4.2rem 2rem 3.7rem", background: "linear-gradient(145deg, #fff7ed 0%, #fff 45%, #f7fafc 100%)" }}>
-          <div style={{ maxWidth: 1040, margin: "0 auto" }}>
+          <div style={{ maxWidth: 1040, margin: "0 auto", textAlign: "center" }}>
             <div style={{ fontFamily: "var(--font-body)", fontSize: "0.78rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "0.9rem" }}>
               {isDe ? "Intent Page · Preisalarm nach Buchung" : "Intent page · price alert after booking"}
             </div>
             <h1 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(2rem, 5vw, 3.6rem)", lineHeight: 1.07, letterSpacing: "-0.03em", color: "#0f2044", margin: "0 0 1rem" }}>
               {isDe ? "Hotel Price Alert nach der Buchung: So sparst du später statt früher" : "Hotel price alert after booking: save later, not just earlier"}
             </h1>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: "1.04rem", color: "#64748b", lineHeight: 1.75, maxWidth: 760, margin: 0 }}>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "1.04rem", color: "#64748b", lineHeight: 1.75, maxWidth: 760, margin: "0 auto 1.5rem" }}>
               {isDe
                 ? "Viele Reisende vergleichen nur vor der Buchung. Der größere Hebel liegt oft danach. Genau dafür ist SaveMyHoliday gebaut: Preisalarm für dieselbe Reise, dieselben Daten und dieselbe Buchung."
                 : "Most travellers only compare before booking. The bigger opportunity often comes afterwards. SaveMyHoliday is built for exactly that: a price alert for the same stay, the same dates, and the same booking."}
             </p>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <img src="/urlaub.gif" alt={isDe ? "Preisalarm nach Buchung" : "Price alert after booking"} style={{ width: "100%", maxWidth: 250, height: "auto", display: "block" }} />
+            </div>
           </div>
         </section>
 
         <section style={{ maxWidth: 1040, margin: "0 auto", padding: "3rem 2rem 4.5rem" }}>
+          <SeoPageRail
+            eyebrow={isDe ? "Wichtige Anschlussseiten" : "Important follow-up pages"}
+            title={isDe ? "Wenn du über Preisalarm liest, solltest du auch hier direkt weiterkommen" : "If you are reading about alerts, you should also reach these pages right away"}
+            items={railItems}
+          />
+
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: "1rem", marginBottom: "2.2rem" }}>
             {[
               {
