@@ -89,6 +89,37 @@ export default function CityPage({ params }: { params: { city: string } }) {
   const premiumMustSee = cityGuide ? (isDe ? cityGuide.mustSeeDe : cityGuide.mustSeeEn) : null;
   const premiumStayAreas = cityGuide ? (isDe ? cityGuide.stayAreasDe : cityGuide.stayAreasEn) : null;
   const premiumTiming = cityGuide ? (isDe ? cityGuide.timingDe : cityGuide.timingEn) : null;
+  const highlightList = cityGuide ? (isDe ? cityGuide.highlightsDe : cityGuide.highlightsEn) : [];
+  const stayTip = cityGuide ? (isDe ? cityGuide.stayTipDe : cityGuide.stayTipEn) : "";
+  const savingTip = cityGuide ? (isDe ? cityGuide.savingTipDe : cityGuide.savingTipEn) : "";
+  const travelNote = cityGuide ? (isDe ? cityGuide.travelNoteDe : cityGuide.travelNoteEn) : "";
+  const sectionTone =
+    city.slug === "paris" || city.slug === "rom"
+      ? "editorial"
+      : city.slug === "amsterdam" || city.slug === "london"
+        ? "structured"
+        : "explorer";
+  const miniGuideTitle = isDe
+    ? sectionTone === "editorial"
+      ? `${city.name} als kleiner Reiseführer statt als SEO-Text`
+      : sectionTone === "structured"
+        ? `Ein praktischer Guide für ${city.name}`
+        : `${city.name}: was sich lohnt, wo du gut wohnst und wie du Hotelgeld sparst`
+    : sectionTone === "editorial"
+      ? `${city.name} as a mini travel guide instead of generic SEO copy`
+      : sectionTone === "structured"
+        ? `A practical guide for ${city.name}`
+        : `${city.name}: what is worth it, where to stay, and how to save on hotels`;
+  const twoDayPlan = cityGuide
+    ? isDe
+      ? `Wenn du nur kurz in ${city.name} bist, plane lieber zwei starke Halbtage statt zu viel auf einmal: erst ${highlightList.slice(0, 2).join(" und ")}, danach bewusst Essen, Spaziergang und Abendatmosphäre statt nur Programmpunkte.`
+      : `If you only have a short stay in ${city.name}, aim for two strong half-days instead of cramming in too much: start with ${highlightList.slice(0, 2).join(" and ")}, then leave room for food, walking and evening atmosphere.`
+    : "";
+  const hotelTimingSummary = premiumTiming
+    ? premiumTiming
+    : isDe
+      ? `In ${city.name} lohnt sich Preisüberwachung besonders rund um Wochenenden, Ferien, Messen oder frühe Buchungen. Genau dann kippen Raten oft später noch einmal.`
+      : `In ${city.name}, price tracking matters most around weekends, school holidays, fairs or early bookings. Those are the moments when rates often shift again.`;
   const railItems = [
     {
       href: "/hotel-price-alert-after-booking",
@@ -407,29 +438,37 @@ export default function CityPage({ params }: { params: { city: string } }) {
                   {isDe ? `Mehrwert für ${city.name}` : `Useful context for ${city.name}`}
                 </div>
                 <h2 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(1.45rem, 3vw, 2.1rem)", color: "#0f2044", lineHeight: 1.15, margin: 0 }}>
-                  {isDe ? `Was du dir in ${city.name} anschauen solltest und wie du smarter sparst` : `What to see in ${city.name} and how to save more intelligently`}
+                  {miniGuideTitle}
                 </h2>
               </div>
 
-              <div className="city-guide-grid" style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: "1.2rem" }}>
+              <div className="city-guide-grid" style={{ display: "grid", gridTemplateColumns: "1.02fr 0.98fr", gap: "1.2rem" }}>
                 <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 20, overflow: "hidden", boxShadow: "0 12px 40px rgba(15,32,68,0.06)" }}>
                   <img src={secondaryImage} alt={`${city.name} travel guide`} style={{ width: "100%", height: 240, objectFit: "cover", display: "block" }} />
                   <div style={{ padding: "1.35rem 1.4rem 1.45rem" }}>
                     <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
-                      {isDe ? "Was sich lohnt" : "Worth seeing"}
+                      {isDe ? "Was du wirklich machen solltest" : "What is genuinely worth doing"}
                     </div>
                     <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.22rem", color: "#0f2044", margin: "0 0 0.75rem" }}>
                       {isDe ? `${city.name} jenseits der reinen Hotelsuche` : `${city.name} beyond the hotel search`}
                     </h3>
                     <p style={{ fontFamily: "var(--font-body)", fontSize: "0.95rem", color: "#64748b", lineHeight: 1.7, margin: "0 0 1rem" }}>
-                      {isDe ? cityGuide.travelNoteDe : cityGuide.travelNoteEn}
+                      {travelNote}
                     </p>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "0.55rem" }}>
-                      {(isDe ? cityGuide.highlightsDe : cityGuide.highlightsEn).map((item) => (
+                      {highlightList.map((item) => (
                         <span key={item} style={{ background: "#f8fafc", border: "1px solid #e8ecf2", borderRadius: 999, padding: "0.45rem 0.8rem", fontFamily: "var(--font-body)", fontSize: "0.86rem", color: "#334155", fontWeight: 600 }}>
                           {item}
                         </span>
                       ))}
+                    </div>
+                    <div style={{ marginTop: "1rem", background: "#f8fafc", border: "1px solid #e8ecf2", borderRadius: 14, padding: "0.95rem 1rem" }}>
+                      <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
+                        {isDe ? "Wenn du nur 48 Stunden hast" : "If you only have 48 hours"}
+                      </div>
+                      <p style={{ fontFamily: "var(--font-body)", fontSize: "0.92rem", color: "#475569", lineHeight: 1.7, margin: 0 }}>
+                        {twoDayPlan}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -437,24 +476,45 @@ export default function CityPage({ params }: { params: { city: string } }) {
                 <div style={{ display: "grid", gap: "1rem" }}>
                   <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 20, padding: "1.35rem 1.4rem", boxShadow: "0 12px 40px rgba(15,32,68,0.06)" }}>
                     <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
-                      {isDe ? "Wo du schauen solltest" : "Where to focus"}
+                      {isDe ? "Wo du wohnen solltest" : "Where staying makes sense"}
                     </div>
                     <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.15rem", color: "#0f2044", margin: "0 0 0.65rem" }}>
-                      {isDe ? `Gute Gegenden für deinen ${city.name}-Trip` : `Good areas for your ${city.name} trip`}
+                      {isDe ? `Viertel, die zu ${city.name} passen` : `Areas that fit a ${city.name} trip`}
                     </h3>
                     <p style={{ fontFamily: "var(--font-body)", fontSize: "0.94rem", color: "#64748b", lineHeight: 1.7, margin: 0 }}>
-                      {isDe ? cityGuide.stayTipDe : cityGuide.stayTipEn}
+                      {stayTip}
                     </p>
+                    {premiumStayAreas && (
+                      <div style={{ display: "grid", gap: "0.5rem", marginTop: "0.85rem" }}>
+                        {premiumStayAreas.map((item) => (
+                          <div key={item} style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", color: "#475569", lineHeight: 1.6, paddingLeft: "1rem", position: "relative" }}>
+                            <span style={{ position: "absolute", left: 0, color: "#f97316", fontWeight: 900 }}>•</span>
+                            {item}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div style={{ background: "linear-gradient(160deg,#fff7ed,#ffffff)", border: "1px solid #fde7d7", borderRadius: 20, padding: "1.35rem 1.4rem", boxShadow: "0 12px 40px rgba(15,32,68,0.04)" }}>
                     <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
-                      {isDe ? "Spartipp für Hotels" : "Hotel saving tip"}
+                      {isDe ? "Wie du beim Hotel Geld sparst" : "How to save on the hotel"}
                     </div>
                     <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.15rem", color: "#0f2044", margin: "0 0 0.65rem" }}>
                       {isDe ? `So nutzt du Preisüberwachung in ${city.name} besser` : `How to use price tracking better in ${city.name}`}
                     </h3>
                     <p style={{ fontFamily: "var(--font-body)", fontSize: "0.94rem", color: "#7c2d12", lineHeight: 1.7, margin: 0 }}>
-                      {isDe ? cityGuide.savingTipDe : cityGuide.savingTipEn}
+                      {savingTip}
+                    </p>
+                  </div>
+                  <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 20, padding: "1.35rem 1.4rem", boxShadow: "0 12px 40px rgba(15,32,68,0.05)" }}>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
+                      {isDe ? "Wann Preise hier kippen können" : "When prices can move here"}
+                    </div>
+                    <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.15rem", color: "#0f2044", margin: "0 0 0.65rem" }}>
+                      {isDe ? `Timing für ${city.name}` : `Timing for ${city.name}`}
+                    </h3>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: "0.94rem", color: "#64748b", lineHeight: 1.7, margin: 0 }}>
+                      {hotelTimingSummary}
                     </p>
                   </div>
                 </div>
@@ -462,7 +522,7 @@ export default function CityPage({ params }: { params: { city: string } }) {
             </div>
           )}
 
-          {premiumIntro && premiumMustSee && premiumStayAreas && premiumTiming && (
+          {premiumIntro && premiumMustSee && (
             <div style={{ marginBottom: "3rem" }}>
               <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto 1.2rem" }}>
                 <div style={{ fontFamily: "var(--font-body)", fontSize: "0.76rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.6rem" }}>
@@ -476,7 +536,31 @@ export default function CityPage({ params }: { params: { city: string } }) {
                 </p>
               </div>
 
-              <div className="city-premium-grid" style={{ display: "grid", gridTemplateColumns: "1.02fr 0.98fr", gap: "1.2rem" }}>
+              <div className="city-premium-grid" style={{ display: "grid", gridTemplateColumns: "0.98fr 1.02fr", gap: "1.2rem" }}>
+                <div style={{ display: "grid", gap: "1rem" }}>
+                  <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 20, padding: "1.35rem 1.4rem", boxShadow: "0 12px 40px rgba(15,32,68,0.06)" }}>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
+                      {isDe ? "Warum diese Stadt hängen bleibt" : "Why this city sticks with you"}
+                    </div>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: "0.96rem", color: "#64748b", lineHeight: 1.78, margin: 0 }}>
+                      {premiumIntro}
+                    </p>
+                  </div>
+
+                  <div style={{ background: "linear-gradient(160deg,#fff7ed,#ffffff)", border: "1px solid #fde7d7", borderRadius: 20, padding: "1.35rem 1.4rem", boxShadow: "0 12px 40px rgba(15,32,68,0.04)" }}>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
+                      {isDe ? "Drei Empfehlungen, die nicht nach Standard klingen" : "Three recommendations that do not sound generic"}
+                    </div>
+                    <div style={{ display: "grid", gap: "0.65rem" }}>
+                      {premiumMustSee.map((item) => (
+                        <div key={item} style={{ background: "#ffffff", border: "1px solid #fde7d7", borderRadius: 14, padding: "0.85rem 0.95rem", fontFamily: "var(--font-body)", fontSize: "0.92rem", color: "#7c2d12", lineHeight: 1.6, fontWeight: 600 }}>
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
                 <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 20, overflow: "hidden", boxShadow: "0 12px 40px rgba(15,32,68,0.06)" }}>
                   <img
                     src={secondaryImage}
@@ -487,44 +571,18 @@ export default function CityPage({ params }: { params: { city: string } }) {
                     <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
                       {isDe ? "Das lohnt sich wirklich" : "What is genuinely worth it"}
                     </div>
-                    <div style={{ display: "grid", gap: "0.7rem" }}>
-                      {premiumMustSee.map((item) => (
-                        <div key={item} style={{ background: "#f8fafc", border: "1px solid #e8ecf2", borderRadius: 14, padding: "0.85rem 0.95rem", fontFamily: "var(--font-body)", fontSize: "0.92rem", color: "#334155", lineHeight: 1.6, fontWeight: 600 }}>
-                          {item}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ display: "grid", gap: "1rem" }}>
-                  <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 20, padding: "1.35rem 1.4rem", boxShadow: "0 12px 40px rgba(15,32,68,0.06)" }}>
-                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
-                      {isDe ? "Viertel mit gutem Gefühl" : "Areas that feel right"}
-                    </div>
-                    <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.15rem", color: "#0f2044", margin: "0 0 0.7rem" }}>
-                      {isDe ? `Wo ${city.name} oft am meisten Sinn macht` : `Where ${city.name} often works best`}
-                    </h3>
-                    <div style={{ display: "grid", gap: "0.6rem" }}>
-                      {premiumStayAreas.map((item) => (
-                        <div key={item} style={{ fontFamily: "var(--font-body)", fontSize: "0.94rem", color: "#64748b", lineHeight: 1.65, paddingLeft: "1rem", position: "relative" }}>
-                          <span style={{ position: "absolute", left: 0, color: "#f97316", fontWeight: 900 }}>•</span>
-                          {item}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div style={{ background: "linear-gradient(160deg,#fff7ed,#ffffff)", border: "1px solid #fde7d7", borderRadius: 20, padding: "1.35rem 1.4rem", boxShadow: "0 12px 40px rgba(15,32,68,0.04)" }}>
-                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
-                      {isDe ? "Wann Tracking hier richtig zieht" : "When tracking really helps here"}
-                    </div>
-                    <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.15rem", color: "#0f2044", margin: "0 0 0.65rem" }}>
-                      {isDe ? `Timing für ${city.name}` : `Timing for ${city.name}`}
-                    </h3>
-                    <p style={{ fontFamily: "var(--font-body)", fontSize: "0.94rem", color: "#7c2d12", lineHeight: 1.7, margin: 0 }}>
-                      {premiumTiming}
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: "0.94rem", color: "#64748b", lineHeight: 1.7, margin: "0 0 1rem" }}>
+                      {isDe
+                        ? `Wenn du ${city.name} nicht nur abhaken, sondern richtig erleben willst, helfen klare Schwerpunkte mehr als ein endloser Programmmix.`
+                        : `If you want to actually feel ${city.name} instead of just ticking it off, a few clear priorities usually help more than an endless list.`}
                     </p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.55rem" }}>
+                      {highlightList.map((item) => (
+                        <span key={item} style={{ background: "#f8fafc", border: "1px solid #e8ecf2", borderRadius: 999, padding: "0.45rem 0.8rem", fontFamily: "var(--font-body)", fontSize: "0.86rem", color: "#334155", fontWeight: 600 }}>
+                          {item}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
