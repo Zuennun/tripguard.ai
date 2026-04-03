@@ -34,11 +34,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { getAllCities } = require("@/lib/cities");
+    const topCities = new Set(["amsterdam", "paris", "barcelona", "london", "rom", "wien", "budapest", "athen", "istanbul", "dubai"]);
     cityPages = getAllCities().map((city: { slug: string }) => ({
       url: `${BASE}/hotels/${city.slug}`,
       lastModified: now,
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
+      changeFrequency: "weekly" as const,
+      priority: topCities.has(city.slug) ? 0.85 : 0.75,
     }));
   } catch {}
 

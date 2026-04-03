@@ -7,11 +7,21 @@ import Footer from "@/components/Footer";
 import { getAllCities } from "@/lib/cities";
 
 export const metadata: Metadata = {
-  title: "Hotelpreise überwachen nach Stadt — SaveMyHoliday",
+  title: "Hotelpreise überwachen nach Stadt — Europa & Weltweit | SaveMyHoliday",
   description:
-    "Wähle deine Reisestadt und überwache Hotelpreise automatisch. Kostenlos, kein Account nötig — SaveMyHoliday benachrichtigt dich bei Preissenkungen.",
+    "Wähle deine Reisestadt und überwache Hotelpreise automatisch nach der Buchung. Amsterdam, Paris, Barcelona, London und 16 weitere Städte — kostenlos, kein Account.",
   keywords:
-    "hotelpreise überwachen städte, preisalarm hotel europa, hotel preis senken reise, günstig hotel buchen weltweit",
+    "hotelpreise überwachen städte, preisalarm hotel europa, hotel preis senken nach buchung, günstig hotel buchen weltweit, hotelpreise amsterdam paris barcelona london",
+  alternates: {
+    canonical: "https://www.rebookandsave.com/hotels",
+  },
+  openGraph: {
+    title: "Hotelpreise überwachen — Europa & Weltweit | SaveMyHoliday",
+    description: "20 Städte, täglich geprüft. Buche früh und lass den Preis automatisch weiter laufen.",
+    type: "website",
+    url: "https://www.rebookandsave.com/hotels",
+    images: [{ url: "https://www.rebookandsave.com/Reiseziel.gif", width: 1200, height: 630, alt: "Hotelpreise überwachen nach Stadt" }],
+  },
 };
 
 export default function HotelsOverviewPage() {

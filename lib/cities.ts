@@ -167,7 +167,7 @@ export const cities: City[] = [
     country: "Österreich",
     countryCode: "AT",
     image: "https://images.unsplash.com/photo-1609856878074-cf31e21ccb6b?auto=format&fit=crop&w=600&q=80",
-    secondaryImage: "https://images.unsplash.com/photo-1516550893885-985c836c7e95?auto=format&fit=crop&w=1200&h=760&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1663214957746-2da10a9f4b2b?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Hotelpreise in Wien automatisch überwachen lassen und bei jeder Preissenkung sofort per E-Mail benachrichtigt werden.",
     description_en:
@@ -310,8 +310,8 @@ export const cities: City[] = [
     name: "Mallorca",
     country: "Spanien",
     countryCode: "ES",
-    image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=600&q=80",
-    secondaryImage: "https://images.unsplash.com/photo-1574279606130-09958dc756f7?auto=format&fit=crop&w=1200&h=760&q=80",
+    image: "https://images.unsplash.com/photo-1566993850067-bb8df9c9807e?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1544559288-84fed207c569?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Mallorca-Hotelpreise täglich überwachen und bei Preissenkungen sofort reagieren — mit SaveMyHoliday komplett kostenlos.",
     description_en:
@@ -334,8 +334,8 @@ export const cities: City[] = [
     name: "Teneriffa",
     country: "Spanien",
     countryCode: "ES",
-    image: "https://images.unsplash.com/photo-1563784462041-5f97ac9523dd?auto=format&fit=crop&w=600&q=80",
-    secondaryImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&h=760&q=80",
+    image: "https://images.unsplash.com/photo-1671918585231-989d97102c7a?auto=format&fit=crop&w=600&q=80",
+    secondaryImage: "https://images.unsplash.com/photo-1661075246752-4fc14f8c2d60?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Teneriffa-Hotelpreise im Blick behalten und nie wieder zu viel für das Urlaubs-Hotel auf der Sonneninsel zahlen.",
     description_en:

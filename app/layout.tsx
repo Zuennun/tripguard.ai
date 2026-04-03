@@ -73,12 +73,57 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "SaveMyHoliday",
+  url: "https://www.rebookandsave.com",
+  logo: "https://www.rebookandsave.com/tripguard1.png",
+  sameAs: [
+    "https://x.com/zuennunardal",
+    "https://www.tiktok.com/@savemyholiday.com",
+  ],
+  contactPoint: {
+    "@type": "ContactPoint",
+    email: "hello@savemyholiday.com",
+    contactType: "customer service",
+  },
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "SaveMyHoliday",
+  url: "https://www.rebookandsave.com",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: "https://www.rebookandsave.com/hotels/{search_term_string}",
+    },
+    "query-input": "required name=search_term_string",
+  },
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const headersList = headers();
   const locale = (headersList.get("x-locale") || "en") as Locale;
 
   return (
     <html lang={locale}>
+      <head>
+        <link rel="alternate" hrefLang="de" href="https://www.rebookandsave.com" />
+        <link rel="alternate" hrefLang="en" href="https://www.rebookandsave.com" />
+        <link rel="alternate" hrefLang="x-default" href="https://www.rebookandsave.com" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+      </head>
       <body>
         {children}
         <CookieBanner />

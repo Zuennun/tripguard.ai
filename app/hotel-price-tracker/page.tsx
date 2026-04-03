@@ -11,33 +11,36 @@ import { SITE_URL } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Hotel Price Tracker After Booking — SaveMyHoliday",
+    title: "Hotel Price Tracker — Hotelpreise nach der Buchung überwachen",
     description:
-      "Track hotel prices after booking and get alerted when rates drop. SaveMyHoliday helps you monitor your hotel daily, compare prices, and rebook cheaper.",
+      "SaveMyHoliday überwacht deinen Hotelpreis täglich nach der Buchung und benachrichtigt dich wenn er fällt. Kostenlos, kein Account — einfach Buchung eintragen und sparen.",
     keywords: [
       "hotel price tracker",
+      "hotelpreis überwachen nach buchung",
       "hotel price alert after booking",
       "track hotel price after booking",
+      "hotelpreise vergleichen nach buchung",
       "hotel price drop alert",
       "booking.com price tracker",
+      "hotel preisalarm kostenlos",
     ].join(", "),
     alternates: {
       canonical: `${SITE_URL}/hotel-price-tracker`,
     },
     openGraph: {
-      title: "Hotel Price Tracker After Booking — SaveMyHoliday",
+      title: "Hotel Price Tracker — Hotelpreise täglich überwachen",
       description:
-        "Track hotel prices after booking and get alerted when a cheaper rate appears.",
+        "Dein Hotelpreis fällt nach der Buchung — SaveMyHoliday benachrichtigt dich sofort. Kostenlos, kein Account.",
       type: "website",
       url: `${SITE_URL}/hotel-price-tracker`,
-      images: [`${SITE_URL}/tripguard1.png`],
+      images: [{ url: `${SITE_URL}/hero.gif`, width: 1200, height: 630, alt: "SaveMyHoliday Hotel Price Tracker" }],
     },
     twitter: {
       card: "summary_large_image",
-      title: "Hotel Price Tracker After Booking — SaveMyHoliday",
+      title: "Hotel Price Tracker — Hotelpreise täglich überwachen",
       description:
-        "Track hotel prices after booking and get alerted when a cheaper rate appears.",
-      images: [`${SITE_URL}/tripguard1.png`],
+        "Dein Hotelpreis fällt nach der Buchung — SaveMyHoliday benachrichtigt dich sofort. Kostenlos, kein Account.",
+      images: [`${SITE_URL}/hero.gif`],
     },
   };
 }

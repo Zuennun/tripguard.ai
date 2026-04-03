@@ -352,6 +352,276 @@ export const blogPosts: BlogPost[] = [
       `,
     },
   },
+  {
+    slug: "hotel-stornieren-neu-buchen",
+    date: "2026-04-03",
+    readTime: 6,
+    category: "Ratgeber",
+    keywords: [
+      "hotel stornieren und neu buchen",
+      "hotel umbuchen günstiger",
+      "hotel preissenkung nach buchung",
+      "hotel günstiger nach buchung",
+      "flexible stornierung hotel",
+    ],
+    title: {
+      de: "Hotel stornieren und neu buchen: Wann es sich lohnt und wie es geht",
+      en: "Cancel and Rebook Your Hotel: When It Pays Off and How to Do It",
+    },
+    description: {
+      de: "Wenn dein Hotel nach der Buchung günstiger wird, kannst du stornieren und neu buchen. Wir erklären wann das funktioniert, was du beachten musst — und wie du den Moment nicht verpasst.",
+      en: "When your hotel gets cheaper after booking, you can cancel and rebook. We explain when it works, what to watch out for — and how to not miss the moment.",
+    },
+    content: {
+      de: `
+<p>Du hast dein Hotel gebucht — und plötzlich ist derselbe Aufenthalt für 180 Euro günstiger zu haben. Kannst du einfach stornieren und neu buchen? Ja. Aber es gibt ein paar Dinge, die du wissen solltest, bevor du handelst.</p>
+
+<h2>Die Grundvoraussetzung: kostenlose Stornierung</h2>
+
+<p>Hotel stornieren und neu buchen funktioniert am einfachsten, wenn du einen <strong>flexiblen Tarif mit kostenloser Stornierung</strong> gebucht hast. Das ist die wichtigste Weiche, die du beim Buchen stellen kannst — und viele Reisende unterschätzen sie.</p>
+
+<div class="stat-box">
+  <div class="stat-number">∅ 18%</div>
+  <div class="stat-label">So stark fallen Hotelpreise im Schnitt zwischen Buchung und Anreise — bei 1.000 € Aufenthalt sind das <strong style="color:#f97316">180 € Sparpotenzial</strong>.</div>
+</div>
+
+<p>Bei nicht erstattungsfähigen Tarifen ist es schwieriger, aber nicht unmöglich. Manche Hotels übernehmen auf direkte Anfrage die Preisanpassung, besonders bei Stammkunden oder Direktbuchern.</p>
+
+<h2>Wann lohnt sich das Umbuchen wirklich?</h2>
+
+<p>Nicht jede Preissenkung rechtfertigt den Aufwand. Als Faustregel gilt:</p>
+
+<ul>
+  <li><strong>Preisunterschied ≥ 30 Euro:</strong> Definitiv handeln — der Aufwand dauert 10 Minuten.</li>
+  <li><strong>Gleicher Zimmertyp verfügbar:</strong> Immer prüfen, ob dieselbe Kategorie noch buchbar ist. Manchmal ist nur ein schlechteres Zimmer günstig.</li>
+  <li><strong>Gleiche Stornierungsbedingungen:</strong> Die neue Buchung sollte mindestens dieselbe Flexibilität bieten wie die alte.</li>
+  <li><strong>Ausreichend Vorlaufzeit:</strong> Idealerweise mindestens eine Woche vor Anreise, damit keine Komplikationen entstehen.</li>
+</ul>
+
+<h2>Schritt für Schritt: So buchst du um</h2>
+
+<ol>
+  <li><strong>Neues Angebot prüfen:</strong> Suche denselben Aufenthalt neu — gleiche Daten, gleiches Hotel, gleicher Zimmertyp. Screenshot machen.</li>
+  <li><strong>Neue Buchung abschließen:</strong> Buche erst die neue, günstigere Rate. Erst dann stornieren — so hast du immer eine bestätigte Reservierung.</li>
+  <li><strong>Alte Buchung stornieren:</strong> Storniere die teurere Buchung innerhalb der Stornierungsfrist. Bestätigungsmail aufbewahren.</li>
+  <li><strong>Rückerstattung abwarten:</strong> Bei Kreditkartenzahlung dauert die Rückbuchung meist 3–7 Werktage.</li>
+</ol>
+
+<blockquote>Erst neu buchen, dann stornieren — nicht umgekehrt. So bist du zu keinem Zeitpunkt ohne Reservierung.</blockquote>
+
+<h2>Häufige Fehler beim Umbuchen</h2>
+
+<ul>
+  <li><strong>Erst stornieren, dann neu buchen:</strong> Riskant — das Zimmer könnte zwischenzeitlich vergriffen sein.</li>
+  <li><strong>Unterschiedliche Zimmertypen:</strong> Ein "günstigeres Zimmer" ist oft eine kleinere Kategorie. Immer genau vergleichen.</li>
+  <li><strong>Stornierungsfrist übersehen:</strong> Viele flexible Tarife haben eine Frist (z. B. "kostenlose Stornierung bis 72 Stunden vorher"). Nach Fristablauf ist die Buchung nicht mehr kostenlos stornierbar.</li>
+  <li><strong>Währungsunterschiede ignorieren:</strong> Bei internationalen Buchungen kann ein scheinbar günstigerer Preis durch den Wechselkurs teurer werden.</li>
+</ul>
+
+<h2>Was wenn ich einen nicht erstattungsfähigen Tarif habe?</h2>
+
+<p>Es lohnt sich trotzdem, direkt beim Hotel anzufragen. Formuliere es so:</p>
+
+<blockquote>„Ich habe festgestellt, dass mein Zimmer aktuell zu einem günstigeren Preis verfügbar ist. Ist es möglich, den Preis meiner bestehenden Buchung entsprechend anzupassen?"</blockquote>
+
+<p>Viele Hotels stimmen zu, besonders wenn du direkt buchst oder Stammkunde bist. Worst case: Nein. Best case: Du sparst 200 Euro ohne Aufwand.</p>
+
+<h2>Den Moment nicht verpassen: automatische Preisüberwachung</h2>
+
+<p>Das Problem: Den richtigen Moment zu erwischen ist Glückssache — wenn du nicht täglich manuell schaust. SaveMyHoliday überwacht deinen Hotelpreis <strong>täglich automatisch</strong> und benachrichtigt dich per E-Mail, sobald eine günstigere Rate für denselben Aufenthalt auftaucht.</p>
+
+<p>So musst du nicht selbst suchen — du bekommst nur dann eine Nachricht, wenn wirklich etwas zu holen ist. <strong>Kostenlos, ohne Account.</strong></p>
+      `,
+      en: `
+<p>You booked your hotel — and suddenly the same stay is available for €180 less. Can you just cancel and rebook? Yes. But there are a few things you should know before you act.</p>
+
+<h2>The core requirement: free cancellation</h2>
+
+<p>Cancelling and rebooking a hotel works most smoothly when you have a <strong>flexible rate with free cancellation</strong>. This is the most important switch you can set when booking — and many travellers underestimate it.</p>
+
+<div class="stat-box">
+  <div class="stat-number">∅ 18%</div>
+  <div class="stat-label">Average hotel price drop between booking and check-in — on a €1,000 stay that's <strong style="color:#f97316">€180 in potential savings</strong>.</div>
+</div>
+
+<p>With non-refundable rates it is harder but not impossible. Some hotels accommodate a price adjustment on direct request, especially for loyalty members or direct bookers.</p>
+
+<h2>When is rebooking genuinely worth it?</h2>
+
+<ul>
+  <li><strong>Price difference ≥ €30:</strong> Definitely act — the effort takes 10 minutes.</li>
+  <li><strong>Same room type available:</strong> Always check that the same category is still bookable. Sometimes only a smaller room is cheaper.</li>
+  <li><strong>Same cancellation terms:</strong> The new booking should offer at least the same flexibility as the old one.</li>
+  <li><strong>Enough lead time:</strong> Ideally at least one week before arrival so there are no complications.</li>
+</ul>
+
+<h2>Step by step: how to rebook</h2>
+
+<ol>
+  <li><strong>Check the new offer:</strong> Search the same stay fresh — same dates, same hotel, same room type. Take a screenshot.</li>
+  <li><strong>Complete the new booking first:</strong> Book the new, cheaper rate first. Then cancel — so you always have a confirmed reservation.</li>
+  <li><strong>Cancel the old booking:</strong> Cancel the more expensive booking within the cancellation window. Keep the confirmation email.</li>
+  <li><strong>Wait for the refund:</strong> Credit card refunds typically take 3–7 business days.</li>
+</ol>
+
+<blockquote>Book new first, then cancel — not the other way around. That way you are never without a reservation.</blockquote>
+
+<h2>Common rebooking mistakes</h2>
+
+<ul>
+  <li><strong>Cancelling before rebooking:</strong> Risky — the room could be gone by the time you try to rebook.</li>
+  <li><strong>Different room categories:</strong> A "cheaper room" is often a smaller category. Always compare carefully.</li>
+  <li><strong>Missing the cancellation deadline:</strong> Many flexible rates have a window (e.g. "free cancellation until 72 hours before"). After that deadline, the booking is no longer free to cancel.</li>
+  <li><strong>Ignoring currency differences:</strong> On international bookings, a seemingly cheaper price can end up more expensive after exchange rates.</li>
+</ul>
+
+<h2>What if I have a non-refundable rate?</h2>
+
+<p>It is still worth asking the hotel directly. Try this phrasing:</p>
+
+<blockquote>"I noticed my room is currently available at a lower price. Would it be possible to adjust the price of my existing booking accordingly?"</blockquote>
+
+<p>Many hotels agree, especially for direct bookers or regular guests. Worst case: No. Best case: You save €200 with no effort.</p>
+
+<h2>Don't miss the moment: automatic price monitoring</h2>
+
+<p>The problem: catching the right moment is luck — unless you check manually every single day. SaveMyHoliday monitors your hotel price <strong>automatically every day</strong> and emails you as soon as a cheaper rate appears for the same stay.</p>
+
+<p>You don't need to search yourself — you only get a message when there is actually something to gain. <strong>Free, no account needed.</strong></p>
+      `,
+    },
+  },
+  {
+    slug: "flexibel-oder-guenstig-buchen",
+    date: "2026-04-02",
+    readTime: 5,
+    category: "Ratgeber",
+    keywords: [
+      "flexibel buchen hotel lohnt sich",
+      "nicht erstattungsfähig vs kostenlose stornierung",
+      "hotel tarif vergleich",
+      "wann flexibel buchen sinnvoll",
+      "hotel preisgarantie",
+    ],
+    title: {
+      de: "Flexibel oder günstig buchen? Was sich beim Hotel wirklich lohnt",
+      en: "Book Flexible or Cheap? What Actually Pays Off at Hotels",
+    },
+    description: {
+      de: "Nicht erstattungsfähig oder kostenlose Stornierung? Wir rechnen durch wann sich welcher Tarif wirklich lohnt — mit konkreten Beispielen und dem entscheidenden Faktor den die meisten übersehen.",
+      en: "Non-refundable or free cancellation? We calculate when each rate type actually pays off — with concrete examples and the decisive factor most people miss.",
+    },
+    content: {
+      de: `
+<p>Du buchst ein Hotel und hast die Wahl: <strong>20 Euro sparen</strong> mit nicht erstattungsfähigem Tarif — oder den flexiblen Tarif nehmen und die Option zu stornieren behalten. Was ist die richtige Entscheidung?</p>
+
+<p>Es kommt darauf an. Aber die Antwort ist deutlich klarer, als die meisten denken.</p>
+
+<h2>Was der Preisunterschied wirklich bedeutet</h2>
+
+<p>Sagen wir, der flexible Tarif kostet 220 Euro, der nicht erstattungsfähige 195 Euro. Der Unterschied: 25 Euro. Das klingt überschaubar.</p>
+
+<p>Aber jetzt rechne mit: Wenn der Hotelpreis nach deiner Buchung um <strong>18%</strong> fällt — der statistische Durchschnitt — sparst du bei einem 220-Euro-Aufenthalt <strong>ca. 40 Euro</strong> durch das Umbuchen. Du hast die 25 Euro für Flexibilität also doppelt zurückbekommen.</p>
+
+<div class="stat-box">
+  <div class="stat-number">∅ 18%</div>
+  <div class="stat-label">So stark fallen Hotelpreise nach der Buchung im Durchschnitt — bei einem 500-€-Aufenthalt sind das <strong style="color:#f97316">90 € Sparpotenzial</strong>.</div>
+</div>
+
+<h2>Wann lohnt sich der nicht erstattungsfähige Tarif?</h2>
+
+<p>Es gibt Situationen, in denen der günstigere, starre Tarif die bessere Wahl ist:</p>
+
+<ul>
+  <li><strong>Sehr kurzfristige Buchungen:</strong> Wenn du heute buchst und morgen anreist, gibt es kaum Zeit für weitere Preissenkungen.</li>
+  <li><strong>Sehr günstige Basispreise:</strong> Bei einem 50-Euro-Hotel ist das Sparpotenzial durch Preisüberwachung klein. Bei einem 500-Euro-Hotel ist es groß.</li>
+  <li><strong>100% sichere Reise:</strong> Wenn du absolut sicher bist anzureisen — keine Kranken im Haushalt, kein Streikrisiko, keine beruflichen Unwägbarkeiten.</li>
+  <li><strong>Kleiner Preisunterschied zwischen Tarifen:</strong> Wenn beide Tarife fast gleich kosten, ist Flexibilität fast immer die bessere Wahl.</li>
+</ul>
+
+<h2>Wann lohnt sich der flexible Tarif fast immer?</h2>
+
+<ul>
+  <li><strong>Buchung mehr als 4 Wochen vor Anreise:</strong> Je früher du buchst, desto wahrscheinlicher ist es, dass der Preis später fällt.</li>
+  <li><strong>Hochpreisige Aufenthalte:</strong> Bei Hotels über 300 Euro Gesamtpreis ist die Ersparnis durch mögliches Umbuchen statistisch größer als der Aufpreis für Flexibilität.</li>
+  <li><strong>Städtereisen in Hochsaisonzeiten:</strong> Messen, Events und Feiertage erzeugen künstliche Preisspitzen, die danach oft wieder fallen.</li>
+  <li><strong>Wenn du Kinder reist oder gesundheitliche Risiken bestehen:</strong> Stornierungsrisiken sind real — Flexibilität ist Versicherung.</li>
+</ul>
+
+<h2>Der Faktor, den die meisten übersehen</h2>
+
+<p>Die meisten Reisenden denken beim Buchen: "Ich reise auf jeden Fall." Das stimmt meistens auch. Aber das ist nicht der entscheidende Punkt.</p>
+
+<p>Der entscheidende Punkt ist: <strong>Kann der Preis nach meiner Buchung noch fallen?</strong> Und die Antwort ist fast immer Ja — besonders bei frühen Buchungen und beliebten Städten.</p>
+
+<p>Flexibilität zu kaufen bedeutet nicht, dass du unsicher bist ob du reist. Es bedeutet, dass du eine Option auf spätere Preissenkungen hast. Das ist ein finanzieller Vorteil — kein Unsicherheitsausdruck.</p>
+
+<h2>Die optimale Strategie: flexibel buchen + Preisüberwachung</h2>
+
+<ol>
+  <li>Buche den flexiblen Tarif — sichere dir Zimmer und Datum.</li>
+  <li>Stelle bei SaveMyHoliday eine Preisüberwachung ein — kostenlos, ohne Account.</li>
+  <li>Wenn der Preis fällt, bekommst du eine E-Mail und kannst umbuchen.</li>
+  <li>Wenn nicht, hast du den Aufpreis für Flexibilität als Absicherung bezahlt — oft deutlich günstiger als eine Reiserücktrittsversicherung.</li>
+</ol>
+
+<p>Die Kombination aus flexiblem Tarif und automatischer Preisüberwachung ist für die meisten Reisenden die optimale Strategie — und sie kostet nichts außer 5 Minuten beim Einrichten.</p>
+      `,
+      en: `
+<p>You're booking a hotel and you have a choice: <strong>save €20</strong> with a non-refundable rate — or take the flexible rate and keep the option to cancel. What is the right decision?</p>
+
+<p>It depends. But the answer is much clearer than most people think.</p>
+
+<h2>What the price difference actually means</h2>
+
+<p>Say the flexible rate costs €220, the non-refundable €195. The difference: €25. That sounds manageable.</p>
+
+<p>But now factor in: if the hotel price drops by <strong>18%</strong> after your booking — the statistical average — you save around <strong>€40</strong> by rebooking on a €220 stay. You got the €25 flexibility fee back twice over.</p>
+
+<div class="stat-box">
+  <div class="stat-number">∅ 18%</div>
+  <div class="stat-label">Average hotel price drop after booking — on a €500 stay that's <strong style="color:#f97316">€90 in potential savings</strong>.</div>
+</div>
+
+<h2>When does the non-refundable rate make sense?</h2>
+
+<ul>
+  <li><strong>Very last-minute bookings:</strong> If you book today and arrive tomorrow, there is little time for further price drops.</li>
+  <li><strong>Very low base prices:</strong> For a €50 hotel the savings potential from monitoring is small. For a €500 hotel it is significant.</li>
+  <li><strong>100% certain travel:</strong> If you are absolutely sure you will travel — no illness risk, no strike risk, no work uncertainty.</li>
+  <li><strong>Small price gap between rate types:</strong> If both rates cost nearly the same, flexibility is almost always the better choice.</li>
+</ul>
+
+<h2>When does the flexible rate almost always win?</h2>
+
+<ul>
+  <li><strong>Booking more than 4 weeks ahead:</strong> The earlier you book, the more likely the price will fall later.</li>
+  <li><strong>High-value stays:</strong> For hotels over €300 total, the savings from potential rebooking are statistically larger than the flexibility premium.</li>
+  <li><strong>City trips during peak periods:</strong> Fairs, events and holidays create artificial price spikes that often fall again.</li>
+  <li><strong>Travelling with children or if health risks exist:</strong> Cancellation risks are real — flexibility is insurance.</li>
+</ul>
+
+<h2>The factor most people miss</h2>
+
+<p>Most travellers think when booking: "I will definitely travel." That is usually true. But that is not the key point.</p>
+
+<p>The key point is: <strong>Can the price fall after my booking?</strong> And the answer is almost always yes — especially for early bookings and popular cities.</p>
+
+<p>Buying flexibility does not mean you are unsure about travelling. It means you have an option on later price drops. That is a financial advantage — not an expression of doubt.</p>
+
+<h2>The optimal strategy: book flexible + price monitoring</h2>
+
+<ol>
+  <li>Book the flexible rate — secure your room and dates.</li>
+  <li>Set up price monitoring at SaveMyHoliday — free, no account needed.</li>
+  <li>If the price drops, you get an email and can rebook.</li>
+  <li>If not, you paid the flexibility premium as a safety net — often cheaper than travel insurance.</li>
+</ol>
+
+<p>The combination of a flexible rate and automatic price monitoring is the optimal strategy for most travellers — and it costs nothing but 5 minutes to set up.</p>
+      `,
+    },
+  },
 ];
 
 export function getAllPosts(): BlogPost[] {

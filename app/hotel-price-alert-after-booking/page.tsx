@@ -9,17 +9,33 @@ import { getAllPosts } from "@/lib/blog";
 import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Hotel Price Alert After Booking — SaveMyHoliday",
+  title: "Hotel Preisalarm nach Buchung — SaveMyHoliday",
   description:
-    "Set a hotel price alert after booking and get notified when the same stay becomes cheaper. SaveMyHoliday helps you monitor hotel rates without an account.",
+    "Preisalarm für dein bereits gebuchtes Hotel: SaveMyHoliday überwacht täglich ob derselbe Aufenthalt günstiger wird und benachrichtigt dich sofort — kostenlos, kein Account.",
   keywords: [
+    "hotel preisalarm nach buchung",
     "hotel price alert after booking",
+    "hotel günstiger nach buchung",
     "hotel price drop alert after booking",
-    "booking.com price alert after booking",
-    "hotel gets cheaper after booking",
+    "booking.com preisalarm nach buchung",
+    "hotel wird günstiger nach buchung",
+    "hotel stornieren und neu buchen",
   ].join(", "),
   alternates: {
     canonical: `${SITE_URL}/hotel-price-alert-after-booking`,
+  },
+  openGraph: {
+    title: "Hotel Preisalarm nach Buchung — SaveMyHoliday",
+    description: "Wir überwachen täglich ob dein Hotel günstiger wird. Du bekommst eine E-Mail — kostenlos, kein Account.",
+    type: "website",
+    url: `${SITE_URL}/hotel-price-alert-after-booking`,
+    images: [{ url: `${SITE_URL}/Alarm.gif`, width: 1200, height: 630, alt: "Hotel Preisalarm SaveMyHoliday" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Hotel Preisalarm nach Buchung — SaveMyHoliday",
+    description: "Wir überwachen täglich ob dein Hotel günstiger wird. Du bekommst eine E-Mail — kostenlos.",
+    images: [`${SITE_URL}/Alarm.gif`],
   },
 };
 
