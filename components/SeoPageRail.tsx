@@ -70,20 +70,12 @@ export default function SeoPageRail({
           >
             <div
               style={{
-                minHeight: 145,
-                padding: "1rem",
-                background: "linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                height: 170,
+                backgroundImage: `linear-gradient(180deg, rgba(15,32,68,0.08), rgba(15,32,68,0.18)), url(${item.image})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
               }}
-            >
-              <img
-                src={item.image}
-                alt={item.title}
-                style={{ width: "100%", maxWidth: 150, height: "auto", display: "block" }}
-              />
-            </div>
+            />
             <div style={{ padding: "1.1rem 1.15rem 1.2rem", textAlign: "center" }}>
               <div
                 style={{

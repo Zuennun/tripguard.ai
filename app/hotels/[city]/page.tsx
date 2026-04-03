@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SeoPageRail from "@/components/SeoPageRail";
 import { getCityBySlug, getAllCities } from "@/lib/cities";
+import { getCityGuide } from "@/lib/cityGuides";
 import { getAllPosts } from "@/lib/blog";
 
 // ─── Static params ─────────────────────────────────────────────────────────────
@@ -118,6 +119,7 @@ export default function CityPage({ params }: { params: { city: string } }) {
   const keywords = isDe ? city.keywords_de : city.keywords_en;
   const relatedCities = getAllCities().filter((entry) => entry.slug !== city.slug).slice(0, 3);
   const relatedPosts = getAllPosts().slice(0, 3);
+  const cityGuide = getCityGuide(city.slug);
   const railItems = [
     {
       href: "/hotel-price-tracker",
@@ -125,7 +127,7 @@ export default function CityPage({ params }: { params: { city: string } }) {
       text: isDe
         ? "Die Übersichtsseite zum gesamten Thema Preisüberwachung nach der Buchung."
         : "The overview page for the full post-booking hotel tracking topic.",
-      image: "/hero.gif",
+      image: city.image,
     },
     {
       href: "/hotel-price-alert-after-booking",
@@ -133,7 +135,7 @@ export default function CityPage({ params }: { params: { city: string } }) {
       text: isDe
         ? "Hier wird erklärt, wann ein günstigerer Preis später wirklich relevant wird."
         : "This explains when a later cheaper price really matters.",
-      image: "/sparen.gif",
+      image: relatedCities[0]?.image ?? city.image,
     },
     {
       href: "/blog",
@@ -141,7 +143,7 @@ export default function CityPage({ params }: { params: { city: string } }) {
       text: isDe
         ? "Mehr Kontext zu Stornierung, Preisstürzen und cleveren Rebooking-Entscheidungen."
         : "More context on cancellation, price drops and smarter rebooking decisions.",
-      image: "/scanner.gif",
+      image: relatedCities[1]?.image ?? city.image,
     },
   ];
   const faqItems = isDe
@@ -277,7 +279,7 @@ export default function CityPage({ params }: { params: { city: string } }) {
               {introParagraph}
             </p>
             <div style={{ display: "flex", justifyContent: "center" }}>
-              <img src="/hero.gif" alt={pageTitle} style={{ width: "100%", maxWidth: 280, height: "auto", display: "block" }} />
+              <img src={city.image} alt={pageTitle} style={{ width: "100%", maxWidth: 660, height: 280, objectFit: "cover", borderRadius: 24, display: "block", boxShadow: "0 24px 60px rgba(0,0,0,0.22)" }} />
             </div>
           </div>
         </div>
@@ -332,7 +334,9 @@ export default function CityPage({ params }: { params: { city: string } }) {
                   }}
                 >
                   <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.85rem" }}>
-                    <img src={step.image} alt={step.title} style={{ width: "100%", maxWidth: 92, height: "auto", display: "block" }} />
+                    <span style={{ width: 56, height: 56, borderRadius: 999, background: "#fff7ed", color: "#f97316", display: "inline-flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "1.4rem" }}>
+                      {i + 1}
+                    </span>
                   </div>
                   <div style={{
                     fontFamily: "var(--font-body)",
@@ -561,6 +565,68 @@ export default function CityPage({ params }: { params: { city: string } }) {
             </div>
           </div>
 
+          {cityGuide && (
+            <div style={{ marginBottom: "3rem" }}>
+              <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto 1.2rem" }}>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: "0.76rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.6rem" }}>
+                  {isDe ? `Mehrwert für ${city.name}` : `Useful context for ${city.name}`}
+                </div>
+                <h2 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(1.45rem, 3vw, 2.1rem)", color: "#0f2044", lineHeight: 1.15, margin: 0 }}>
+                  {isDe ? `Was du dir in ${city.name} anschauen solltest und wie du smarter sparst` : `What to see in ${city.name} and how to save more intelligently`}
+                </h2>
+              </div>
+
+              <div className="city-guide-grid" style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: "1.2rem" }}>
+                <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 20, overflow: "hidden", boxShadow: "0 12px 40px rgba(15,32,68,0.06)" }}>
+                  <img src={city.image} alt={`${city.name} travel guide`} style={{ width: "100%", height: 240, objectFit: "cover", display: "block" }} />
+                  <div style={{ padding: "1.35rem 1.4rem 1.45rem" }}>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
+                      {isDe ? "Was sich lohnt" : "Worth seeing"}
+                    </div>
+                    <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.22rem", color: "#0f2044", margin: "0 0 0.75rem" }}>
+                      {isDe ? `${city.name} jenseits der reinen Hotelsuche` : `${city.name} beyond the hotel search`}
+                    </h3>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: "0.95rem", color: "#64748b", lineHeight: 1.7, margin: "0 0 1rem" }}>
+                      {isDe ? cityGuide.travelNoteDe : cityGuide.travelNoteEn}
+                    </p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.55rem" }}>
+                      {(isDe ? cityGuide.highlightsDe : cityGuide.highlightsEn).map((item) => (
+                        <span key={item} style={{ background: "#f8fafc", border: "1px solid #e8ecf2", borderRadius: 999, padding: "0.45rem 0.8rem", fontFamily: "var(--font-body)", fontSize: "0.86rem", color: "#334155", fontWeight: 600 }}>
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: "grid", gap: "1rem" }}>
+                  <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 20, padding: "1.35rem 1.4rem", boxShadow: "0 12px 40px rgba(15,32,68,0.06)" }}>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
+                      {isDe ? "Wo du schauen solltest" : "Where to focus"}
+                    </div>
+                    <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.15rem", color: "#0f2044", margin: "0 0 0.65rem" }}>
+                      {isDe ? `Gute Gegenden für deinen ${city.name}-Trip` : `Good areas for your ${city.name} trip`}
+                    </h3>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: "0.94rem", color: "#64748b", lineHeight: 1.7, margin: 0 }}>
+                      {isDe ? cityGuide.stayTipDe : cityGuide.stayTipEn}
+                    </p>
+                  </div>
+                  <div style={{ background: "linear-gradient(160deg,#fff7ed,#ffffff)", border: "1px solid #fde7d7", borderRadius: 20, padding: "1.35rem 1.4rem", boxShadow: "0 12px 40px rgba(15,32,68,0.04)" }}>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
+                      {isDe ? "Spartipp für Hotels" : "Hotel saving tip"}
+                    </div>
+                    <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.15rem", color: "#0f2044", margin: "0 0 0.65rem" }}>
+                      {isDe ? `So nutzt du Preisüberwachung in ${city.name} besser` : `How to use price tracking better in ${city.name}`}
+                    </h3>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: "0.94rem", color: "#7c2d12", lineHeight: 1.7, margin: 0 }}>
+                      {isDe ? cityGuide.savingTipDe : cityGuide.savingTipEn}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* CTA box */}
           <div style={{
             background: "linear-gradient(135deg, #0f2044 0%, #1a3a6e 100%)",
@@ -781,6 +847,12 @@ export default function CityPage({ params }: { params: { city: string } }) {
 
         </div>
       </main>
+
+      <style>{`
+        @media (max-width: 820px) {
+          .city-guide-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
 
       <Footer t={t} />
     </>
