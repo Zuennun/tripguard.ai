@@ -25,11 +25,6 @@ function ago(d: string | null | undefined) {
   return `${Math.floor(h / 24)}d ago`;
 }
 
-const S: Record<string, string> = {
-  active: "#059669", paused: "#6b7280", expired: "#94a3b8",
-  cancelled: "#ef4444", deleted: "#ef4444",
-};
-
 function topCounts(items: Array<string | null | undefined>, limit = 5) {
   const counts = items.reduce((acc: Record<string, number>, item) => {
     const key = (item ?? "").trim();
@@ -41,12 +36,6 @@ function topCounts(items: Array<string | null | undefined>, limit = 5) {
   return Object.entries(counts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, limit);
-}
-
-function monthLabel(date: string | null | undefined) {
-  if (!date) return "";
-  const d = new Date(date);
-  return d.toLocaleDateString("de-DE", { month: "short", year: "2-digit" });
 }
 
 export default async function AdminPage({
@@ -81,6 +70,9 @@ export default async function AdminPage({
     { count: todayChecks },
     { count: todayFoundChecks },
     { count: todayAlerts },
+    { count: visitsTotal, error: visitsTotalError },
+    { count: todayVisits, error: todayVisitsError },
+    { data: recentVisits, error: recentVisitsError },
   ] = await Promise.all([
     db.from("bookings").select("*", { count: "exact", head: true }),
     db.from("bookings")
@@ -114,6 +106,12 @@ export default async function AdminPage({
     db.from("price_checks").select("*", { count: "exact", head: true }).gte("checked_at", todayIso),
     db.from("price_checks").select("*", { count: "exact", head: true }).gte("checked_at", todayIso).eq("found", true),
     db.from("alerts").select("*", { count: "exact", head: true }).gte("sent_at", todayIso),
+    db.from("page_visits").select("*", { count: "exact", head: true }),
+    db.from("page_visits").select("*", { count: "exact", head: true }).gte("created_at", todayIso),
+    db.from("page_visits")
+      .select("path,referrer_host,origin_country,device_type,created_at")
+      .order("created_at", { ascending: false })
+      .limit(500),
   ]);
 
   const latestCheckByBooking = new Map<string, { found: boolean; error: string | null }>();
@@ -154,14 +152,19 @@ export default async function AdminPage({
   );
   const totalTrackedBookingValueEur = totalBookingValueEurValues.reduce((sum, value) => sum + value, 0);
   const potentialAffiliate = totalTrackedBookingValueEur * 0.04;
-  const topOrigins = topCounts(analytics.map((b: any) => b.origin_country));
-  const topDestinations = topCounts(analytics.map((b: any) => b.country));
-  const topCities = topCounts(analytics.map((b: any) => b.city));
-  const topMonths = topCounts(analytics.map((b: any) => monthLabel(b.checkin_date)));
-  const maxOrigin = Math.max(1, ...topOrigins.map(([, count]) => count));
-  const maxDestination = Math.max(1, ...topDestinations.map(([, count]) => count));
-  const maxCity = Math.max(1, ...topCities.map(([, count]) => count));
-  const maxMonth = Math.max(1, ...topMonths.map(([, count]) => count));
+  const visitsAvailable = !visitsTotalError && !todayVisitsError && !recentVisitsError;
+  const visitRows = recentVisits ?? [];
+  const visitsLast7d = visitRows.filter((row: any) => {
+    const createdAt = new Date(row.created_at).getTime();
+    return createdAt >= Date.now() - 7 * 24 * 60 * 60 * 1000;
+  }).length;
+  const visitRowsToday = visitRows.filter((row: any) => new Date(row.created_at).getTime() >= todayStart.getTime());
+  const topVisitCountries = topCounts(visitRows.map((row: any) => row.origin_country), 4);
+  const topReferrers = topCounts(visitRows.map((row: any) => row.referrer_host || "Direct"), 4);
+  const topVisitedPages = topCounts(visitRows.map((row: any) => row.path), 4);
+  const devices = topCounts(visitRows.map((row: any) => row.device_type), 3);
+  const topVisitCountriesToday = topCounts(visitRowsToday.map((row: any) => row.origin_country), 3);
+  const topReferrersToday = topCounts(visitRowsToday.map((row: any) => row.referrer_host || "Direct"), 3);
   const bookingMap = new Map(analytics.map((b: any) => [b.id, b]));
   const noPriceRows = analytics
     .filter((b: any) => b.status === "active" && !b.lowest_found_price)
@@ -210,6 +213,7 @@ export default async function AdminPage({
   if ((clicksTotal ?? 0) === 0) flags.push("Zero affiliate clicks recorded");
   if (!jobRuns?.length) flags.push("No cron job runs recorded");
   else if (jobRuns[0]?.status === "error") flags.push(`Last cron job failed: ${jobRuns[0]?.error ?? "unknown"}`);
+  if (!visitsAvailable) flags.push("Visit analytics table missing - run the latest Supabase migration");
 
   const cell = "padding:8px 12px;border-bottom:1px solid #e2e8f0;font-family:Arial,sans-serif;font-size:12px;white-space:nowrap;color:#374151";
   const th = "padding:8px 12px;background:#f8fafc;font-family:Arial,sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#94a3b8;text-align:left;border-bottom:2px solid #e2e8f0;white-space:nowrap";
@@ -241,43 +245,78 @@ export default async function AdminPage({
       </div>
 
       <div style={{ maxWidth: 1400, margin: "0 auto", padding: "28px 24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 16, marginBottom: 20, alignItems: "stretch" }}>
+          <div style={{ background: "#fff", borderRadius: 18, border: "1px solid #dbe3ef", padding: "20px 22px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "flex-start", marginBottom: 18, flexWrap: "wrap" }}>
+              <div>
+                <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.8 }}>Founder cockpit</p>
+                <h1 style={{ margin: 0, fontSize: 28, lineHeight: 1.1, color: "#0f2044" }}>What matters right now</h1>
+                <p style={{ margin: "8px 0 0", fontSize: 13, color: "#64748b", maxWidth: 720 }}>
+                  Der Bereich ist jetzt auf Entscheidungen statt auf Datenmasse ausgerichtet: Gesundheit des Trackings, Umsatzpotenzial und Audience-Signal zuerst, Details erst darunter.
+                </p>
+              </div>
+              <a
+                href="/admin/analytics"
+                style={{ alignSelf: "center", background: "#f8fafc", color: "#0f2044", border: "1px solid #dbe3ef", borderRadius: 12, padding: "10px 14px", textDecoration: "none", fontSize: 13, fontWeight: 700 }}
+              >
+                Open deep analytics
+              </a>
+            </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16, marginBottom: 24 }}>
-          <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: "18px 20px" }}>
-            <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.6 }}>Core metrics</p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(5,minmax(0,1fr))", gap: 14 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(6,minmax(0,1fr))", gap: 12 }}>
               {[
-                { label: "Active", val: activeCount, color: "#059669" },
-                { label: "Checked Today", val: todayChecks ?? 0, color: "#0f2044" },
-                { label: "Found Today", val: todayFoundChecks ?? 0, color: "#2563eb" },
-                { label: "Cheaper Now", val: savingsCandidates.length, color: "#f97316" },
-                { label: "Alerts Sent", val: alertsTotal ?? 0, color: "#dc2626" },
+                { label: "Active bookings", val: activeCount, color: "#059669", note: `${bookingsTotal ?? 0} total` },
+                { label: "Checks today", val: todayChecks ?? 0, color: "#0f2044", note: `${todayFoundChecks ?? 0} found` },
+                { label: "Cheaper now", val: savingsCandidates.length, color: "#f97316", note: `${alertsTotal ?? 0} alerts total` },
+                { label: "Unchecked", val: uncheckedCount, color: uncheckedCount > 0 ? "#dc2626" : "#0f2044", note: uncheckedCount > 0 ? "needs action" : "healthy" },
+                { label: "Visits today", val: visitsAvailable ? todayVisits ?? 0 : "—", color: "#2563eb", note: visitsAvailable ? `${visitsLast7d} last 7d` : "apply migration" },
+                { label: "Affiliate 4%", val: `€ ${potentialAffiliate.toFixed(0)}`, color: "#16a34a", note: `on € ${totalTrackedBookingValueEur.toFixed(0)}` },
               ].map((item) => (
-                <div key={item.label} style={{ background: "#f8fafc", borderRadius: 12, padding: "14px 14px" }}>
-                  <p style={{ margin: "0 0 6px", fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase" }}>{item.label}</p>
-                  <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: item.color }}>{item.val}</p>
+                <div key={item.label} style={{ background: "#f8fafc", borderRadius: 14, padding: "14px 14px", minHeight: 106 }}>
+                  <p style={{ margin: "0 0 8px", fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.4 }}>{item.label}</p>
+                  <p style={{ margin: "0 0 6px", fontSize: 30, fontWeight: 900, color: item.color }}>{item.val}</p>
+                  <p style={{ margin: 0, fontSize: 11, color: "#64748b" }}>{item.note}</p>
                 </div>
               ))}
             </div>
           </div>
-          <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: "18px 20px" }}>
-            <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.6 }}>Money</p>
-            <div style={{ display: "grid", gap: 12 }}>
-              <div style={{ background: "#fff7ed", borderRadius: 12, padding: "14px 14px" }}>
-                <p style={{ margin: "0 0 6px", fontSize: 11, fontWeight: 700, color: "#c2410c", textTransform: "uppercase" }}>Potential savings</p>
-                <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: "#f97316" }}>{potentialSavings.toFixed(2)}</p>
+
+          <div style={{ display: "grid", gap: 16 }}>
+            <div style={{ background: "#fff", borderRadius: 18, border: "1px solid #dbe3ef", padding: "18px 20px" }}>
+              <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.8 }}>Revenue snapshot</p>
+              <div style={{ display: "grid", gap: 10 }}>
+                <div style={{ background: "#fff7ed", borderRadius: 12, padding: "12px 14px" }}>
+                  <div style={{ fontSize: 11, color: "#c2410c", fontWeight: 700, textTransform: "uppercase" }}>Potential savings</div>
+                  <div style={{ fontSize: 28, color: "#f97316", fontWeight: 900, marginTop: 4 }}>€ {potentialSavings.toFixed(0)}</div>
+                </div>
+                <div style={{ background: "#f0fdf4", borderRadius: 12, padding: "12px 14px" }}>
+                  <div style={{ fontSize: 11, color: "#15803d", fontWeight: 700, textTransform: "uppercase" }}>Tracked booking value</div>
+                  <div style={{ fontSize: 28, color: "#16a34a", fontWeight: 900, marginTop: 4 }}>€ {totalTrackedBookingValueEur.toFixed(0)}</div>
+                  <div style={{ fontSize: 11, color: "#65a30d", marginTop: 4 }}>Affiliate forecast is 4% of full booking value</div>
+                </div>
               </div>
-              <div style={{ background: "#f0fdf4", borderRadius: 12, padding: "14px 14px" }}>
-                <p style={{ margin: "0 0 6px", fontSize: 11, fontWeight: 700, color: "#15803d", textTransform: "uppercase" }}>Affiliate 4% on all tracked bookings</p>
-                <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: "#16a34a" }}>€ {potentialAffiliate.toFixed(2)}</p>
-                <p style={{ margin: "4px 0 0", fontSize: 11, color: "#65a30d" }}>Basis: € {totalTrackedBookingValueEur.toFixed(2)} Gesamtbuchungswert</p>
-              </div>
+            </div>
+
+            <div style={{ background: "#fff", borderRadius: 18, border: "1px solid #dbe3ef", padding: "18px 20px" }}>
+              <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.8 }}>Audience snapshot</p>
+              {!visitsAvailable ? (
+                <p style={{ margin: 0, fontSize: 13, color: "#94a3b8" }}>Visit analytics wird aktiv, sobald `page_visits` in Supabase angelegt ist.</p>
+              ) : (
+                <div style={{ display: "grid", gap: 10 }}>
+                  <MiniList title="Top countries today" items={topVisitCountriesToday} />
+                  <MiniList title="Referrers today" items={topReferrersToday} />
+                  <MiniList title="Top countries recent" items={topVisitCountries} />
+                  <MiniList title="Top referrers recent" items={topReferrers} />
+                  <MiniList title="Top pages" items={topVisitedPages} />
+                  <MiniList title="Devices" items={devices} />
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {flags.length > 0 && (
-          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "14px 18px", marginBottom: 20 }}>
+          <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: "14px 18px", marginBottom: 20 }}>
             <p style={{ margin: "0 0 8px", fontWeight: 800, fontSize: 13, color: "#0f2044" }}>Need attention</p>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
               {flags.slice(0, 4).map((f, i) => (
@@ -313,17 +352,6 @@ export default async function AdminPage({
           ))}
         </div>
 
-        {/* Status breakdown */}
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "16px 20px", marginBottom: 28, display: "flex", gap: 20, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.5 }}>By status:</span>
-          {Object.entries(byStatus).map(([status, count]) => (
-            <span key={status} style={{ fontSize: 13, fontWeight: 700, color: S[status] ?? "#6b7280" }}>
-              {status} ({count})
-            </span>
-          ))}
-          {Object.keys(byStatus).length === 0 && <span style={{ fontSize: 13, color: "#94a3b8" }}>No bookings yet</span>}
-        </div>
-
         <AdminBookingsTable
           bookings={bs.map((b: any) => ({
             ...b,
@@ -333,33 +361,6 @@ export default async function AdminPage({
         />
 
         <AdminRunChecksButton />
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 16, marginBottom: 20 }}>
-          <AnalyticsCard
-            title="Top Customer Countries"
-            items={topOrigins}
-            max={maxOrigin}
-            empty="Noch keine Herkunftsdaten"
-          />
-          <AnalyticsCard
-            title="Top Destination Countries"
-            items={topDestinations}
-            max={maxDestination}
-            empty="Noch keine Ziel-Länder"
-          />
-          <AnalyticsCard
-            title="Top Destination Cities"
-            items={topCities}
-            max={maxCity}
-            empty="Noch keine Ziel-Städte"
-          />
-          <AnalyticsCard
-            title="Arrival Months"
-            items={topMonths}
-            max={maxMonth}
-            empty="Noch keine Reisedaten"
-          />
-        </div>
 
         {/* Price Checks */}
         <Section title="Latest Price Checks" count={pcTotal ?? 0}>
@@ -498,47 +499,27 @@ function Section({ title, count, children }: { title: string; count: number | nu
   );
 }
 
-function AnalyticsCard({
+function MiniList({
   title,
   items,
-  max,
-  empty,
 }: {
   title: string;
   items: Array<[string, number]>;
-  max: number;
-  empty: string;
 }) {
   return (
-    <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "16px 18px" }}>
-      <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.6 }}>
-        {title}
-      </p>
+    <div style={{ display: "grid", gap: 8 }}>
+      <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase", fontWeight: 700 }}>{title}</div>
       {items.length === 0 ? (
-        <p style={{ margin: 0, fontSize: 13, color: "#94a3b8" }}>{empty}</p>
+        <div style={{ fontSize: 12, color: "#94a3b8" }}>No signal yet</div>
       ) : (
-        <div style={{ display: "grid", gap: 10 }}>
-          {items.map(([label, count]) => (
-            <div key={label} style={{ display: "grid", gap: 4 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "#0f2044", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {label}
-                </span>
-                <span style={{ fontSize: 12, color: "#64748b" }}>{count}</span>
-              </div>
-              <div style={{ height: 8, borderRadius: 999, background: "#eef2f7", overflow: "hidden" }}>
-                <div
-                  style={{
-                    width: `${Math.max(8, (count / max) * 100)}%`,
-                    height: "100%",
-                    background: "linear-gradient(90deg, #f97316, #fb923c)",
-                    borderRadius: 999,
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+        items.map(([label, count]) => (
+          <div key={`${title}-${label}`} style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
+            <span style={{ fontSize: 13, color: "#0f2044", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {label}
+            </span>
+            <span style={{ fontSize: 12, color: "#64748b" }}>{count}</span>
+          </div>
+        ))
       )}
     </div>
   );

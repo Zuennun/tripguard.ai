@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import "./globals.css";
 import { getTranslations, type Locale } from "@/lib/translations";
 import CookieBanner from "@/components/CookieBanner";
+import VisitTracker from "@/components/VisitTracker";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <CookieBanner />
+        <VisitTracker />
         <Analytics />
         <SpeedInsights />
       </body>

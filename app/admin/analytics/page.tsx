@@ -95,7 +95,12 @@ export default async function AdminAnalyticsPage() {
   }
 
   const db = getSupabaseAdmin();
-  const [{ data: bookings }, { data: priceChecks }, { data: alerts }] = await Promise.all([
+  const [
+    { data: bookings },
+    { data: priceChecks },
+    { data: alerts },
+    { data: visits, error: visitsError },
+  ] = await Promise.all([
     db.from("bookings")
       .select("id,hotel_name,origin_country,city,country,checkin_date,price,currency,status,lowest_found_price,created_at,booking_com_url")
       .neq("status", "deleted")
@@ -109,11 +114,17 @@ export default async function AdminAnalyticsPage() {
       .select("sent_at")
       .order("sent_at", { ascending: false })
       .limit(1000),
+    db.from("page_visits")
+      .select("path,referrer_host,origin_country,device_type,created_at")
+      .order("created_at", { ascending: false })
+      .limit(1000),
   ]);
 
   const rows = bookings ?? [];
   const checks = priceChecks ?? [];
   const alertRows = alerts ?? [];
+  const visitRows = visits ?? [];
+  const visitsAvailable = !visitsError;
 
   const totalBookingValueEur = (await Promise.all(
     rows.map(async (row: any) => {
@@ -127,6 +138,10 @@ export default async function AdminAnalyticsPage() {
   const topCountries = topCounts(rows.map((b: any) => b.country));
   const topCities = topCounts(rows.map((b: any) => b.city));
   const arrivals = topCounts(rows.map((b: any) => monthKey(b.checkin_date)));
+  const topVisitCountries = topCounts(visitRows.map((row: any) => row.origin_country));
+  const topReferrers = topCounts(visitRows.map((row: any) => row.referrer_host || "Direct"));
+  const topVisitedPages = topCounts(visitRows.map((row: any) => row.path));
+  const devices = topCounts(visitRows.map((row: any) => row.device_type));
   const checksBySource = topCounts(checks.map((pc: any) => pc.source || "Unknown"));
   const failureReasons = topCounts(checks.filter((pc: any) => !pc.found).map((pc: any) => normalizeFailure(pc.error)), 8);
   const topFailureHotels = topCounts(
@@ -142,6 +157,7 @@ export default async function AdminAnalyticsPage() {
   const bookingsSeries = buildDailySeries(rows.map((row: any) => row.created_at), 14);
   const checksSeries = buildDailySeries(checks.map((row: any) => row.checked_at), 14);
   const alertsSeries = buildDailySeries(alertRows.map((row: any) => row.sent_at), 14);
+  const visitsSeries = buildDailySeries(visitRows.map((row: any) => row.created_at), 14);
   const foundSeries = buildDailySeries(checks.filter((row: any) => row.found).map((row: any) => row.checked_at), 14);
   const failedSeries = buildDailySeries(checks.filter((row: any) => !row.found).map((row: any) => row.checked_at), 14);
   const routeMatrix = buildMatrix(rows);
@@ -191,6 +207,13 @@ export default async function AdminAnalyticsPage() {
           <MetricCard label="Found rate" value={`${foundRate}%`} tone="#f97316" />
         </div>
 
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 16, marginBottom: 24 }}>
+          <MetricCard label="Visits tracked" value={visitsAvailable ? visitRows.length : "—"} tone="#1d4ed8" />
+          <MetricCard label="Top traffic country" value={visitsAvailable ? (topVisitCountries[0]?.[0] ?? "—") : "—"} tone="#0f766e" />
+          <MetricCard label="Top referrer" value={visitsAvailable ? (topReferrers[0]?.[0] ?? "Direct") : "—"} tone="#7c3aed" />
+          <MetricCard label="Top page" value={visitsAvailable ? (topVisitedPages[0]?.[0] ?? "—") : "—"} tone="#be123c" />
+        </div>
+
         <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16, marginBottom: 20 }}>
           <LineCard
             title="Tracking Activity - Last 14 Days"
@@ -206,11 +229,61 @@ export default async function AdminAnalyticsPage() {
           <AnalyticsCard title="Checks by Provider" items={checksBySource} max={barMax(checksBySource)} empty="Noch keine Price Checks" accent="#0f766e" />
         </div>
 
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16, marginBottom: 20 }}>
+          <LineCard
+            title="Audience Activity - Last 14 Days"
+            subtitle="Visits alongside demand source signals"
+            series={[
+              { label: "Visits", color: "#2563eb", points: visitsSeries },
+            ]}
+          />
+          <StackCard
+            title="Audience snapshot"
+            items={[
+              { label: "Visits total", value: visitsAvailable ? visitRows.length : "Migration needed", tone: "#1d4ed8", isText: !visitsAvailable },
+              { label: "Referrers tracked", value: visitsAvailable ? topReferrers.length : "—", tone: "#7c3aed" },
+              { label: "Countries tracked", value: visitsAvailable ? topVisitCountries.length : "—", tone: "#0f766e" },
+              { label: "Devices tracked", value: visitsAvailable ? devices.length : "—", tone: "#be123c" },
+            ]}
+          />
+        </div>
+
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 16, marginBottom: 20 }}>
           <AnalyticsCard title="Top Customer Countries" items={topOrigins} max={barMax(topOrigins)} empty="Noch keine Herkunftsdaten" accent="#f97316" />
           <AnalyticsCard title="Top Destination Countries" items={topCountries} max={barMax(topCountries)} empty="Noch keine Ziel-Länder" accent="#2563eb" />
           <AnalyticsCard title="Top Destination Cities" items={topCities} max={barMax(topCities)} empty="Noch keine Ziel-Städte" accent="#16a34a" />
           <AnalyticsCard title="Arrival Months" items={arrivals} max={barMax(arrivals)} empty="Noch keine Anreise-Monate" accent="#7c3aed" />
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 16, marginBottom: 20 }}>
+          <AnalyticsCard
+            title="Visit Countries"
+            items={visitsAvailable ? topVisitCountries : []}
+            max={barMax(visitsAvailable ? topVisitCountries : [])}
+            empty={visitsAvailable ? "Noch keine Länder" : "Run the page_visits migration first"}
+            accent="#1d4ed8"
+          />
+          <AnalyticsCard
+            title="Top Referrers"
+            items={visitsAvailable ? topReferrers : []}
+            max={barMax(visitsAvailable ? topReferrers : [])}
+            empty={visitsAvailable ? "Noch keine Referrer" : "Run the page_visits migration first"}
+            accent="#7c3aed"
+          />
+          <AnalyticsCard
+            title="Visited Pages"
+            items={visitsAvailable ? topVisitedPages : []}
+            max={barMax(visitsAvailable ? topVisitedPages : [])}
+            empty={visitsAvailable ? "Noch keine Seitenaufrufe" : "Run the page_visits migration first"}
+            accent="#be123c"
+          />
+          <AnalyticsCard
+            title="Devices"
+            items={visitsAvailable ? devices : []}
+            max={barMax(visitsAvailable ? devices : [])}
+            empty={visitsAvailable ? "Noch keine Devices" : "Run the page_visits migration first"}
+            accent="#0f766e"
+          />
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 16 }}>
