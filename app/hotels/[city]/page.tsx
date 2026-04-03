@@ -286,135 +286,6 @@ export default function CityPage({ params }: { params: { city: string } }) {
 
         {/* ── Main content ── */}
         <div style={{ maxWidth: 860, margin: "0 auto", padding: "3rem 2rem 5rem" }}>
-          <SeoPageRail
-            eyebrow={isDe ? "Wichtige nächste Seiten" : "Important next pages"}
-            title={isDe ? "Von dieser Stadtseite solltest du direkt weiterfinden" : "From this city page, you should be able to move on directly"}
-            items={railItems}
-          />
-
-          {/* How it works */}
-          <div style={{ marginBottom: "3rem" }}>
-            <h2 style={{
-              fontFamily: "var(--font-head)",
-              fontWeight: 800,
-              fontSize: "clamp(1.4rem, 3vw, 1.9rem)",
-              color: "#0f2044",
-              margin: "0 0 0.5rem",
-              letterSpacing: "-0.01em",
-            }}>
-              {isDe ? "Wie es funktioniert" : "How it works"}
-            </h2>
-            <p style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "0.95rem",
-              color: "#6b7280",
-              margin: "0 0 2rem",
-              lineHeight: 1.6,
-            }}>
-              {isDe
-                ? `In 3 einfachen Schritten Hotelpreise in ${city.name} überwachen.`
-                : `Monitor hotel prices in ${city.name} in 3 simple steps.`}
-            </p>
-
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: "1.25rem",
-            }}>
-              {steps.map((step, i) => (
-                <div
-                  key={i}
-                  style={{
-                    background: "#ffffff",
-                    borderRadius: 16,
-                    padding: "1.75rem 1.5rem",
-                    boxShadow: "0 2px 12px rgba(15,32,68,0.07)",
-                    border: "1px solid #e8ecf2",
-                    textAlign: "center",
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.85rem" }}>
-                    <span style={{ width: 56, height: 56, borderRadius: 999, background: "#fff7ed", color: "#f97316", display: "inline-flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "1.4rem" }}>
-                      {i + 1}
-                    </span>
-                  </div>
-                  <div style={{
-                    fontFamily: "var(--font-body)",
-                    fontSize: "0.72rem",
-                    fontWeight: 700,
-                    color: "#f97316",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    marginBottom: "0.4rem",
-                  }}>
-                    {isDe ? `Schritt ${i + 1}` : `Step ${i + 1}`}
-                  </div>
-                  <h3 style={{
-                    fontFamily: "var(--font-head)",
-                    fontWeight: 800,
-                    fontSize: "1.05rem",
-                    color: "#0f2044",
-                    margin: "0 0 0.5rem",
-                  }}>
-                    {step.title}
-                  </h3>
-                  <p style={{
-                    fontFamily: "var(--font-body)",
-                    fontSize: "0.9rem",
-                    color: "#6b7280",
-                    lineHeight: 1.6,
-                    margin: 0,
-                  }}>
-                    {step.text}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Stats bar */}
-          <div style={{
-            background: "#ffffff",
-            borderRadius: 16,
-            padding: "1.5rem 2rem",
-            boxShadow: "0 2px 12px rgba(15,32,68,0.07)",
-            border: "1px solid #e8ecf2",
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-            gap: "1.5rem",
-            marginBottom: "3rem",
-            textAlign: "center",
-          }}>
-            {[
-              { value: "∅ 18 %", label: isDe ? "Preissenkung nach Buchung" : "average price drop after booking" },
-              { value: "100 %", label: isDe ? "kostenlos" : "free to use" },
-              { value: "täglich", label: isDe ? "automatische Preisprüfung" : "automatic price check" },
-            ].map((stat, i) => (
-              <div key={i}>
-                <div style={{
-                  fontFamily: "var(--font-head)",
-                  fontWeight: 900,
-                  fontSize: "1.8rem",
-                  color: "#f97316",
-                  lineHeight: 1,
-                  marginBottom: "0.35rem",
-                }}>
-                  {stat.value}
-                </div>
-                <div style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "0.82rem",
-                  color: "#8fa3b8",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                  fontWeight: 600,
-                }}>
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-
           <div style={{
             display: "grid",
             gridTemplateColumns: "1.1fr 0.9fr",
@@ -843,6 +714,14 @@ export default function CityPage({ params }: { params: { city: string } }) {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div style={{ marginTop: "3rem" }}>
+            <SeoPageRail
+              eyebrow={isDe ? "Wichtige nächste Seiten" : "Important next pages"}
+              title={isDe ? "Von dieser Stadtseite solltest du sinnvoll weiterkommen" : "From this city page, you should move on to the right next pages"}
+              items={railItems}
+            />
           </div>
 
         </div>

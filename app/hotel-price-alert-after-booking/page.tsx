@@ -35,7 +35,7 @@ export default function HotelPriceAlertAfterBookingPage() {
       text: isDe
         ? "Die Überblicksseite für das ganze Thema Preisüberwachung nach der Buchung."
         : "The overview page for the full post-booking hotel tracking topic.",
-      image: "/hero.gif",
+      image: "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?auto=format&fit=crop&w=1200&q=80",
     },
     {
       href: "/hotels",
@@ -43,7 +43,7 @@ export default function HotelPriceAlertAfterBookingPage() {
       text: isDe
         ? "Hier findest du ausführlichere Seiten zu Städten mit starken Preisbewegungen."
         : "Find richer pages for cities with meaningful hotel price movement.",
-      image: "/flugzeug.gif",
+      image: "https://images.unsplash.com/photo-1505765050516-f72dcac9c60f?auto=format&fit=crop&w=1200&q=80",
     },
     {
       href: "/blog",
@@ -51,7 +51,7 @@ export default function HotelPriceAlertAfterBookingPage() {
       text: isDe
         ? "Mehr Kontext zu Preisstürzen, Stornierung und smarteren Buchungsentscheidungen."
         : "More context on price drops, cancellation and smarter booking decisions.",
-      image: "/scanner.gif",
+      image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80",
     },
   ];
 
@@ -69,64 +69,62 @@ export default function HotelPriceAlertAfterBookingPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <main style={{ background: "#f7fafc", minHeight: "100vh", paddingTop: 84 }}>
         <section style={{ padding: "4.2rem 2rem 3.7rem", background: "linear-gradient(145deg, #fff7ed 0%, #fff 45%, #f7fafc 100%)" }}>
-          <div style={{ maxWidth: 1040, margin: "0 auto", textAlign: "center" }}>
+          <div style={{ maxWidth: 1140, margin: "0 auto", display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: "2rem", alignItems: "center" }} className="alert-hero-grid">
+            <div className="alert-hero-copy">
             <div style={{ fontFamily: "var(--font-body)", fontSize: "0.78rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "0.9rem" }}>
               {isDe ? "Intent Page · Preisalarm nach Buchung" : "Intent page · price alert after booking"}
             </div>
             <h1 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(2rem, 5vw, 3.6rem)", lineHeight: 1.07, letterSpacing: "-0.03em", color: "#0f2044", margin: "0 0 1rem" }}>
               {isDe ? "Hotel Price Alert nach der Buchung: So sparst du später statt früher" : "Hotel price alert after booking: save later, not just earlier"}
             </h1>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: "1.04rem", color: "#64748b", lineHeight: 1.75, maxWidth: 760, margin: "0 auto 1.5rem" }}>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "1.04rem", color: "#64748b", lineHeight: 1.75, maxWidth: 700, margin: "0 0 1.2rem" }}>
               {isDe
                 ? "Viele Reisende vergleichen nur vor der Buchung. Der größere Hebel liegt oft danach. Genau dafür ist SaveMyHoliday gebaut: Preisalarm für dieselbe Reise, dieselben Daten und dieselbe Buchung."
                 : "Most travellers only compare before booking. The bigger opportunity often comes afterwards. SaveMyHoliday is built for exactly that: a price alert for the same stay, the same dates, and the same booking."}
             </p>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <img src="/urlaub.gif" alt={isDe ? "Preisalarm nach Buchung" : "Price alert after booking"} style={{ width: "100%", maxWidth: 250, height: "auto", display: "block" }} />
-            </div>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "0.98rem", color: "#475569", lineHeight: 1.75, maxWidth: 700, margin: 0 }}>
+              {isDe
+                ? "Du musst also nicht jeden Tag selbst zurück auf Booking.com gehen. Stattdessen beobachtest du dieselbe Reise weiter und handelst nur dann, wenn ein späterer Preis wirklich besser ist."
+                : "You do not need to revisit booking sites manually every day. Instead, you keep watching the same trip and only act when a later price is genuinely better."}
+            </p>
+          </div>
+          <div>
+            <img
+              src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=80"
+              alt={isDe ? "Hotel Price Alert nach der Buchung" : "Hotel price alert after booking"}
+              style={{ width: "100%", height: 360, objectFit: "cover", display: "block", borderRadius: 26, boxShadow: "0 24px 60px rgba(15,32,68,0.14)" }}
+            />
+          </div>
           </div>
         </section>
 
         <section style={{ maxWidth: 1040, margin: "0 auto", padding: "3rem 2rem 4.5rem" }}>
-          <SeoPageRail
-            eyebrow={isDe ? "Wichtige Anschlussseiten" : "Important follow-up pages"}
-            title={isDe ? "Wenn du über Preisalarm liest, solltest du auch hier direkt weiterkommen" : "If you are reading about alerts, you should also reach these pages right away"}
-            items={railItems}
-          />
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: "1rem", marginBottom: "2.2rem" }}>
-            {[
-              {
-                title: isDe ? "Nach der Buchung beobachten" : "Watch after booking",
-                text: isDe ? "Nicht nur vorher vergleichen, sondern den Preis weiterlaufen lassen." : "Do not stop at booking; keep the rate under watch.",
-              },
-              {
-                title: isDe ? "Nur gleiche Reise vergleichen" : "Compare the same stay only",
-                text: isDe ? "Gleiche Daten, gleiches Hotel, gleiche Reise. Keine irrelevanten Angebote." : "Same dates, same hotel, same trip. No irrelevant offers.",
-              },
-              {
-                title: isDe ? "Signal statt Rauschen" : "Signal over noise",
-                text: isDe ? "Nur wenn eine Rate wirklich günstiger ist, wird sie interessant." : "Only when a rate is truly lower does it matter.",
-              },
-            ].map((card) => (
-              <div key={card.title} style={{ background: "#fff", border: "1px solid #e8ecf2", borderRadius: 18, padding: "1.3rem 1.2rem" }}>
-                <div style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.05rem", color: "#0f2044", marginBottom: "0.45rem" }}>{card.title}</div>
-                <div style={{ fontFamily: "var(--font-body)", fontSize: "0.92rem", color: "#64748b", lineHeight: 1.7 }}>{card.text}</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.2rem", marginBottom: "2.4rem" }} className="alert-two-col">
+            <div style={{ background: "#fff", border: "1px solid #e8ecf2", borderRadius: 20, padding: "1.45rem 1.5rem" }}>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: "0.76rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.6rem" }}>
+                {isDe ? "Das eigentliche Problem" : "The real problem"}
               </div>
-            ))}
-          </div>
-
-          <div style={{ background: "linear-gradient(160deg, #0f2044 0%, #17345f 100%)", borderRadius: 22, padding: "2rem", marginBottom: "2.4rem" }}>
-            <div style={{ fontFamily: "var(--font-body)", fontSize: "0.76rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.75rem" }}>
-              {isDe ? "Das eigentliche Problem" : "The real problem"}
+              <h2 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "1.45rem", color: "#0f2044", lineHeight: 1.15, margin: "0 0 0.75rem" }}>
+                {isDe ? "Hotelpreise bewegen sich weiter, auch wenn du schon gebucht hast" : "Hotel prices keep moving even after you already booked"}
+              </h2>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "0.98rem", color: "#64748b", lineHeight: 1.8, margin: 0 }}>
+                {isDe
+                  ? "Ein Preisalarm nach der Buchung ist deshalb kein Nice-to-have, sondern ein echter Sparhebel. Vor allem bei flexiblen Tarifen kann eine spätere, bessere Rate noch einen echten Unterschied machen."
+                  : "That is why a price alert after booking is not just a nice extra but a real savings lever. Especially with flexible rates, a later better price can still make a meaningful difference."}
+              </p>
             </div>
-            <div style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(1.35rem, 3vw, 2rem)", color: "#fff", lineHeight: 1.15, marginBottom: "0.8rem" }}>
-              {isDe ? "Hotelpreise bewegen sich weiter, auch wenn du schon gebucht hast" : "Hotel prices keep moving even after you already booked"}
-            </div>
-            <div style={{ fontFamily: "var(--font-body)", fontSize: "0.98rem", color: "rgba(255,255,255,0.76)", lineHeight: 1.8, maxWidth: 780 }}>
-              {isDe
-                ? "Ein Hotel Price Alert nach der Buchung ist deshalb kein Nice-to-have, sondern ein echter Sparhebel. Gerade bei flexiblen Tarifen kannst du günstigere Raten später noch mitnehmen."
-                : "That is why a hotel price alert after booking is not just a nice extra but a real savings lever. Especially with flexible rates, cheaper prices later still matter."}
+            <div style={{ background: "linear-gradient(160deg,#fff7ed,#ffffff)", border: "1px solid #fde7d7", borderRadius: 20, padding: "1.45rem 1.5rem" }}>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: "0.76rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.6rem" }}>
+                {isDe ? "Wann es besonders sinnvoll ist" : "When it matters most"}
+              </div>
+              <h2 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "1.45rem", color: "#0f2044", lineHeight: 1.15, margin: "0 0 0.75rem" }}>
+                {isDe ? "Vor allem bei flexiblen oder frühen Buchungen" : "Especially for flexible or early bookings"}
+              </h2>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "0.98rem", color: "#7c2d12", lineHeight: 1.8, margin: 0 }}>
+                {isDe
+                  ? "Wenn du früh gebucht hast oder kostenlos stornieren kannst, sind Preisalarme besonders wertvoll. Genau dann hast du die beste Chance, eine spätere Preissenkung noch mitzunehmen."
+                  : "If you booked early or can cancel for free, price alerts become especially valuable. That is when you have the best chance to still benefit from a later price drop."}
+              </p>
             </div>
           </div>
 
@@ -153,8 +151,22 @@ export default function HotelPriceAlertAfterBookingPage() {
               {isDe ? "Jetzt Preisalarm starten" : "Start price alert now"}
             </a>
           </div>
+
+          <div style={{ marginTop: "3rem" }}>
+            <SeoPageRail
+              eyebrow={isDe ? "Wichtige Anschlussseiten" : "Important follow-up pages"}
+              title={isDe ? "Wenn du über Preisalarm liest, solltest du hier sinnvoll weiterkommen" : "If you are reading about alerts, you should move on to the right pages next"}
+              items={railItems}
+            />
+          </div>
         </section>
       </main>
+      <style>{`
+        @media (max-width: 920px) {
+          .alert-hero-grid, .alert-two-col { grid-template-columns: 1fr !important; }
+          .alert-hero-copy { text-align: center; }
+        }
+      `}</style>
       <Footer t={t} />
     </>
   );
