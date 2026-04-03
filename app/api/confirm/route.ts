@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
       .single();
 
     const manageUrl = manageToken ? `/manage/${manageToken.token}` : "/";
-    return NextResponse.redirect(`https://savemyholiday.com${manageUrl}`);
+    return NextResponse.redirect(`https://www.rebookandsave.com${manageUrl}`);
   }
 
   // Activate booking
@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
     .eq("purpose", "manage")
     .single();
 
-  const manageUrl = manageToken ? `https://savemyholiday.com/manage/${manageToken.token}` : "https://savemyholiday.com";
+  const manageUrl = manageToken ? `https://www.rebookandsave.com/manage/${manageToken.token}` : "https://www.rebookandsave.com";
 
   return NextResponse.redirect(manageUrl);
 }
@@ -79,6 +79,6 @@ function errorPage(title: string, body: string): string {
     <div style="font-size:48px;margin-bottom:16px">⚠️</div>
     <h1>${title}</h1>
     <p>${body}</p>
-    <p style="margin-top:20px"><a href="https://savemyholiday.com">← Zurück zur Startseite</a></p>
+    <p style="margin-top:20px"><a href="https://www.rebookandsave.com">← Zurück zur Startseite</a></p>
   </div></body></html>`;
 }

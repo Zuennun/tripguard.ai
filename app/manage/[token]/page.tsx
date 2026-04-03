@@ -113,7 +113,7 @@ export default function ManagePage() {
     <Page>
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: 32 }}>
-        <a href="https://savemyholiday.com" style={{ textDecoration: "none" }}>
+        <a href="https://www.rebookandsave.com" style={{ textDecoration: "none" }}>
           <span style={{ fontSize: 20, fontWeight: 900, fontFamily: "Arial,sans-serif" }}>
             <span style={{ color: "#f97316" }}>Save</span>
             <span style={{ color: "#0f2044" }}>My</span>

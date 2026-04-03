@@ -72,8 +72,8 @@ export async function POST(req: NextRequest) {
       .single();
 
     const manageUrl = manageTokenRow
-      ? `https://savemyholiday.com/manage/${manageTokenRow.token}`
-      : "https://savemyholiday.com";
+      ? `https://www.rebookandsave.com/manage/${manageTokenRow.token}`
+      : "https://www.rebookandsave.com";
 
     const savings = Number((booking.price - booking.lowest_found_price).toFixed(2));
 
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
       provider: latestCheck?.provider ?? latestCheck?.source ?? "Booking.com",
     });
 
-    const bookingUrl = `https://savemyholiday.com/go/${affiliate.token}`;
+    const bookingUrl = `https://www.rebookandsave.com/go/${affiliate.token}`;
     const resend = new Resend(process.env.RESEND_API_KEY);
     const locale = (booking.locale ?? "de") as "de" | "en";
     const subject = locale === "de"

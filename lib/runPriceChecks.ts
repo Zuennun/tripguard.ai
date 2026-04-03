@@ -162,8 +162,8 @@ export async function runPriceChecks(params?: {
                 .single();
 
               const manageUrl = manageTokenRow
-                ? `https://savemyholiday.com/manage/${manageTokenRow.token}`
-                : "https://savemyholiday.com/admin";
+                ? `https://www.rebookandsave.com/manage/${manageTokenRow.token}`
+                : "https://www.rebookandsave.com/admin";
 
               const locale = (booking.locale ?? "de") as "de" | "en";
               const subject = locale === "de"

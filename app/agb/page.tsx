@@ -37,7 +37,7 @@ export default function AgbPage() {
               fontFamily: "var(--font-body)", fontSize: "0.95rem",
               color: "rgba(255,255,255,0.5)", marginTop: "0.75rem",
             }}>
-              SaveMyHoliday · savemyholiday.com
+              SaveMyHoliday · rebookandsave.com
             </p>
           </div>
         </div>

@@ -15,7 +15,7 @@ function formatDate(dateStr: string | undefined | null, locale: EmailLocale): st
 }
 
 function wrap(content: string, locale: EmailLocale = "en"): string {
-  const siteUrl = "https://savemyholiday.com";
+  const siteUrl = "https://www.rebookandsave.com";
   const footerNote = locale === "de"
     ? "Du erhältst diese E-Mail, weil du eine Buchung bei SaveMyHoliday eingereicht hast."
     : "You receive this email because you submitted a booking to SaveMyHoliday.";

@@ -10,7 +10,7 @@ export default function ImpressumPage() {
   const isDe = locale === "de";
 
   const brandName = "SaveMyHoliday";
-  const siteUrl = "savemyholiday.com";
+  const siteUrl = "rebookandsave.com";
 
   return (
     <>
@@ -130,7 +130,7 @@ export default function ImpressumPage() {
                     Information pursuant to § 5 DDG (German Digital Services Act)
                   </p>
                   <InfoRow label="Name" value="Zünnun Ardal" />
-                  <InfoRow label="Company" value="SaveMyHoliday (savemyholiday.com)" />
+                  <InfoRow label="Company" value="SaveMyHoliday (rebookandsave.com)" />
                   <InfoRow label="Address" value={<>Haydnstraße 26<br />12167 Berlin<br />Germany</>} />
                 </Section>
 

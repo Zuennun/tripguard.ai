@@ -8,7 +8,7 @@ export async function GET(
   { params }: { params: { token: string } }
 ) {
   const { token } = params;
-  if (!token) return NextResponse.redirect("https://savemyholiday.com");
+  if (!token) return NextResponse.redirect("https://www.rebookandsave.com");
 
   const supabase = getSupabaseAdmin();
   const { data: click } = await supabase
@@ -17,7 +17,7 @@ export async function GET(
     .eq("token", token)
     .single();
 
-  if (!click) return NextResponse.redirect("https://savemyholiday.com");
+  if (!click) return NextResponse.redirect("https://www.rebookandsave.com");
   if (
     !click.destination ||
     !(

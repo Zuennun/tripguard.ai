@@ -43,8 +43,7 @@ export async function OPTIONS() {
 const ALLOWED_ORIGINS = new Set([
   "https://trip-guard.ai",
   "https://www.trip-guard.ai",
-  "https://savemyholiday.com",
-  "https://www.savemyholiday.com",
+  "https://www.rebookandsave.com",
   ...(process.env.ALLOWED_ORIGIN ? [process.env.ALLOWED_ORIGIN] : []),
 ]);
 
@@ -159,7 +158,7 @@ export async function POST(req: NextRequest) {
 
     // Generate manage token (only — no confirm needed, booking is already active)
     const manageToken = await createManageToken(inserted.id);
-    const manageUrl = `https://savemyholiday.com/manage/${manageToken}`;
+    const manageUrl = `https://www.rebookandsave.com/manage/${manageToken}`;
 
     const resend = getResend();
     const from = process.env.RESEND_FROM!;
