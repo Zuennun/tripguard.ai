@@ -561,20 +561,18 @@ export default function CityPage({ params }: { params: { city: string } }) {
                   </div>
                 </div>
 
-                <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 20, overflow: "hidden", boxShadow: "0 12px 40px rgba(15,32,68,0.06)" }}>
-                  <img
-                    src={secondaryImage}
-                    alt={isDe ? `${city.name} Reisetipps und Viertel` : `${city.name} travel tips and neighbourhoods`}
-                    style={{ width: "100%", height: 280, objectFit: "cover", display: "block" }}
-                  />
-                  <div style={{ padding: "1.35rem 1.4rem 1.5rem" }}>
+                <div style={{ display: "grid", gap: "1rem" }}>
+                  <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 20, padding: "1.35rem 1.4rem", boxShadow: "0 12px 40px rgba(15,32,68,0.06)" }}>
                     <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
-                      {isDe ? "Das lohnt sich wirklich" : "What is genuinely worth it"}
+                      {isDe ? "Was du hier anders machen solltest" : "What to do differently here"}
                     </div>
-                    <p style={{ fontFamily: "var(--font-body)", fontSize: "0.94rem", color: "#64748b", lineHeight: 1.7, margin: "0 0 1rem" }}>
+                    <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.18rem", color: "#0f2044", margin: "0 0 0.7rem" }}>
+                      {isDe ? `${city.name} lieber mit Rhythmus als mit Hektik` : `${city.name} works better with rhythm than rush`}
+                    </h3>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: "0.94rem", color: "#64748b", lineHeight: 1.72, margin: "0 0 1rem" }}>
                       {isDe
-                        ? `Wenn du ${city.name} nicht nur abhaken, sondern richtig erleben willst, helfen klare Schwerpunkte mehr als ein endloser Programmmix.`
-                        : `If you want to actually feel ${city.name} instead of just ticking it off, a few clear priorities usually help more than an endless list.`}
+                        ? `Wenn du ${city.name} nicht nur abhaken, sondern wirklich erleben willst, helfen klare Tagesrhythmen mehr als zehn Sehenswürdigkeiten hintereinander. Genau daraus entsteht meistens auch die bessere Hotelentscheidung: Lage, Ruhe und Timing sind oft wichtiger als ein paar Euro Unterschied am Anfang.`
+                        : `If you want to actually experience ${city.name} instead of just ticking it off, a clearer daily rhythm helps more than stacking ten sights in a row. That often leads to the better hotel decision as well: location, calm and timing matter more than a tiny difference at the very beginning.`}
                     </p>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "0.55rem" }}>
                       {highlightList.map((item) => (
@@ -582,6 +580,47 @@ export default function CityPage({ params }: { params: { city: string } }) {
                           {item}
                         </span>
                       ))}
+                    </div>
+                  </div>
+
+                  <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 20, padding: "1.35rem 1.4rem", boxShadow: "0 12px 40px rgba(15,32,68,0.05)" }}>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
+                      {isDe ? "Mini-Reiseführer" : "Mini travel guide"}
+                    </div>
+                    <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.15rem", color: "#0f2044", margin: "0 0 0.7rem" }}>
+                      {isDe ? `So fühlt sich ${city.name} meist am besten an` : `How ${city.name} often feels best`}
+                    </h3>
+                    <div style={{ display: "grid", gap: "0.85rem" }}>
+                      <div style={{ background: "#f8fafc", border: "1px solid #e8ecf2", borderRadius: 14, padding: "0.95rem 1rem" }}>
+                        <div style={{ fontFamily: "var(--font-body)", fontSize: "0.74rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.35rem" }}>
+                          {isDe ? "Morgens" : "Morning"}
+                        </div>
+                        <div style={{ fontFamily: "var(--font-body)", fontSize: "0.91rem", color: "#475569", lineHeight: 1.65 }}>
+                          {isDe
+                            ? `Früh starten lohnt sich in ${city.name} fast immer: weniger Menschen, angenehmere Wege und oft der bessere Eindruck von Stadt und Vierteln.`
+                            : `Starting early almost always pays off in ${city.name}: fewer crowds, easier walking and a better feel for the city and its neighborhoods.`}
+                        </div>
+                      </div>
+                      <div style={{ background: "#f8fafc", border: "1px solid #e8ecf2", borderRadius: 14, padding: "0.95rem 1rem" }}>
+                        <div style={{ fontFamily: "var(--font-body)", fontSize: "0.74rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.35rem" }}>
+                          {isDe ? "Nachmittags" : "Afternoon"}
+                        </div>
+                        <div style={{ fontFamily: "var(--font-body)", fontSize: "0.91rem", color: "#475569", lineHeight: 1.65 }}>
+                          {isDe
+                            ? `Lieber ein Viertel bewusst erleben, essen gehen und auch mal sitzen bleiben, statt nur weiterzumüssen. So merkst du schneller, welche Lage für deinen Trip wirklich passt.`
+                            : `It is usually better to stay with one neighborhood, eat well and slow down a little instead of constantly moving on. That is when you notice which location truly fits your trip.`}
+                        </div>
+                      </div>
+                      <div style={{ background: "#f8fafc", border: "1px solid #e8ecf2", borderRadius: 14, padding: "0.95rem 1rem" }}>
+                        <div style={{ fontFamily: "var(--font-body)", fontSize: "0.74rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.35rem" }}>
+                          {isDe ? "Abends" : "Evening"}
+                        </div>
+                        <div style={{ fontFamily: "var(--font-body)", fontSize: "0.91rem", color: "#475569", lineHeight: 1.65 }}>
+                          {isDe
+                            ? `Genau abends zeigt sich oft, ob ein Viertel nur praktisch oder wirklich gut ist. Für Hotels ist das wichtig: Atmosphäre und Rückweg prägen die Reisequalität mehr als reine Sterne.`
+                            : `Evening is often when you notice whether a neighborhood is merely practical or actually good. For hotels that matters a lot: atmosphere and the way back often shape the trip more than stars alone.`}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
