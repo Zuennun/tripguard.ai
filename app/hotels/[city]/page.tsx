@@ -127,7 +127,7 @@ export default function CityPage({ params }: { params: { city: string } }) {
       text: isDe
         ? "Die Übersichtsseite zum gesamten Thema Preisüberwachung nach der Buchung."
         : "The overview page for the full post-booking hotel tracking topic.",
-      image: city.image,
+      image: "/hero.gif",
     },
     {
       href: "/hotel-price-alert-after-booking",
@@ -135,7 +135,7 @@ export default function CityPage({ params }: { params: { city: string } }) {
       text: isDe
         ? "Hier wird erklärt, wann ein günstigerer Preis später wirklich relevant wird."
         : "This explains when a later cheaper price really matters.",
-      image: relatedCities[0]?.image ?? city.image,
+      image: "/Alarm.gif",
     },
     {
       href: "/blog",
@@ -143,7 +143,7 @@ export default function CityPage({ params }: { params: { city: string } }) {
       text: isDe
         ? "Mehr Kontext zu Stornierung, Preisstürzen und cleveren Rebooking-Entscheidungen."
         : "More context on cancellation, price drops and smarter rebooking decisions.",
-      image: relatedCities[1]?.image ?? city.image,
+      image: "/Guides.gif",
     },
   ];
   const faqItems = isDe
@@ -278,9 +278,6 @@ export default function CityPage({ params }: { params: { city: string } }) {
             }}>
               {introParagraph}
             </p>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <img src={city.image} alt={pageTitle} style={{ width: "100%", maxWidth: 660, height: 280, objectFit: "cover", borderRadius: 24, display: "block", boxShadow: "0 24px 60px rgba(0,0,0,0.22)" }} />
-            </div>
           </div>
         </div>
 

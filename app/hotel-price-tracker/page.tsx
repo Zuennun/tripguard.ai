@@ -86,7 +86,7 @@ export default function HotelPriceTrackerPage() {
       text: isDe
         ? "Die passende Seite, wenn du verstehen willst, wie du später günstiger neu buchst."
         : "The right page if you want to understand how to rebook cheaper later.",
-      image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+      image: "/Alarm.gif",
     },
     {
       href: "/hotels",
@@ -94,7 +94,7 @@ export default function HotelPriceTrackerPage() {
       text: isDe
         ? "Ausführlichere Seiten mit lokalen Preislogiken, Saison-Effekten und mehr Kontext."
         : "Richer pages with local price logic, seasonality and more context.",
-      image: "https://images.unsplash.com/photo-1505765050516-f72dcac9c60f?auto=format&fit=crop&w=1200&q=80",
+      image: "/Reiseziel.gif",
     },
     {
       href: "/blog",
@@ -102,7 +102,7 @@ export default function HotelPriceTrackerPage() {
       text: isDe
         ? "Mehr Hintergrund zu Preisstürzen, flexiblen Raten und smarterem Rebooking."
         : "More depth on price drops, flexible rates and smarter rebooking.",
-      image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80",
+      image: "/Guides.gif",
     },
   ];
 
@@ -168,9 +168,9 @@ export default function HotelPriceTrackerPage() {
             <div style={{ position: "relative" }}>
               <div style={{ background: "#fff", borderRadius: 22, overflow: "hidden", boxShadow: "0 18px 60px rgba(0,0,0,0.18)" }}>
                 <img
-                  src="https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?auto=format&fit=crop&w=1400&q=80"
+                  src="/hero.gif"
                   alt={isDe ? "Hotelpreis-Tracking für Städtereisen" : "Hotel price tracking for city trips"}
-                  style={{ width: "100%", height: 290, objectFit: "cover", display: "block" }}
+                  style={{ width: "100%", height: 290, objectFit: "contain", display: "block", background: "linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%)" }}
                 />
                 <div style={{ padding: "1.25rem 1.35rem 1.4rem" }}>
                   <div style={{ display: "grid", gap: "0.7rem" }}>

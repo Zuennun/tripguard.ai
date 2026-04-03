@@ -35,7 +35,7 @@ export default function HotelPriceAlertAfterBookingPage() {
       text: isDe
         ? "Die Überblicksseite für das ganze Thema Preisüberwachung nach der Buchung."
         : "The overview page for the full post-booking hotel tracking topic.",
-      image: "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?auto=format&fit=crop&w=1200&q=80",
+      image: "/hero.gif",
     },
     {
       href: "/hotels",
@@ -43,7 +43,7 @@ export default function HotelPriceAlertAfterBookingPage() {
       text: isDe
         ? "Hier findest du ausführlichere Seiten zu Städten mit starken Preisbewegungen."
         : "Find richer pages for cities with meaningful hotel price movement.",
-      image: "https://images.unsplash.com/photo-1505765050516-f72dcac9c60f?auto=format&fit=crop&w=1200&q=80",
+      image: "/Reiseziel.gif",
     },
     {
       href: "/blog",
@@ -51,7 +51,7 @@ export default function HotelPriceAlertAfterBookingPage() {
       text: isDe
         ? "Mehr Kontext zu Preisstürzen, Stornierung und smarteren Buchungsentscheidungen."
         : "More context on price drops, cancellation and smarter booking decisions.",
-      image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80",
+      image: "/Guides.gif",
     },
   ];
 
@@ -90,9 +90,9 @@ export default function HotelPriceAlertAfterBookingPage() {
           </div>
           <div>
             <img
-              src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=80"
+              src="/hero.gif"
               alt={isDe ? "Hotel Price Alert nach der Buchung" : "Hotel price alert after booking"}
-              style={{ width: "100%", height: 360, objectFit: "cover", display: "block", borderRadius: 26, boxShadow: "0 24px 60px rgba(15,32,68,0.14)" }}
+              style={{ width: "100%", height: 360, objectFit: "contain", display: "block", borderRadius: 26, background: "linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%)", boxShadow: "0 24px 60px rgba(15,32,68,0.14)" }}
             />
           </div>
           </div>
