@@ -7,6 +7,14 @@ export type CityGuide = {
   savingTipEn: string;
   travelNoteDe: string;
   travelNoteEn: string;
+  premiumIntroDe?: string;
+  premiumIntroEn?: string;
+  mustSeeDe?: string[];
+  mustSeeEn?: string[];
+  stayAreasDe?: string[];
+  stayAreasEn?: string[];
+  timingDe?: string;
+  timingEn?: string;
 };
 
 export const cityGuides: Record<string, CityGuide> = {
@@ -19,6 +27,14 @@ export const cityGuides: Record<string, CityGuide> = {
     savingTipEn: "Amsterdam gets expensive quickly on weekends, holidays and event dates. If you book early with flexibility, you often still have a chance to catch a better rate later.",
     travelNoteDe: "Für einen klassischen Citytrip lohnen sich Bootsfahrten, Museen und Spaziergänge durch die kleineren Viertel mehr als nur die typischen Hotspots.",
     travelNoteEn: "For a classic city trip, canal cruises, museums and wandering through smaller neighborhoods tend to be more rewarding than only ticking off the biggest hotspots.",
+    premiumIntroDe: "Amsterdam funktioniert am besten, wenn du Wasser, Viertel und Tempo mitdenkst. Die Stadt wirkt nicht über große Sehenswürdigkeiten, sondern über kleine Straßenzüge, Cafes und den Wechsel zwischen lebendig und ruhig.",
+    premiumIntroEn: "Amsterdam works best when you think in terms of water, neighborhoods and rhythm. The city shines less through giant landmarks and more through smaller streets, cafes and the balance between lively and calm.",
+    mustSeeDe: ["Frühe Grachtenrunde", "Jordaan am Abend", "Museumsplein ohne Mittagsstress"],
+    mustSeeEn: ["Early canal walk", "Jordaan in the evening", "Museumsplein outside midday rush"],
+    stayAreasDe: ["Jordaan für Atmosphäre", "De Pijp für Cafes", "Museumsviertel für kurze Wege"],
+    stayAreasEn: ["Jordaan for atmosphere", "De Pijp for cafes", "Museum Quarter for walkability"],
+    timingDe: "Besonders stark schwanken Preise rund um Fr-So, Feiertage und Eventwochen. Unter der Woche wirkt Amsterdam oft ruhiger und preislich interessanter.",
+    timingEn: "Prices move most around Fri-Sun, holidays and event weeks. Midweek Amsterdam is often calmer and more attractive on price.",
   },
   paris: {
     highlightsDe: ["Marais", "Saint-Germain-des-Pres", "Montmartre"],
@@ -29,6 +45,14 @@ export const cityGuides: Record<string, CityGuide> = {
     savingTipEn: "Paris reacts strongly to fairs, holidays and long weekends. Especially with early bookings, price tracking can pay off right up to arrival.",
     travelNoteDe: "Kleine Cafe-Pausen, Spaziergänge an der Seine und ein klarer Plan pro Arrondissement machen den Aufenthalt meist besser als zu viele Programmpunkte.",
     travelNoteEn: "Small cafe breaks, Seine walks and a simple plan per arrondissement often make the trip better than cramming in too many attractions.",
+    premiumIntroDe: "Paris wird schnell überladen geplant. Viel schöner wird die Stadt, wenn du einzelne Arrondissements bewusst erlebst: morgens ein Museum, nachmittags ein Viertel, abends gutes Essen statt zehn Haken auf einer Liste.",
+    premiumIntroEn: "Paris is often overplanned. It becomes much better when you experience one arrondissement at a time: a museum in the morning, a neighborhood in the afternoon and a strong dinner instead of ten boxes ticked.",
+    mustSeeDe: ["Seine-Spaziergang bei Sonnenuntergang", "Marais mit kleinen Boutiquen", "Montmartre früh statt mittags"],
+    mustSeeEn: ["Seine walk at sunset", "Le Marais and its smaller boutiques", "Montmartre early instead of midday"],
+    stayAreasDe: ["Saint-Germain für klassische Paris-Stimmung", "Marais für kurze Wege", "Canal Saint-Martin für etwas entspanntere Energie"],
+    stayAreasEn: ["Saint-Germain for classic Paris atmosphere", "Le Marais for walkability", "Canal Saint-Martin for a slightly calmer vibe"],
+    timingDe: "Preisbewegungen sind oft stark rund um Fashion Week, Messen, Brückentage und lange Wochenenden. Gerade dann lohnt sich Monitoring bis kurz vor Anreise.",
+    timingEn: "Price movement is often strong around fashion weeks, fairs, bridge holidays and long weekends. Those are exactly the moments when tracking pays off.",
   },
   barcelona: {
     highlightsDe: ["El Born", "Eixample", "Barceloneta"],
@@ -39,6 +63,14 @@ export const cityGuides: Record<string, CityGuide> = {
     savingTipEn: "Barcelona can swing hard around weekends, fairs and summer dates. Flexible rates are especially valuable here.",
     travelNoteDe: "Für viele ist die beste Mischung: Altstadt, Tapas, Strand und ein klar gesetzter Architektur-Tag statt alles auf einmal.",
     travelNoteEn: "For many travellers, the best mix is old town, tapas, beach time and one dedicated architecture day instead of trying to do everything at once.",
+    premiumIntroDe: "Barcelona lebt von Kontrasten: Meer, Altstadt, breite Boulevards und starke Architektur. Gute Stadtseiten sollten genau das spiegeln, statt nur eine billige Hotel-Liste aneinanderzureihen.",
+    premiumIntroEn: "Barcelona lives on contrast: sea, old town, wide boulevards and striking architecture. Strong city pages should reflect that instead of just stacking generic hotel blurbs.",
+    mustSeeDe: ["Passeig de Gracia am frühen Morgen", "Tapas-Abend in El Born", "Sonnenuntergang am Bunkers del Carmel"],
+    mustSeeEn: ["Passeig de Gracia early in the morning", "Tapas evening in El Born", "Sunset at Bunkers del Carmel"],
+    stayAreasDe: ["Eixample für Balance", "El Born für Atmosphäre", "Poblenou für etwas mehr Ruhe nah am Wasser"],
+    stayAreasEn: ["Eixample for balance", "El Born for atmosphere", "Poblenou for a calmer stay near the water"],
+    timingDe: "Rund um Messen, Wochenenden und Hochsommer verschiebt sich die Preisstruktur stark. Wer früh bucht, sollte Barcelona fast immer weiter beobachten.",
+    timingEn: "Around fairs, weekends and high summer the price structure moves hard. If you booked early, Barcelona is almost always worth monitoring.",
   },
   london: {
     highlightsDe: ["Covent Garden", "South Bank", "Notting Hill"],
@@ -49,6 +81,14 @@ export const cityGuides: Record<string, CityGuide> = {
     savingTipEn: "London hotels react strongly to concerts, football, conferences and holiday periods. Booking early and then keeping track is especially useful here.",
     travelNoteDe: "South Bank, Parks, Pubs und ein gutes Viertel zum Zurückkommen machen London oft angenehmer als nur Sehenswürdigkeiten abzuhaken.",
     travelNoteEn: "South Bank walks, parks, pubs and having one good home neighborhood often make London better than just ticking off landmarks.",
+    premiumIntroDe: "London ist selten die Stadt für den billigsten Zufallstreffer. Entscheidend sind Verbindung, Viertelgefühl und eventbedingte Sprünge. Genau deshalb ist London eine der besten Städte für späteres Rebooking.",
+    premiumIntroEn: "London is rarely about finding the cheapest random room. Connection, neighborhood feel and event-driven spikes matter far more. That is exactly why London is one of the best cities for later rebooking.",
+    mustSeeDe: ["South Bank zu Fuß", "Abend im Pub-Viertel", "Ein halber Tag nur für Parks und Museen"],
+    mustSeeEn: ["South Bank on foot", "An evening in a pub neighborhood", "Half a day just for parks and museums"],
+    stayAreasDe: ["Bloomsbury für Museen", "South Bank für Energie", "Paddington nur bei guter Verbindung und fairem Preis"],
+    stayAreasEn: ["Bloomsbury for museums", "South Bank for energy", "Paddington only if the connection and price are right"],
+    timingDe: "Bei Konzerten, Fußball, Schulferien und großen Konferenzen springt London extrem. Preisalarme sind hier oft kein Nice-to-have, sondern echter Schutz vor Überzahlung.",
+    timingEn: "Concerts, football, school holidays and large conferences move London dramatically. Alerts here are often not a nice extra but real protection against overpaying.",
   },
   rom: {
     highlightsDe: ["Trastevere", "Centro Storico", "Monti"],
@@ -59,6 +99,14 @@ export const cityGuides: Record<string, CityGuide> = {
     savingTipEn: "Rome sees strong demand around holidays, spring and autumn. Monitoring is especially useful if you booked well in advance.",
     travelNoteDe: "Die Stadt funktioniert oft am besten mit viel Laufen, langen Abendessen und einem lockeren Plan pro Stadtteil.",
     travelNoteEn: "Rome often works best with lots of walking, long dinners and a relaxed plan focused on one neighborhood at a time.",
+    premiumIntroDe: "Rom wirkt über Atmosphäre, Wege und Tageszeiten. Die schönsten Stunden sind oft die frühen und späten, und genau dann spürt man auch, welche Lage sich wirklich lohnt.",
+    premiumIntroEn: "Rome works through atmosphere, walking and the rhythm of the day. The best hours are often early and late, and that is exactly when you feel whether your location was worth it.",
+    mustSeeDe: ["Trastevere nach Sonnenuntergang", "Morgens rund ums Forum", "Ein ruhiger Aperitivo statt noch ein Museum"],
+    mustSeeEn: ["Trastevere after sunset", "Morning around the Forum", "A quiet aperitivo instead of one more museum"],
+    stayAreasDe: ["Monti für Stil und Nähe", "Centro Storico für klassische Wege", "Prati für etwas mehr Ruhe"],
+    stayAreasEn: ["Monti for style and proximity", "Centro Storico for classic walkability", "Prati for a calmer feel"],
+    timingDe: "Frühling, Herbst und Feiertage ziehen Preise in Rom schnell an. Gerade bei früher Buchung lohnt sich tägliches Nachverfolgen bis nah an die Anreise.",
+    timingEn: "Spring, autumn and holidays push Rome up fast. If you booked early, daily tracking often pays right up until close to arrival.",
   },
   wien: {
     highlightsDe: ["Innere Stadt", "MuseumsQuartier", "Neubau"],

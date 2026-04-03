@@ -85,6 +85,10 @@ export default function CityPage({ params }: { params: { city: string } }) {
   const relatedCities = getAllCities().filter((entry) => entry.slug !== city.slug).slice(0, 3);
   const relatedPosts = getAllPosts().slice(0, 3);
   const cityGuide = getCityGuide(city.slug);
+  const premiumIntro = cityGuide ? (isDe ? cityGuide.premiumIntroDe : cityGuide.premiumIntroEn) : null;
+  const premiumMustSee = cityGuide ? (isDe ? cityGuide.mustSeeDe : cityGuide.mustSeeEn) : null;
+  const premiumStayAreas = cityGuide ? (isDe ? cityGuide.stayAreasDe : cityGuide.stayAreasEn) : null;
+  const premiumTiming = cityGuide ? (isDe ? cityGuide.timingDe : cityGuide.timingEn) : null;
   const railItems = [
     {
       href: "/hotel-price-alert-after-booking",
@@ -240,13 +244,16 @@ export default function CityPage({ params }: { params: { city: string } }) {
 
         {/* ── Main content ── */}
         <div style={{ maxWidth: 860, margin: "0 auto", padding: "3rem 2rem 5rem" }}>
-          <div style={{
+          <div
+            className="city-top-grid"
+            style={{
             display: "grid",
             gridTemplateColumns: "1.1fr 0.9fr",
             gap: "1.5rem",
             marginBottom: "3rem",
             alignItems: "stretch",
-          }}>
+          }}
+          >
             <div style={{
               background: "#ffffff",
               borderRadius: 18,
@@ -356,12 +363,15 @@ export default function CityPage({ params }: { params: { city: string } }) {
             </div>
           </div>
 
-          <div style={{
+          <div
+            className="city-two-col"
+            style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
             gap: "1.2rem",
             marginBottom: "3rem",
-          }}>
+          }}
+          >
             <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 18, padding: "1.4rem 1.5rem" }}>
               <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
                 {isDe ? "Wann es sich hier besonders lohnt" : "When it matters most here"}
@@ -445,6 +455,75 @@ export default function CityPage({ params }: { params: { city: string } }) {
                     </h3>
                     <p style={{ fontFamily: "var(--font-body)", fontSize: "0.94rem", color: "#7c2d12", lineHeight: 1.7, margin: 0 }}>
                       {isDe ? cityGuide.savingTipDe : cityGuide.savingTipEn}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {premiumIntro && premiumMustSee && premiumStayAreas && premiumTiming && (
+            <div style={{ marginBottom: "3rem" }}>
+              <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto 1.2rem" }}>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: "0.76rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.6rem" }}>
+                  {isDe ? `Premium Guide für ${city.name}` : `Premium guide for ${city.name}`}
+                </div>
+                <h2 style={{ fontFamily: "var(--font-head)", fontWeight: 900, fontSize: "clamp(1.45rem, 3vw, 2.1rem)", color: "#0f2044", lineHeight: 1.15, margin: "0 0 0.8rem" }}>
+                  {isDe ? `${city.name} richtig erleben und gleichzeitig smarter buchen` : `Experience ${city.name} better and book smarter at the same time`}
+                </h2>
+                <p style={{ fontFamily: "var(--font-body)", fontSize: "0.98rem", color: "#64748b", lineHeight: 1.75, margin: 0 }}>
+                  {premiumIntro}
+                </p>
+              </div>
+
+              <div className="city-premium-grid" style={{ display: "grid", gridTemplateColumns: "1.02fr 0.98fr", gap: "1.2rem" }}>
+                <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 20, overflow: "hidden", boxShadow: "0 12px 40px rgba(15,32,68,0.06)" }}>
+                  <img
+                    src={secondaryImage}
+                    alt={isDe ? `${city.name} Reisetipps und Viertel` : `${city.name} travel tips and neighbourhoods`}
+                    style={{ width: "100%", height: 280, objectFit: "cover", display: "block" }}
+                  />
+                  <div style={{ padding: "1.35rem 1.4rem 1.5rem" }}>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
+                      {isDe ? "Das lohnt sich wirklich" : "What is genuinely worth it"}
+                    </div>
+                    <div style={{ display: "grid", gap: "0.7rem" }}>
+                      {premiumMustSee.map((item) => (
+                        <div key={item} style={{ background: "#f8fafc", border: "1px solid #e8ecf2", borderRadius: 14, padding: "0.85rem 0.95rem", fontFamily: "var(--font-body)", fontSize: "0.92rem", color: "#334155", lineHeight: 1.6, fontWeight: 600 }}>
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: "grid", gap: "1rem" }}>
+                  <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 20, padding: "1.35rem 1.4rem", boxShadow: "0 12px 40px rgba(15,32,68,0.06)" }}>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
+                      {isDe ? "Viertel mit gutem Gefühl" : "Areas that feel right"}
+                    </div>
+                    <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.15rem", color: "#0f2044", margin: "0 0 0.7rem" }}>
+                      {isDe ? `Wo ${city.name} oft am meisten Sinn macht` : `Where ${city.name} often works best`}
+                    </h3>
+                    <div style={{ display: "grid", gap: "0.6rem" }}>
+                      {premiumStayAreas.map((item) => (
+                        <div key={item} style={{ fontFamily: "var(--font-body)", fontSize: "0.94rem", color: "#64748b", lineHeight: 1.65, paddingLeft: "1rem", position: "relative" }}>
+                          <span style={{ position: "absolute", left: 0, color: "#f97316", fontWeight: 900 }}>•</span>
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div style={{ background: "linear-gradient(160deg,#fff7ed,#ffffff)", border: "1px solid #fde7d7", borderRadius: 20, padding: "1.35rem 1.4rem", boxShadow: "0 12px 40px rgba(15,32,68,0.04)" }}>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
+                      {isDe ? "Wann Tracking hier richtig zieht" : "When tracking really helps here"}
+                    </div>
+                    <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: "1.15rem", color: "#0f2044", margin: "0 0 0.65rem" }}>
+                      {isDe ? `Timing für ${city.name}` : `Timing for ${city.name}`}
+                    </h3>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: "0.94rem", color: "#7c2d12", lineHeight: 1.7, margin: 0 }}>
+                      {premiumTiming}
                     </p>
                   </div>
                 </div>
@@ -683,6 +762,9 @@ export default function CityPage({ params }: { params: { city: string } }) {
 
       <style>{`
         @media (max-width: 820px) {
+          .city-top-grid,
+          .city-two-col,
+          .city-premium-grid,
           .city-guide-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>

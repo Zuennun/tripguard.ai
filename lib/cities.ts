@@ -41,6 +41,8 @@ export const cities: City[] = [
     country: "Frankreich",
     countryCode: "FR",
     image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=600&q=80",
+    secondaryImage:
+      "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Mit SaveMyHoliday behältst du die Hotelpreise in Paris im Blick und wirst sofort benachrichtigt, wenn dein Wunschhotel günstiger wird.",
     description_en:
@@ -64,6 +66,8 @@ export const cities: City[] = [
     country: "Spanien",
     countryCode: "ES",
     image: "https://images.unsplash.com/photo-1583422409516-2895a77efded?auto=format&fit=crop&w=600&q=80",
+    secondaryImage:
+      "https://images.unsplash.com/photo-1464790719320-516ecd75af6c?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Lass Hotelpreise in Barcelona automatisch überwachen und spare bares Geld auf dein nächstes Städtetrip-Hotel.",
     description_en:
@@ -87,6 +91,8 @@ export const cities: City[] = [
     country: "Vereinigtes Königreich",
     countryCode: "GB",
     image: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=600&q=80",
+    secondaryImage:
+      "https://images.unsplash.com/photo-1486299267070-83823f5448dd?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Hotelpreise in London schwanken stark — SaveMyHoliday überwacht deinen Preis täglich und informiert dich bei Preissenkungen.",
     description_en:
@@ -110,6 +116,8 @@ export const cities: City[] = [
     country: "Niederlande",
     countryCode: "NL",
     image: "https://images.unsplash.com/photo-1534351590666-13e3e96b5017?auto=format&fit=crop&w=600&q=80",
+    secondaryImage:
+      "https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "Nie wieder zu viel für dein Amsterdam-Hotel zahlen: SaveMyHoliday überwacht Hotelpreise in Amsterdam kostenlos und automatisch.",
     description_en:
@@ -133,6 +141,8 @@ export const cities: City[] = [
     country: "Italien",
     countryCode: "IT",
     image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=600&q=80",
+    secondaryImage:
+      "https://images.unsplash.com/photo-1525874684015-58379d421a52?auto=format&fit=crop&w=1200&h=760&q=80",
     description_de:
       "SaveMyHoliday überwacht Hotelpreise in Rom täglich und schickt dir eine E-Mail, sobald dein Traum-Hotel in der Ewigen Stadt günstiger wird.",
     description_en:
