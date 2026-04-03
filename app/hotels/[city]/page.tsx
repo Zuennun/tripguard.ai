@@ -1,10 +1,12 @@
 import { headers } from "next/headers";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { type Locale, getTranslations } from "@/lib/translations";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { getCityBySlug, getAllCities } from "@/lib/cities";
+import { getAllPosts } from "@/lib/blog";
 
 // ─── Static params ─────────────────────────────────────────────────────────────
 
@@ -39,10 +41,20 @@ export async function generateMetadata({
     title,
     description,
     keywords,
+    alternates: {
+      canonical: `https://savemyholiday.com/hotels/${city.slug}`,
+    },
     openGraph: {
       title,
       description,
       type: "website",
+      images: [city.image],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [city.image],
     },
   };
 }
@@ -103,20 +115,90 @@ export default function CityPage({ params }: { params: { city: string } }) {
       ];
 
   const keywords = isDe ? city.keywords_de : city.keywords_en;
+  const relatedCities = getAllCities().filter((entry) => entry.slug !== city.slug).slice(0, 3);
+  const relatedPosts = getAllPosts().slice(0, 3);
+  const faqItems = isDe
+    ? [
+        {
+          question: `Lohnt sich Preisüberwachung für Hotels in ${city.name}?`,
+          answer: `Ja, besonders in ${city.name} schwanken Hotelpreise oft bis kurz vor dem Aufenthalt. Wenn du kostenlos stornieren kannst, lohnt sich tägliches Monitoring besonders.`,
+        },
+        {
+          question: `Wie oft prüft SaveMyHoliday Preise für ${city.name}?`,
+          answer: `Aktuell prüfen wir täglich und vergleichen dein gebuchtes Hotel mit aktuellen Angeboten für dieselben Reisedaten.`,
+        },
+        {
+          question: `Brauche ich einen Account für ${city.name}-Hotelpreise?`,
+          answer: `Nein. Du gibst nur deine Buchungsdaten und E-Mail an und verwaltest alles später über einen sicheren Link.`,
+        },
+      ]
+    : [
+        {
+          question: `Is price tracking worth it for hotels in ${city.name}?`,
+          answer: `Yes. Hotel prices in ${city.name} often move between booking and check-in. Daily monitoring is especially useful if your booking is free cancellation.`,
+        },
+        {
+          question: `How often does SaveMyHoliday check prices in ${city.name}?`,
+          answer: `We currently check daily and compare your booked hotel against current offers for the same travel dates.`,
+        },
+        {
+          question: `Do I need an account to monitor hotels in ${city.name}?`,
+          answer: `No. You only submit your booking details and email, then manage everything later via a secure link.`,
+        },
+      ];
 
   // Schema.org JSON-LD
-  const schemaOrg = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: pageTitle,
-    description: isDe ? city.description_de : city.description_en,
-    url: `https://savemyholiday.com/hotels/${city.slug}`,
-    publisher: {
-      "@type": "Organization",
-      name: "SaveMyHoliday",
-      url: "https://savemyholiday.com",
+  const schemaOrg = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: pageTitle,
+      description: isDe ? city.description_de : city.description_en,
+      url: `https://savemyholiday.com/hotels/${city.slug}`,
+      publisher: {
+        "@type": "Organization",
+        name: "SaveMyHoliday",
+        url: "https://savemyholiday.com",
+      },
+      primaryImageOfPage: city.image,
     },
-  };
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: "https://savemyholiday.com",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Hotels",
+          item: "https://savemyholiday.com/hotels",
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: city.name,
+          item: `https://savemyholiday.com/hotels/${city.slug}`,
+        },
+      ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqItems.map((item) => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.answer,
+        },
+      })),
+    },
+  ];
 
   return (
     <>
@@ -293,6 +375,111 @@ export default function CityPage({ params }: { params: { city: string } }) {
             ))}
           </div>
 
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1.1fr 0.9fr",
+            gap: "1.5rem",
+            marginBottom: "3rem",
+            alignItems: "stretch",
+          }}>
+            <div style={{
+              background: "#ffffff",
+              borderRadius: 18,
+              overflow: "hidden",
+              boxShadow: "0 2px 12px rgba(15,32,68,0.07)",
+              border: "1px solid #e8ecf2",
+            }}>
+              <img
+                src={city.image}
+                alt={isDe ? `${city.name} Skyline und Hotels` : `${city.name} skyline and hotels`}
+                style={{ width: "100%", height: 260, objectFit: "cover", display: "block" }}
+              />
+              <div style={{ padding: "1.4rem 1.5rem 1.6rem" }}>
+                <div style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  color: "#f97316",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  marginBottom: "0.5rem",
+                }}>
+                  {isDe ? "Preislogik in dieser Stadt" : "Price dynamics in this city"}
+                </div>
+                <h2 style={{
+                  fontFamily: "var(--font-head)",
+                  fontWeight: 800,
+                  fontSize: "1.3rem",
+                  color: "#0f2044",
+                  margin: "0 0 0.75rem",
+                }}>
+                  {isDe ? `Warum ${city.name} spannend für Preisüberwachung ist` : `Why ${city.name} is worth monitoring`}
+                </h2>
+                <p style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "0.95rem",
+                  color: "#64748b",
+                  lineHeight: 1.7,
+                  margin: 0,
+                }}>
+                  {isDe
+                    ? `In ${city.name} spielen Saison, Events, Wochenenden und Auslastung eine große Rolle. Genau dadurch entstehen nach der Buchung oft neue Chancen für günstigere Raten. Wenn du eine flexible Rate hast, kann ein Preisalarm hier besonders wertvoll sein.`
+                    : `In ${city.name}, seasonality, events, weekends, and occupancy levels all influence pricing. That creates real opportunities for lower rates after booking. If your rate is flexible, price monitoring becomes especially valuable here.`}
+                </p>
+              </div>
+            </div>
+
+            <div style={{
+              background: "linear-gradient(160deg, #0f2044 0%, #17345f 100%)",
+              borderRadius: 18,
+              padding: "1.5rem",
+              color: "#fff",
+              display: "grid",
+              gap: "1rem",
+            }}>
+              <div>
+                <div style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  color: "#f97316",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  marginBottom: "0.45rem",
+                }}>
+                  {isDe ? "Quick take" : "Quick take"}
+                </div>
+                <h3 style={{
+                  fontFamily: "var(--font-head)",
+                  fontWeight: 800,
+                  fontSize: "1.15rem",
+                  lineHeight: 1.25,
+                  margin: 0,
+                }}>
+                  {isDe ? `${city.name}: gut für Preisalarme, wenn du früh gebucht hast` : `${city.name}: great for price alerts if you booked early`}
+                </h3>
+              </div>
+              {[
+                isDe ? "Früh gebucht? Dann ist Nachverfolgung besonders sinnvoll." : "Booked early? Monitoring usually matters more.",
+                isDe ? "Flexible Tarife schlagen starre Tarife fast immer bei späteren Preissenkungen." : "Flexible rates usually beat rigid rates once prices move.",
+                isDe ? "Die besten Chancen entstehen oft 1–6 Wochen vor Anreise." : "The best opportunities often appear 1–6 weeks before arrival.",
+              ].map((item) => (
+                <div key={item} style={{
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: 14,
+                  padding: "0.9rem 1rem",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "0.9rem",
+                  lineHeight: 1.6,
+                  color: "rgba(255,255,255,0.82)",
+                }}>
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* CTA box */}
           <div style={{
             background: "linear-gradient(135deg, #0f2044 0%, #1a3a6e 100%)",
@@ -359,7 +546,7 @@ export default function CityPage({ params }: { params: { city: string } }) {
           </div>
 
           {/* SEO keywords */}
-          <div>
+          <div style={{ marginBottom: "3rem" }}>
             <div style={{
               fontFamily: "var(--font-body)",
               fontSize: "0.78rem",
@@ -388,6 +575,125 @@ export default function CityPage({ params }: { params: { city: string } }) {
                 >
                   {kw}
                 </span>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: "3rem" }}>
+            <div style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "0.78rem",
+              fontWeight: 700,
+              color: "#9ca3af",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              marginBottom: "0.85rem",
+            }}>
+              {isDe ? "Hilfreiche Guides" : "Helpful guides"}
+            </div>
+            <div style={{ display: "grid", gap: "0.85rem" }}>
+              {relatedPosts.map((post) => (
+                <Link
+                  key={post.slug}
+                  href={`/blog/${post.slug}`}
+                  style={{
+                    textDecoration: "none",
+                    background: "#ffffff",
+                    border: "1px solid #e8ecf2",
+                    borderRadius: 14,
+                    padding: "1rem 1.1rem",
+                    display: "block",
+                  }}
+                >
+                  <div style={{ fontFamily: "var(--font-head)", fontWeight: 800, color: "#0f2044", marginBottom: "0.35rem" }}>
+                    {isDe ? post.title.de : post.title.en}
+                  </div>
+                  <div style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", color: "#64748b", lineHeight: 1.6 }}>
+                    {isDe ? post.description.de : post.description.en}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: "3rem" }}>
+            <div style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "0.78rem",
+              fontWeight: 700,
+              color: "#9ca3af",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              marginBottom: "0.85rem",
+            }}>
+              {isDe ? "Weitere Städte" : "More cities"}
+            </div>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "1rem",
+            }}>
+              {relatedCities.map((entry) => (
+                <Link
+                  key={entry.slug}
+                  href={`/hotels/${entry.slug}`}
+                  style={{
+                    textDecoration: "none",
+                    background: "#ffffff",
+                    border: "1px solid #e8ecf2",
+                    borderRadius: 16,
+                    overflow: "hidden",
+                    display: "block",
+                  }}
+                >
+                  <img
+                    src={entry.image}
+                    alt={entry.name}
+                    style={{ width: "100%", height: 140, objectFit: "cover", display: "block" }}
+                  />
+                  <div style={{ padding: "0.9rem 1rem 1rem" }}>
+                    <div style={{ fontFamily: "var(--font-head)", fontWeight: 800, color: "#0f2044", marginBottom: "0.35rem" }}>
+                      {entry.name}
+                    </div>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: "0.87rem", color: "#64748b", lineHeight: 1.55 }}>
+                      {isDe ? entry.description_de : entry.description_en}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "0.78rem",
+              fontWeight: 700,
+              color: "#9ca3af",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              marginBottom: "0.85rem",
+            }}>
+              FAQ
+            </div>
+            <div style={{ display: "grid", gap: "0.85rem" }}>
+              {faqItems.map((item) => (
+                <div
+                  key={item.question}
+                  style={{
+                    background: "#ffffff",
+                    border: "1px solid #e8ecf2",
+                    borderRadius: 14,
+                    padding: "1rem 1.1rem",
+                  }}
+                >
+                  <div style={{ fontFamily: "var(--font-head)", fontWeight: 800, color: "#0f2044", marginBottom: "0.45rem" }}>
+                    {item.question}
+                  </div>
+                  <div style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", color: "#64748b", lineHeight: 1.65 }}>
+                    {item.answer}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
