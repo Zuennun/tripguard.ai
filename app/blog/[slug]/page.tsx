@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { type Locale, getTranslations } from "@/lib/translations";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { SITE_URL } from "@/lib/site";
 import { getPostBySlug, getAllPosts } from "@/lib/blog";
 import ShareButtons from "@/components/ShareButtons";
 
@@ -197,7 +198,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
           />
 
           <ShareButtons
-            url={`https://savemyholiday.com/blog/${params.slug}`}
+            url={`${SITE_URL}/blog/${params.slug}`}
             title={title}
             isDE={isDE}
           />
@@ -323,7 +324,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             publisher: {
               "@type": "Organization",
               name: "SaveMyHoliday",
-              url: "https://savemyholiday.com",
+              url: SITE_URL,
             },
             keywords: post.keywords.join(", "),
           }),

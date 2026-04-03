@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import SeoPageRail from "@/components/SeoPageRail";
 import { getAllCities } from "@/lib/cities";
 import { getAllPosts } from "@/lib/blog";
+import { SITE_URL } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -21,22 +22,22 @@ export async function generateMetadata(): Promise<Metadata> {
       "booking.com price tracker",
     ].join(", "),
     alternates: {
-      canonical: "https://savemyholiday.com/hotel-price-tracker",
+      canonical: `${SITE_URL}/hotel-price-tracker`,
     },
     openGraph: {
       title: "Hotel Price Tracker After Booking — SaveMyHoliday",
       description:
         "Track hotel prices after booking and get alerted when a cheaper rate appears.",
       type: "website",
-      url: "https://savemyholiday.com/hotel-price-tracker",
-      images: ["https://savemyholiday.com/tripguard1.png"],
+      url: `${SITE_URL}/hotel-price-tracker`,
+      images: [`${SITE_URL}/tripguard1.png`],
     },
     twitter: {
       card: "summary_large_image",
       title: "Hotel Price Tracker After Booking — SaveMyHoliday",
       description:
         "Track hotel prices after booking and get alerted when a cheaper rate appears.",
-      images: ["https://savemyholiday.com/tripguard1.png"],
+      images: [`${SITE_URL}/tripguard1.png`],
     },
   };
 }
@@ -114,14 +115,14 @@ export default function HotelPriceTrackerPage() {
       description: isDe
         ? "Überwache Hotelpreise nach der Buchung und werde bei Preissenkungen informiert."
         : "Track hotel prices after booking and get alerted when rates drop.",
-      url: "https://savemyholiday.com/hotel-price-tracker",
+      url: `${SITE_URL}/hotel-price-tracker`,
     },
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://savemyholiday.com" },
-        { "@type": "ListItem", position: 2, name: "Hotel Price Tracker", item: "https://savemyholiday.com/hotel-price-tracker" },
+        { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+        { "@type": "ListItem", position: 2, name: "Hotel Price Tracker", item: `${SITE_URL}/hotel-price-tracker` },
       ],
     },
     {

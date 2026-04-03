@@ -9,6 +9,7 @@ import SeoPageRail from "@/components/SeoPageRail";
 import { getCityBySlug, getAllCities } from "@/lib/cities";
 import { getCityGuide } from "@/lib/cityGuides";
 import { getAllPosts } from "@/lib/blog";
+import { SITE_URL } from "@/lib/site";
 
 // ─── Static params ─────────────────────────────────────────────────────────────
 
@@ -44,7 +45,7 @@ export async function generateMetadata({
     description,
     keywords,
     alternates: {
-      canonical: `https://savemyholiday.com/hotels/${city.slug}`,
+      canonical: `${SITE_URL}/hotels/${city.slug}`,
     },
     openGraph: {
       title,
@@ -175,11 +176,11 @@ export default function CityPage({ params }: { params: { city: string } }) {
       "@type": "WebPage",
       name: pageTitle,
       description: isDe ? city.description_de : city.description_en,
-      url: `https://savemyholiday.com/hotels/${city.slug}`,
+      url: `${SITE_URL}/hotels/${city.slug}`,
       publisher: {
         "@type": "Organization",
         name: "SaveMyHoliday",
-        url: "https://savemyholiday.com",
+        url: SITE_URL,
       },
       primaryImageOfPage: city.image,
     },
@@ -191,19 +192,19 @@ export default function CityPage({ params }: { params: { city: string } }) {
           "@type": "ListItem",
           position: 1,
           name: "Home",
-          item: "https://savemyholiday.com",
+          item: SITE_URL,
         },
         {
           "@type": "ListItem",
           position: 2,
           name: "Hotels",
-          item: "https://savemyholiday.com/hotels",
+          item: `${SITE_URL}/hotels`,
         },
         {
           "@type": "ListItem",
           position: 3,
           name: city.name,
-          item: `https://savemyholiday.com/hotels/${city.slug}`,
+          item: `${SITE_URL}/hotels/${city.slug}`,
         },
       ],
     },

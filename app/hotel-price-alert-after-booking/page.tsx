@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SeoPageRail from "@/components/SeoPageRail";
 import { getAllPosts } from "@/lib/blog";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Hotel Price Alert After Booking — SaveMyHoliday",
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
     "hotel gets cheaper after booking",
   ].join(", "),
   alternates: {
-    canonical: "https://savemyholiday.com/hotel-price-alert-after-booking",
+    canonical: `${SITE_URL}/hotel-price-alert-after-booking`,
   },
 };
 
@@ -60,7 +61,7 @@ export default function HotelPriceAlertAfterBookingPage() {
     "@type": "WebPage",
     name: "Hotel Price Alert After Booking",
     description: "Set a hotel price alert after booking and get notified when a cheaper rate appears.",
-    url: "https://savemyholiday.com/hotel-price-alert-after-booking",
+    url: `${SITE_URL}/hotel-price-alert-after-booking`,
   };
 
   return (

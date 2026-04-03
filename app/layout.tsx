@@ -6,6 +6,7 @@ import CookieBanner from "@/components/CookieBanner";
 import VisitTracker from "@/components/VisitTracker";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { SITE_URL } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = headers();
@@ -13,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = getTranslations(locale);
 
   const isDE = locale === "de";
-  const siteUrl = "https://savemyholiday.com";
+  const siteUrl = SITE_URL;
 
   const title = isDE
     ? "SaveMyHoliday — Nie wieder zu viel für ein Hotel zahlen"
