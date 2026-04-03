@@ -1,15 +1,13 @@
 import { Resend } from "resend";
 import { checkCurrentPrice } from "@/lib/checkPrice";
 import { comparePrices } from "@/lib/priceComparison";
-import { priceAlertEmail } from "@/lib/emails";
+import { founderPriceReviewEmail } from "@/lib/emails";
 import { insertPriceCheckCompat } from "@/lib/priceChecks";
 import { getSupabaseAdmin } from "@/lib/tokens";
 import { createJobRunCompat, finishJobRunCompat } from "@/lib/jobRuns";
-import { insertAlertCompat } from "@/lib/alerts";
-import { createAffiliateClickCompat } from "@/lib/affiliateClicks";
 
 const MIN_SAVINGS_AMOUNT = 5;
-const EXPEDIA_AFFILIATE_ID = process.env.EXPEDIA_AFFILIATE_ID ?? "";
+const ADMIN_ALERT_EMAIL = process.env.ADMIN_ALERT_EMAIL ?? process.env.FOUNDER_ALERT_EMAIL ?? "";
 
 export async function runPriceChecks(params?: {
   trigger?: "cron" | "admin";
@@ -142,85 +140,60 @@ export async function runPriceChecks(params?: {
               return;
             }
 
-            const alert = await insertAlertCompat({
-              supabase,
-              bookingId: booking.id,
-              priceCheckId,
-              newPrice: comparison.normalizedFoundPrice!,
-              oldPrice: booking.price,
-              savings: comparison.savings,
-              currency: booking.currency,
-              provider: result.cheapestSource || result.source || null,
-              resultUrl: result.cheapestUrl || result.bookingUrl || null,
-            });
-
-            let clickToken: string | null = null;
-            let destination = result.cheapestUrl || result.bookingUrl;
-            if ((result.cheapestSource || result.source) === "Expedia" && EXPEDIA_AFFILIATE_ID) {
-              try {
-                const u = new URL(destination);
-                u.searchParams.set("affcid", EXPEDIA_AFFILIATE_ID);
-                destination = u.toString();
-              } catch {}
-            }
-            if (destination) {
-              const affiliate = await createAffiliateClickCompat({
-                supabase,
-                bookingId: booking.id,
-                alertId: alert.id ?? null,
-                destination,
-                provider: result.cheapestSource || result.source || null,
-              });
-              clickToken = affiliate.token;
-            }
-
-            const bookingUrl = clickToken
-              ? `https://savemyholiday.com/go/${clickToken}`
-              : "#";
-
-            const { data: manageTokenRow } = await supabase
-              .from("booking_tokens")
-              .select("token")
-              .eq("booking_id", booking.id)
-              .eq("purpose", "manage")
-              .single();
-
-            const manageUrl = manageTokenRow
-              ? `https://savemyholiday.com/manage/${manageTokenRow.token}`
-              : "https://savemyholiday.com";
-
-            const locale = (booking.locale ?? "de") as "de" | "en";
-            const subject = locale === "de"
-              ? `💰 Günstigerer Preis für ${booking.hotel_name} — SaveMyHoliday`
-              : `💰 Cheaper price found for ${booking.hotel_name} — SaveMyHoliday`;
-
-            await resend.emails.send({
-              from: process.env.RESEND_FROM!,
-              to: booking.email,
-              subject,
-              html: priceAlertEmail({
-                hotelName: booking.hotel_name,
-                city: booking.city,
-                country: booking.country,
-                checkin: booking.checkin_date,
-                checkout: booking.checkout_date,
-                originalPrice: booking.price,
-                newPrice: comparison.normalizedFoundPrice!,
-                currency: booking.currency,
-                source: result.cheapestSource || result.source || "Booking.com",
-                bookingUrl,
-                manageUrl,
-                locale,
-              }),
-            });
-
-            await supabase.from("bookings").update({
+            const nowIso = new Date().toISOString();
+            const updates: Record<string, any> = {
               lowest_found_price: comparison.normalizedFoundPrice,
               booking_com_url: booking.booking_com_url || result.bookingUrl || null,
-              last_checked_at: new Date().toISOString(),
-            }).eq("id", booking.id);
+              last_checked_at: nowIso,
+            };
 
-            summary.alerts += 1;
+            const lastFounderPingAge =
+              booking.last_alert_sent_at
+                ? Date.now() - new Date(booking.last_alert_sent_at).getTime()
+                : Number.POSITIVE_INFINITY;
+            const shouldNotifyFounder = Boolean(ADMIN_ALERT_EMAIL) && lastFounderPingAge > 24 * 60 * 60 * 1000;
+
+            if (shouldNotifyFounder) {
+              const { data: manageTokenRow } = await supabase
+                .from("booking_tokens")
+                .select("token")
+                .eq("booking_id", booking.id)
+                .eq("purpose", "manage")
+                .single();
+
+              const manageUrl = manageTokenRow
+                ? `https://savemyholiday.com/manage/${manageTokenRow.token}`
+                : "https://savemyholiday.com/admin";
+
+              const locale = (booking.locale ?? "de") as "de" | "en";
+              const subject = locale === "de"
+                ? `🟠 Founder Review: günstigerer Preis für ${booking.hotel_name}`
+                : `🟠 Founder review: cheaper price for ${booking.hotel_name}`;
+
+              await resend.emails.send({
+                from: process.env.RESEND_FROM!,
+                to: ADMIN_ALERT_EMAIL,
+                subject,
+                html: founderPriceReviewEmail({
+                  hotelName: booking.hotel_name,
+                  city: booking.city,
+                  country: booking.country,
+                  checkin: booking.checkin_date,
+                  checkout: booking.checkout_date,
+                  originalPrice: booking.price,
+                  newPrice: comparison.normalizedFoundPrice!,
+                  currency: booking.currency,
+                  source: result.cheapestSource || result.source || "Booking.com",
+                  resultUrl: result.cheapestUrl || result.bookingUrl || null,
+                  manageUrl,
+                  locale,
+                }),
+              });
+
+              updates.last_alert_sent_at = nowIso;
+            }
+
+            await supabase.from("bookings").update(updates).eq("id", booking.id);
           } catch (err: any) {
             summary.errors += 1;
             console.error(`Error checking booking ${booking.id}:`, err.message);

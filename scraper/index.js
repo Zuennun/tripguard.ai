@@ -55,6 +55,49 @@ function buildBookingHotelUrl(rawUrl, { checkin, checkout, currency }) {
   }
 }
 
+function normalizeComparableText(input) {
+  return String(input || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\bblue\b/g, "blu")
+    .replace(/\bsaint\b/g, "st")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function buildComparableVariants(word) {
+  const base = normalizeComparableText(word);
+  const variants = new Set([base]);
+  if (base.endsWith("blu")) variants.add(`${base}e`);
+  if (base.endsWith("blue")) variants.add(base.replace(/blue$/, "blu"));
+  return Array.from(variants).filter(Boolean);
+}
+
+function tokenMatches(text, token) {
+  return buildComparableVariants(token).some((variant) => text.includes(variant));
+}
+
+function scoreBookingCandidate(candidate, hotelWords, cityWords, expectedCc) {
+  const titleNorm = normalizeComparableText(candidate.title || "");
+  const hrefNorm = normalizeComparableText(candidate.href || "");
+  const haystack = `${titleNorm} ${hrefNorm}`;
+  const hotelMatches = hotelWords.filter((word) => tokenMatches(haystack, word)).length;
+  const cityMatches = cityWords.filter((word) => tokenMatches(haystack, word)).length;
+  const rightCountry = !expectedCc || String(candidate.href || "").includes(`/hotel/${expectedCc}/`);
+  const exactTitleHit = hotelWords.length > 1 && hotelWords.every((word) => tokenMatches(titleNorm, word));
+
+  let score = 0;
+  score += hotelMatches * 6;
+  score += cityMatches * 2;
+  if (exactTitleHit) score += 12;
+  if (rightCountry) score += 3;
+  if (/airport|hostel|apartments|residence/i.test(candidate.title || "")) score -= 2;
+  if (!rightCountry) score -= 5;
+
+  return { score, hotelMatches, cityMatches, rightCountry, exactTitleHit };
+}
+
 // ── Improvement 1: Shared browser singleton ──────────────────────────────────
 let sharedBrowser = null;
 
@@ -401,9 +444,22 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
       try { await page.waitForSelector("[data-testid='property-card'], .sr_item, [data-hotelid]", { timeout: 8000 }); } catch {}
       await humanPause(page, 1500, 2600);
 
-      const hrefs = await page.evaluate(() =>
-        Array.from(document.querySelectorAll("a[href]")).map(a => a.href)
+      const candidates = await page.evaluate(() =>
+        Array.from(document.querySelectorAll("[data-testid='property-card'], .sr_property_block, .sr_item"))
+          .map((card) => {
+            const link =
+              card.querySelector("a[data-testid='title-link'], a[href*='/hotel/'], a");
+            const titleNode =
+              card.querySelector("[data-testid='title'], div[data-testid='title-link'], .fcab3ed991, h3, h4");
+            return {
+              href: link?.href || "",
+              title: (titleNode?.textContent || link?.textContent || "").trim(),
+            };
+          })
+          .filter((entry) => entry.href.includes("booking.com/hotel/"))
       ).catch(() => []);
+
+      const hrefs = candidates.map((entry) => entry.href);
 
       // Determine expected country code from city
       const cityLow = (city || "").toLowerCase();
@@ -419,39 +475,48 @@ async function scrapeBooking({ hotel, city, checkin, checkout, roomType, mealPla
 
       const isRightCountry = (href) => !expectedCc || href.includes(`/hotel/${expectedCc}/`);
 
+      const cityWords = String(city || "")
+        .split(/\s+/)
+        .map((word) => word.trim())
+        .filter((word) => word.length > 2);
+
       let foundUrl = null;
-      // Best match: ALL words in URL + correct country
-      for (const href of hrefs) {
-        if (href.includes("booking.com/hotel/") && isRightCountry(href)) {
-          const h = norm(href);
-          if (hotelWords.length > 1 && hotelWords.every(w => h.includes(norm(w)))) {
-            foundUrl = href.split("?")[0]; break;
-          }
-        }
+      const scoredCandidates = candidates
+        .map((candidate) => ({
+          ...candidate,
+          ...scoreBookingCandidate(candidate, hotelWords, cityWords, expectedCc),
+        }))
+        .sort((a, b) => b.score - a.score);
+
+      const bestCandidate = scoredCandidates[0] ?? null;
+      const strongEnough =
+        bestCandidate &&
+        bestCandidate.score >= Math.max(10, hotelWords.length * 6) &&
+        (bestCandidate.hotelMatches >= Math.max(1, Math.min(2, hotelWords.length)) || bestCandidate.exactTitleHit);
+
+      if (strongEnough) {
+        foundUrl = bestCandidate.href.split("?")[0];
       }
-      // Fallback: ANY word + correct country
+
       if (!foundUrl) {
         for (const href of hrefs) {
           if (href.includes("booking.com/hotel/") && isRightCountry(href)) {
             const h = norm(href);
-            if (hotelWords.some(w => h.includes(norm(w)))) {
+            if (hotelWords.length > 1 && hotelWords.every(w => h.includes(norm(w)))) {
               foundUrl = href.split("?")[0]; break;
             }
           }
         }
       }
-      // Fallback: correct country, first link
       if (!foundUrl) {
         for (const href of hrefs) {
           if (href.includes("booking.com/hotel/") && isRightCountry(href)) {
-            foundUrl = href.split("?")[0]; break;
+            const h = norm(href);
+            const matchedWords = hotelWords.filter((w) => h.includes(norm(w)));
+            if (matchedWords.length >= Math.max(1, Math.min(2, hotelWords.length))) {
+              foundUrl = href.split("?")[0]; break;
+            }
           }
-        }
-      }
-      // Last resort: any hotel link (only if no country expected)
-      if (!foundUrl && !expectedCc) {
-        for (const href of hrefs) {
-          if (href.includes("booking.com/hotel/")) { foundUrl = href.split("?")[0]; break; }
         }
       }
 

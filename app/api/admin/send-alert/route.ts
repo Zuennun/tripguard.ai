@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { bookingId } = await req.json();
+    const { bookingId, affiliateUrl } = await req.json();
     if (!bookingId) {
       return NextResponse.json({ error: "Missing bookingId" }, { status: 400 });
     }
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     const supabase = getSupabaseAdmin();
     const { data: booking, error: bookingError } = await supabase
       .from("bookings")
-      .select("id,hotel_name,email,city,country,checkin_date,checkout_date,price,currency,locale,lowest_found_price,booking_com_url")
+      .select("id,hotel_name,email,city,country,checkin_date,checkout_date,price,currency,locale,lowest_found_price,booking_com_url,alert_count")
       .eq("id", bookingId)
       .single();
 
@@ -40,16 +40,28 @@ export async function POST(req: NextRequest) {
 
     const { data: latestCheck } = await supabase
       .from("price_checks")
-      .select("price,currency,source,booking_url,checked_at")
+      .select("*")
       .eq("booking_id", booking.id)
       .eq("found", true)
       .order("checked_at", { ascending: false })
       .limit(1)
       .maybeSingle();
 
-    const destination = latestCheck?.booking_url || booking.booking_com_url;
+    const customDestination = typeof affiliateUrl === "string" ? affiliateUrl.trim() : "";
+    const destination = customDestination || latestCheck?.result_url || latestCheck?.booking_url || booking.booking_com_url;
     if (!destination) {
       return NextResponse.json({ error: "No destination URL available yet" }, { status: 400 });
+    }
+
+    try {
+      const parsed = new URL(destination);
+      const host = parsed.hostname.replace(/^www\./, "");
+      const allowedHosts = new Set(["booking.com", "expedia.com", "hotels.com", "hrs.com", "trip.com"]);
+      if (parsed.protocol !== "https:" || !allowedHosts.has(host)) {
+        return NextResponse.json({ error: "Destination must be a valid https hotel booking link" }, { status: 400 });
+      }
+    } catch {
+      return NextResponse.json({ error: "Destination URL is invalid" }, { status: 400 });
     }
 
     const { data: manageTokenRow } = await supabase
@@ -72,7 +84,7 @@ export async function POST(req: NextRequest) {
       oldPrice: booking.price,
       savings,
       currency: booking.currency,
-      provider: latestCheck?.source ?? "Booking.com",
+      provider: latestCheck?.provider ?? latestCheck?.source ?? "Booking.com",
       resultUrl: destination,
     });
 
@@ -81,7 +93,7 @@ export async function POST(req: NextRequest) {
       bookingId: booking.id,
       alertId: alert.id ?? null,
       destination,
-      provider: latestCheck?.source ?? "Booking.com",
+      provider: latestCheck?.provider ?? latestCheck?.source ?? "Booking.com",
     });
 
     const bookingUrl = `https://savemyholiday.com/go/${affiliate.token}`;
@@ -104,7 +116,7 @@ export async function POST(req: NextRequest) {
         originalPrice: booking.price,
         newPrice: booking.lowest_found_price,
         currency: booking.currency,
-        source: latestCheck?.source ?? "Booking.com",
+        source: latestCheck?.provider ?? latestCheck?.source ?? "Booking.com",
         bookingUrl,
         manageUrl,
         locale,
@@ -115,7 +127,7 @@ export async function POST(req: NextRequest) {
       .from("bookings")
       .update({
         last_alert_sent_at: new Date().toISOString(),
-        alert_count: 1,
+        alert_count: (booking as any).alert_count != null ? (booking as any).alert_count + 1 : 1,
       })
       .eq("id", booking.id);
 
@@ -123,6 +135,7 @@ export async function POST(req: NextRequest) {
       ok: true,
       savings,
       bookingUrl,
+      destination,
     });
   } catch (err: any) {
     return NextResponse.json(

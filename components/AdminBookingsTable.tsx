@@ -158,16 +158,24 @@ export default function AdminBookingsTable({
   }
 
   async function sendManualAlert(bookingId: string) {
+    const row = rows.find((entry) => entry.id === bookingId);
+    const defaultUrl = row?.booking_com_url || tests[bookingId]?.usedUrl || "";
+    const affiliateUrl = prompt(
+      "Optional: finalen Affiliate-Link einfügen. Leer lassen = aktuell gefundener Link wird genutzt.",
+      defaultUrl || ""
+    );
+    if (affiliateUrl === null) return;
+
     setAlertingId(bookingId);
     try {
       const res = await fetch("/api/admin/send-alert", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bookingId }),
+        body: JSON.stringify({ bookingId, affiliateUrl: affiliateUrl.trim() }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Alert send failed");
-      alert(`Alert versendet. Ersparnis: ${data.savings}`);
+      alert(`Alert versendet. Ersparnis: ${data.savings}\nZiel: ${data.destination}`);
       router.refresh();
     } catch (err: any) {
       alert(err?.message ?? "Alert send failed");
@@ -232,7 +240,7 @@ export default function AdminBookingsTable({
         <div>
           <span style={{ fontWeight: 700, fontSize: 14, color: "#0f2044", display: "block" }}>Latest Bookings</span>
           <span style={{ fontSize: 12, color: "#94a3b8" }}>
-            Buchung unten markieren und dann Preis manuell testen.
+            Günstige Treffer werden erst von dir freigegeben. Beim Senden kannst du deinen finalen Affiliate-Link selbst einsetzen.
           </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>

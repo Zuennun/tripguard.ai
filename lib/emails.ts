@@ -368,6 +368,96 @@ export function founderNotificationEmail(data: {
   `, locale);
 }
 
+export function founderPriceReviewEmail(data: {
+  hotelName: string;
+  city?: string | null;
+  country?: string | null;
+  checkin?: string | null;
+  checkout?: string | null;
+  originalPrice: number;
+  newPrice: number;
+  currency: string;
+  source: string;
+  resultUrl?: string | null;
+  manageUrl?: string;
+  locale?: EmailLocale;
+}): string {
+  const {
+    hotelName,
+    city,
+    country,
+    checkin,
+    checkout,
+    originalPrice,
+    newPrice,
+    currency,
+    source,
+    resultUrl,
+    manageUrl,
+    locale = "de",
+  } = data;
+  const location = [city, country].filter(Boolean).join(", ");
+  const savings = Math.max(0, originalPrice - newPrice).toFixed(2);
+  const isDe = locale === "de";
+
+  return wrap(`
+    <tr>
+      <td style="background:linear-gradient(135deg,#0f2044 0%,#1e3a8a 100%);padding:28px 36px;text-align:center">
+        <p style="margin:0 0 4px;color:#bfdbfe;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-family:Arial,sans-serif">
+          ${isDe ? "Founder Review" : "Founder Review"}
+        </p>
+        <p style="margin:0 0 8px;color:#ffffff;font-size:28px;font-weight:900;font-family:Arial,sans-serif;letter-spacing:-1px">
+          ${isDe ? "Günstigerer Preis gefunden" : "Cheaper price found"}
+        </p>
+        <p style="margin:0;color:#bfdbfe;font-size:14px;font-family:Arial,sans-serif">
+          ${hotelName}
+        </p>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="email-body" style="padding:28px 36px 18px">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+               style="background:#f8fafc;border-radius:14px;border:1px solid #e8edf5">
+          <tr><td class="card" style="padding:22px 24px">
+            <p style="margin:0 0 2px;font-size:19px;font-weight:800;color:#0f2044;font-family:Arial,sans-serif">${hotelName}</p>
+            ${location ? `<p style="margin:0 0 16px;color:#94a3b8;font-size:13px;font-family:Arial,sans-serif">📍 ${location}</p>` : `<p style="margin:0 0 16px"></p>`}
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+              ${row("Check-in", formatDate(checkin, locale))}
+              ${row("Check-out", formatDate(checkout, locale))}
+              ${row(isDe ? "Gebucht" : "Booked", `<span style="text-decoration:line-through;color:#94a3b8">${originalPrice} ${currency}</span>`)}
+              ${row(isDe ? `Gefunden (${source})` : `Found (${source})`, `<span style="color:#059669;font-size:16px;font-weight:800">${newPrice} ${currency}</span>`)}
+              ${row(isDe ? "Potenzial" : "Potential", `<span style="color:#f97316;font-size:15px;font-weight:700">${savings} ${currency}</span>`)}
+            </table>
+          </td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="email-body" style="padding:0 36px 18px">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+               style="background:#fff7ed;border-radius:12px;border-left:4px solid #f97316">
+          <tr><td style="padding:16px 20px">
+            <p style="margin:0;color:#92400e;font-size:13px;line-height:1.7;font-family:Arial,sans-serif">
+              ${isDe
+                ? "Kundemail wurde noch nicht verschickt. Prüfe den Fund erst im Admin und füge dort bei Bedarf deinen finalen Affiliate-Link ein."
+                : "No customer email has been sent yet. Review this find in admin first and add your final affiliate link there if needed."}
+            </p>
+          </td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="email-body" style="padding:0 36px 40px;text-align:center">
+        ${resultUrl ? `<p style="margin:0 0 12px;font-size:12px;font-family:Arial,sans-serif;word-break:break-all;color:#64748b">${resultUrl}</p>` : ""}
+        ${manageUrl ? `<p style="margin:0;font-size:12px;font-family:Arial,sans-serif"><a href="${manageUrl}" style="color:#0f2044;text-decoration:none;font-weight:700">${isDe ? "Im Admin/Manage prüfen →" : "Review in admin/manage →"}</a></p>` : ""}
+      </td>
+    </tr>
+  `, locale);
+}
+
 // ─── Price alert email ────────────────────────────────────────────────────────
 
 export function priceAlertEmail(data: {
