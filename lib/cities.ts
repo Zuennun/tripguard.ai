@@ -4,6 +4,7 @@ export interface City {
   country: string;
   countryCode: string;
   image: string; // Unsplash photo URL
+  secondaryImage?: string;
   description_de: string;
   description_en: string;
   keywords_de: string[];
@@ -473,10 +474,26 @@ export const cities: City[] = [
   },
 ];
 
+function buildSecondaryImage(image: string): string {
+  if (!image.includes("images.unsplash.com")) return image;
+  return image.replace(
+    "auto=format&fit=crop&w=600&q=80",
+    "auto=format&fit=crop&crop=entropy&w=1200&h=760&q=80"
+  );
+}
+
+function withSecondaryImage(city: City): City {
+  return {
+    ...city,
+    secondaryImage: city.secondaryImage ?? buildSecondaryImage(city.image),
+  };
+}
+
 export function getAllCities(): City[] {
-  return [...cities].sort((a, b) => a.name.localeCompare(b.name, "de"));
+  return cities.map(withSecondaryImage).sort((a, b) => a.name.localeCompare(b.name, "de"));
 }
 
 export function getCityBySlug(slug: string): City | undefined {
-  return cities.find((c) => c.slug === slug);
+  const city = cities.find((c) => c.slug === slug);
+  return city ? withSecondaryImage(city) : undefined;
 }

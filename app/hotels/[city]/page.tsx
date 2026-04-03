@@ -80,55 +80,12 @@ export default function CityPage({ params }: { params: { city: string } }) {
     ? `${city.name} ist nicht nur ein beliebtes Reiseziel, sondern auch eine Stadt mit echter Preisdynamik. Zwischen Buchung und Anreise können Hotels hier spürbar günstiger werden. Genau deshalb lohnt sich Preisüberwachung in ${city.name}: Du lässt denselben Aufenthalt weiter prüfen und reagierst erst dann, wenn eine wirklich bessere Rate auftaucht.`
     : `${city.name} is not just a popular destination, it is also a city with real pricing volatility. Between booking and check-in, hotels here can become noticeably cheaper. That is exactly why tracking matters in ${city.name}: you keep checking the same stay and only react when a genuinely better rate appears.`;
 
-  const steps = isDe
-    ? [
-        {
-          image: "/urlaub.gif",
-          title: "Buchung eintragen",
-          text: `Du trägst Hotel, Reisedaten und E-Mail einmal ein. Danach läuft die Überwachung automatisch weiter.`,
-        },
-        {
-          image: "/scanner.gif",
-          title: "Wir überwachen täglich",
-          text: `SaveMyHoliday prüft täglich denselben Aufenthalt in ${city.name} und achtet darauf, ob eine bessere Rate für genau deine Reise auftaucht.`,
-        },
-        {
-          image: "/sparen.gif",
-          title: "Du sparst",
-          text: `Sobald ein echter Preisvorteil auftaucht, bekommst du Bescheid. Erst dann entscheidest du, ob du stornierst und günstiger neu buchst.`,
-        },
-      ]
-    : [
-        {
-          image: "/urlaub.gif",
-          title: "Add your booking",
-          text: `You add your hotel, travel dates and email once. After that, monitoring continues automatically.`,
-        },
-        {
-          image: "/scanner.gif",
-          title: "We monitor daily",
-          text: `SaveMyHoliday checks the same stay in ${city.name} daily and watches whether a genuinely better rate appears for your trip.`,
-        },
-        {
-          image: "/sparen.gif",
-          title: "You save",
-          text: `As soon as a real savings opportunity appears, you get notified. Then you decide whether to cancel and rebook.`,
-        },
-      ];
-
   const keywords = isDe ? city.keywords_de : city.keywords_en;
+  const secondaryImage = city.secondaryImage ?? city.image;
   const relatedCities = getAllCities().filter((entry) => entry.slug !== city.slug).slice(0, 3);
   const relatedPosts = getAllPosts().slice(0, 3);
   const cityGuide = getCityGuide(city.slug);
   const railItems = [
-    {
-      href: "/hotel-price-tracker",
-      title: isDe ? "Hotel Price Tracker" : "Hotel Price Tracker",
-      text: isDe
-        ? "Die Übersichtsseite zum gesamten Thema Preisüberwachung nach der Buchung."
-        : "The overview page for the full post-booking hotel tracking topic.",
-      image: "/hero.gif",
-    },
     {
       href: "/hotel-price-alert-after-booking",
       title: isDe ? "Preisalarm nach Buchung" : "Price Alert After Booking",
@@ -446,7 +403,7 @@ export default function CityPage({ params }: { params: { city: string } }) {
 
               <div className="city-guide-grid" style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: "1.2rem" }}>
                 <div style={{ background: "#ffffff", border: "1px solid #e8ecf2", borderRadius: 20, overflow: "hidden", boxShadow: "0 12px 40px rgba(15,32,68,0.06)" }}>
-                  <img src={city.image} alt={`${city.name} travel guide`} style={{ width: "100%", height: 240, objectFit: "cover", display: "block" }} />
+                  <img src={secondaryImage} alt={`${city.name} travel guide`} style={{ width: "100%", height: 240, objectFit: "cover", display: "block" }} />
                   <div style={{ padding: "1.35rem 1.4rem 1.45rem" }}>
                     <div style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.45rem" }}>
                       {isDe ? "Was sich lohnt" : "Worth seeing"}
