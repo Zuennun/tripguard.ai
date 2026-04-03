@@ -5,6 +5,9 @@ const { chromium } = require("playwright");
 const app = express();
 const PORT = process.env.PORT || 3001;
 const AUTH_TOKEN = process.env.SCRAPER_TOKEN;
+const TWO_CAPTCHA_API_KEY = process.env.TWO_CAPTCHA_API_KEY || "";
+const DATADOME_PROXY = process.env.DATADOME_PROXY || "";
+const DATADOME_PROXY_TYPE = String(process.env.DATADOME_PROXY_TYPE || "http").toUpperCase();
 if (!AUTH_TOKEN) { console.error("FATAL: SCRAPER_TOKEN env var not set"); process.exit(1); }
 let activeRequests = 0;
 const MAX_CONCURRENT = 2;
@@ -74,8 +77,9 @@ async function getBrowser() {
 
 async function newPage() {
   const browser = await getBrowser();
+  const userAgent = pickRandom(USER_AGENTS);
   const context = await browser.newContext({
-    userAgent: pickRandom(USER_AGENTS),
+    userAgent,
     locale: "de-DE",
     viewport: { width: 1366, height: 768 },
     extraHTTPHeaders: { "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7" },
@@ -96,7 +100,7 @@ async function newPage() {
   const page = await context.newPage();
   page.setDefaultTimeout(25000);
   page.setDefaultNavigationTimeout(25000);
-  return { page, context };
+  return { page, context, userAgent };
 }
 
 async function humanPause(page, min = 400, max = 1100) {
@@ -140,6 +144,103 @@ async function guardedGoto(page, url) {
   if (blocked) {
     throw new Error(`Bot protection detected: ${blocked}`);
   }
+}
+
+function extractCookieValue(cookieHeader, name) {
+  const match = String(cookieHeader || "").match(new RegExp(`${name}=([^;]+)`));
+  return match ? match[1] : "";
+}
+
+function findDataDomeCaptchaUrl(networkHits, page) {
+  const hit = (networkHits || []).find((entry) => /geo\.captcha-delivery\.com\/captcha/i.test(entry.url));
+  if (hit) return hit.url;
+  const currentUrl = page?.url?.() || "";
+  if (/geo\.captcha-delivery\.com\/captcha/i.test(currentUrl)) return currentUrl;
+  return "";
+}
+
+async function submitDataDomeCaptchaTask({ captchaUrl, pageUrl, userAgent }) {
+  if (!TWO_CAPTCHA_API_KEY) {
+    return { ok: false, reason: "2Captcha API key missing" };
+  }
+  if (!DATADOME_PROXY) {
+    return { ok: false, reason: "DataDome proxy missing" };
+  }
+  if (/\bt=bv\b/i.test(captchaUrl)) {
+    return { ok: false, reason: "Proxy IP banned by DataDome (t=bv)" };
+  }
+
+  const createBody = new URLSearchParams({
+    key: TWO_CAPTCHA_API_KEY,
+    method: "datadome",
+    captcha_url: captchaUrl,
+    pageurl: pageUrl,
+    userAgent,
+    proxy: DATADOME_PROXY,
+    proxytype: DATADOME_PROXY_TYPE,
+    json: "1",
+  });
+  const createRes = await fetch("https://2captcha.com/in.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: createBody,
+  });
+  const createData = await createRes.json().catch(() => null);
+  if (!createData || createData.status !== 1 || !createData.request) {
+    return { ok: false, reason: `2Captcha create failed: ${createData?.request || createRes.status}` };
+  }
+
+  const taskId = createData.request;
+  for (let attempt = 0; attempt < 18; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, attempt === 0 ? 12000 : 5000));
+    const pollUrl = new URL("https://2captcha.com/res.php");
+    pollUrl.searchParams.set("key", TWO_CAPTCHA_API_KEY);
+    pollUrl.searchParams.set("action", "get");
+    pollUrl.searchParams.set("id", String(taskId));
+    pollUrl.searchParams.set("json", "1");
+
+    const pollRes = await fetch(pollUrl.toString(), { method: "GET" });
+    const pollData = await pollRes.json().catch(() => null);
+    if (!pollData) continue;
+    if (pollData.status === 1 && pollData.request) {
+      return { ok: true, cookieHeader: pollData.request };
+    }
+    if (pollData.request !== "CAPCHA_NOT_READY") {
+      return { ok: false, reason: `2Captcha result failed: ${pollData.request}` };
+    }
+  }
+
+  return { ok: false, reason: "2Captcha timeout waiting for DataDome solution" };
+}
+
+async function trySolveDataDome({ context, page, pageUrl, userAgent, networkHits }) {
+  const captchaUrl = findDataDomeCaptchaUrl(networkHits, page);
+  if (!captchaUrl) {
+    return { ok: false, reason: "No DataDome captcha URL detected" };
+  }
+
+  const solve = await submitDataDomeCaptchaTask({ captchaUrl, pageUrl, userAgent });
+  if (!solve.ok) {
+    return { ok: false, reason: solve.reason, captchaUrl };
+  }
+
+  const datadomeValue = extractCookieValue(solve.cookieHeader, "datadome");
+  if (!datadomeValue) {
+    return { ok: false, reason: "2Captcha returned no datadome cookie", captchaUrl };
+  }
+
+  const domain = new URL(pageUrl).hostname;
+  await context.addCookies([{
+    name: "datadome",
+    value: datadomeValue,
+    domain,
+    path: "/",
+    secure: true,
+    httpOnly: false,
+    sameSite: "Lax",
+  }]);
+
+  return { ok: true, captchaUrl };
 }
 
 // ── Auth middleware ──────────────────────────────────────────────────────────
@@ -577,6 +678,7 @@ async function scrapeTripadvisor({ hotel, city, checkin, checkout, currency, nig
     const ctx = await newPage();
     const page = ctx.page;
     context = ctx.context;
+    const userAgent = ctx.userAgent;
     page.setDefaultTimeout(20000);
     page.setDefaultNavigationTimeout(20000);
     const networkHits = [];
@@ -666,6 +768,28 @@ async function scrapeTripadvisor({ hotel, city, checkin, checkout, currency, nig
     await guardedGoto(page, hotelUrl);
     try { await page.waitForSelector("button, a, [class*='price'], [data-automation]", { timeout: 8000 }); } catch {}
     await humanPause(page, 1200, 2200);
+
+    const hasDataDome = networkHits.some((entry) => /geo\.captcha-delivery\.com\/captcha/i.test(entry.url))
+      || networkHits.some((entry) => /tripadvisor/i.test(entry.url) && entry.status === 403);
+    if (hasDataDome) {
+      const solve = await trySolveDataDome({ context, page, pageUrl: hotelUrl, userAgent, networkHits });
+      if (solve.ok) {
+        await guardedGoto(page, hotelUrl);
+        try { await page.waitForSelector("button, a, [class*='price'], [data-automation]", { timeout: 8000 }); } catch {}
+        await humanPause(page, 1200, 2200);
+      } else {
+        return {
+          source: "Tripadvisor",
+          lowest: null,
+          url: hotelUrl,
+          error: `DataDome blocked: ${solve.reason}`,
+          debug: {
+            captchaUrl: solve.captchaUrl || null,
+            networkHits: networkHits.slice(0, 25),
+          },
+        };
+      }
+    }
 
     const pageTitle = await page.title().catch(() => "");
     const pageText = await page.innerText("body").catch(() => "");
